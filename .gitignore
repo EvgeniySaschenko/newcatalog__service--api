@@ -1,0 +1,33 @@
+.DS_Store
+node_modules
+public/**/*.png
+public/**/*.png
+public/**/*.jpg
+public/**/*.jpg
+!public/dev/default.jpg
+!public/prod/default.jpg
+
+
+/tests/e2e/videos/
+/tests/e2e/screenshots/
+cashe/**/*.json
+cashe/**/*.json
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
