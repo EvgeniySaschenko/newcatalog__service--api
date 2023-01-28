@@ -23,7 +23,7 @@ router.get("/", async (req, res, next) => {
 router.post("/", async (req, res, next) => {
   let result;
   try {
-    result = await sections.createSection(req.params);
+    result = await sections.createSection(req.body);
   } catch(error) {
     result = errorsMessage.createMessage(error);
     res.status(400);
