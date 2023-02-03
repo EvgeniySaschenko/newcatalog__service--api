@@ -1,5 +1,5 @@
-let { Model, DataTypes } = require("sequelize");
-let { db } = require("./_base.js");
+let { Model, DataTypes } = require('sequelize');
+let { db } = require('./_base.js');
 
 // Тип контента
 const typeRating = Object.freeze({
@@ -35,14 +35,14 @@ let Scheme = function () {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (obj) => {
-          if (typeof obj !== "object") throw Error("Неправильный формат данных");
+          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
           for (let key in obj) {
             if (obj[key].length < 10 || obj[key].length > 120) {
-              throw Error("Длина может быть от 10 до 120 символов");
+              throw Error('Длина может быть от 10 до 120 символов');
             }
           }
 
-          let isValidLang = "ua" in obj && "ru" in obj;
+          let isValidLang = 'ua' in obj && 'ru' in obj;
 
           if (Object.keys(obj).length != 2 || !isValidLang) {
             throw Error(`Неправильный формат данных`);
@@ -56,14 +56,14 @@ let Scheme = function () {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (obj) => {
-          if (typeof obj !== "object") throw Error("Неправильный формат данных");
+          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
           for (let key in obj) {
             if (obj[key].length > 1000) {
-              throw Error("Длина может быть от 0 до 1000 символов");
+              throw Error('Длина может быть от 0 до 1000 символов');
             }
           }
 
-          let isValidLang = "ua" in obj && "ru" in obj;
+          let isValidLang = 'ua' in obj && 'ru' in obj;
 
           if (Object.keys(obj).length != 2 || !isValidLang) {
             throw Error(`Неправильный формат данных`);
@@ -82,7 +82,7 @@ let Scheme = function () {
       type: DataTypes.STRING(20),
       checkType: (str) => {
         if (!typeRating[str]) {
-          throw Error("Неправильный тип");
+          throw Error('Неправильный тип');
         }
       },
     },
@@ -91,7 +91,7 @@ let Scheme = function () {
       type: DataTypes.STRING(20),
       checkType: (str) => {
         if (!typeSort[str]) {
-          throw Error("Неправильный тип");
+          throw Error('Неправильный тип');
         }
       },
     },
@@ -100,7 +100,7 @@ let Scheme = function () {
       type: DataTypes.STRING(20),
       checkType: (str) => {
         if (!typeDisplay[str]) {
-          throw Error("Неправильный тип");
+          throw Error('Неправильный тип');
         }
       },
     },
@@ -110,10 +110,10 @@ let Scheme = function () {
       validate: {
         checkJSON: (obj) => {
           let count = Object.keys(obj).length;
-          if (typeof obj !== "object") throw Error("Неправильный формат данных");
+          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
           for (let key in obj) {
             if (!Number.isInteger(obj[key]) || key != obj[key]) {
-              throw Error("Неправильный формат данных");
+              throw Error('Неправильный формат данных');
             }
           }
 
@@ -134,7 +134,7 @@ let Scheme = function () {
   };
 };
 
-const name = "ratings";
+const name = 'ratings';
 class M_Ratings extends Model {}
 
 M_Ratings.init(new Scheme(), {

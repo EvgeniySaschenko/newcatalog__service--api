@@ -1,5 +1,5 @@
-let { Model, DataTypes } = require("sequelize");
-let { db } = require("./_base.js");
+let { Model, DataTypes } = require('sequelize');
+let { db } = require('./_base.js');
 
 // Посетители
 let Scheme = function () {
@@ -26,7 +26,7 @@ let Scheme = function () {
     },
     userAgent: {
       type: DataTypes.STRING,
-      defaultValue: "",
+      defaultValue: '',
     },
     dateCreate: {
       type: DataTypes.DATE,
@@ -35,7 +35,7 @@ let Scheme = function () {
   };
 };
 
-const name = "visitors";
+const name = 'visitors';
 class M_Visitors extends Model {}
 
 M_Visitors.init(new Scheme(), {

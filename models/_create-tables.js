@@ -1,14 +1,14 @@
-global.ROOT_PATH = require("app-root-path");
-require("dotenv").config();
-let { db } = require("./_base");
-let users = require("./users");
-let sections = require("./sections");
-let ratings = require("./ratings");
-let ratingsLabels = require("./ratings-labels");
-let ratingsItems = require("./ratings-items");
-let ratingsItemsImg = require("./ratings-items-img");
-let screensProcessing = require("./screens-processing");
-let { DataTypes } = require("sequelize");
+global.global.ROOT_PATH = require('app-root-path');
+require('dotenv').config();
+let { db } = require('./_base');
+let users = require('./users');
+let sections = require('./sections');
+let ratings = require('./ratings');
+let ratingsLabels = require('./ratings-labels');
+let ratingsItems = require('./ratings-items');
+let ratingsItemsImg = require('./ratings-items-img');
+let screensProcessing = require('./screens-processing');
+let { DataTypes } = require('sequelize');
 
 let models = [
   users,

@@ -1,12 +1,12 @@
-let sharp = require("sharp");
-let { M_RatingsItemsImg } = require(ROOT_PATH + "/models/ratings-items-img");
-let { M_ScreensProcessing } = require(ROOT_PATH + "/models/screens-processing");
-let config = require(ROOT_PATH + "/env.config");
+let sharp = require('sharp');
+let { M_RatingsItemsImg } = require(global.ROOT_PATH + '/models/ratings-items-img');
+let { M_ScreensProcessing } = require(global.ROOT_PATH + '/models/screens-processing');
+let config = require(global.ROOT_PATH + '/env.config');
 
 class SiteLogo {
   async init({ id, params, color }) {
-    if(!color || !params.cutHeight || !id) {
-      throw Error("Не хватает данных");
+    if (!color || !params.cutHeight || !id) {
+      throw Error('Не хватает данных');
     }
 
     let { imgId } = await this.getSiteProcessingById(id);
@@ -18,7 +18,7 @@ class SiteLogo {
 
   async getSiteProcessingById(id) {
     let result = await M_ScreensProcessing.findOne({
-      attributes: ["imgId"],
+      attributes: ['imgId'],
       where: { id },
     });
     return result;

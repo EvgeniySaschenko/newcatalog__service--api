@@ -1,8 +1,8 @@
 let config = {
   development: {
     host: `https://${process.env.ADMIN__DOMAIN}`,
-    assets: "public/dev",
-    serverApi: "/",
+    assets: 'public/dev',
+    serverApi: '/',
     // Скрины
     setSiteScreenUrl(nameImg) {
       return `${this.host}/images/sites-screens/${nameImg}.png`;
@@ -25,8 +25,8 @@ let config = {
   },
   production: {
     host: `http://localhost:${process.env.API__PORT}/`,
-    assets: "public/dev",
-    serverApi: "/",
+    assets: 'public/dev',
+    serverApi: '/',
     // Скрины
     setSiteScreenUrl(nameImg) {
       return `${this.host}images/sites-screens/${nameImg}.png`;

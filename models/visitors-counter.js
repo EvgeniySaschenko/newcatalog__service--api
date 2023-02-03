@@ -1,5 +1,5 @@
-let { Model, DataTypes } = require("sequelize");
-let { db } = require("./_base.js");
+let { Model, DataTypes } = require('sequelize');
+let { db } = require('./_base.js');
 
 // Счётчик посещений
 let Scheme = function () {
@@ -22,7 +22,7 @@ let Scheme = function () {
   };
 };
 
-const name = "visitors_counter";
+const name = 'visitors_counter';
 class M_VisitorsCounter extends Model {}
 
 M_VisitorsCounter.init(new Scheme(), {

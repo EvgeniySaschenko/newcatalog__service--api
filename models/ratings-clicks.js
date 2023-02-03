@@ -1,5 +1,5 @@
-let { Model, DataTypes } = require("sequelize");
-let { db } = require("./_base.js");
+let { Model, DataTypes } = require('sequelize');
+let { db } = require('./_base.js');
 
 // Отображает к каким разделам относится рейтинг
 let Scheme = function () {
@@ -24,7 +24,7 @@ let Scheme = function () {
   };
 };
 
-const name = "ratings_clicks";
+const name = 'ratings_clicks';
 class M_RatingsClicks extends Model {}
 
 M_RatingsClicks.init(new Scheme(), {

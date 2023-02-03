@@ -1,6 +1,6 @@
-let { M_Ratings } = require(ROOT_PATH + "/models/ratings.js");
-let striptags = require("striptags");
-let fse = require("fs-extra");
+let { M_Ratings } = require(global.ROOT_PATH + '/models/ratings.js');
+let striptags = require('striptags');
+let fse = require('fs-extra');
 
 class Ratings {
   // Создать рейтинг
@@ -71,15 +71,15 @@ class Ratings {
   async getRating({ id }) {
     let result = await M_Ratings.findOne({
       attributes: [
-        "id",
-        "name",
-        "descr",
-        "isHiden",
-        "typeRating",
-        "typeSort",
-        "typeDisplay",
-        "sectionsIds",
-        "dateCreate",
+        'id',
+        'name',
+        'descr',
+        'isHiden',
+        'typeRating',
+        'typeSort',
+        'typeDisplay',
+        'sectionsIds',
+        'dateCreate',
       ],
       where: {
         id,
@@ -104,22 +104,22 @@ class Ratings {
   async getRatingsUser({ userId }) {
     let result = await M_Ratings.findAll({
       attributes: [
-        "id",
-        "name",
-        "descr",
-        "isHiden",
-        "typeRating",
-        "typeSort",
-        "typeDisplay",
-        "sectionsIds",
-        "dateCreate",
+        'id',
+        'name',
+        'descr',
+        'isHiden',
+        'typeRating',
+        'typeSort',
+        'typeDisplay',
+        'sectionsIds',
+        'dateCreate',
       ],
       where: {
         userId,
       },
       order: [
-        ["isHiden", "ASC"],
-        ["name.ua", "ASC"],
+        ['isHiden', 'ASC'],
+        ['name.ua', 'ASC'],
       ],
     });
     return result;
@@ -129,21 +129,21 @@ class Ratings {
   async getRatingsNotHidden() {
     let result = await M_Ratings.findAll({
       attributes: [
-        "id",
-        "name",
-        "descr",
-        "typeRating",
-        "typeSort",
-        "typeDisplay",
-        "sectionsIds",
-        "dateCreate",
+        'id',
+        'name',
+        'descr',
+        'typeRating',
+        'typeSort',
+        'typeDisplay',
+        'sectionsIds',
+        'dateCreate',
       ],
       where: {
         isHiden: false,
       },
       order: [
-        ["dateCreate", "DESC"],
-        ["name.ua", "ASC"],
+        ['dateCreate', 'DESC'],
+        ['name.ua', 'ASC'],
       ],
     });
     return result;
@@ -152,7 +152,7 @@ class Ratings {
   // Создать кеш для прода
   async createCache() {
     let ratings = await this.getRatingsNotHidden();
-    fse.writeJson(ROOT_PATH + "/cashe/ratings.json", ratings);
+    fse.writeJson(global.ROOT_PATH + '/cashe/ratings.json', ratings);
   }
 }
 

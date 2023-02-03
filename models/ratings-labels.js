@@ -1,6 +1,6 @@
-let { Model, DataTypes } = require("sequelize");
-let { db } = require("./_base.js");
-let { colorHex } = require(ROOT_PATH + "/core/regexp");
+let { Model, DataTypes } = require('sequelize');
+let { db } = require('./_base.js');
+let { colorHex } = require(global.ROOT_PATH + '/core/regexp');
 
 // Ярлыки
 let Scheme = function () {
@@ -14,15 +14,15 @@ let Scheme = function () {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (obj) => {
-          if (typeof obj !== "object") throw Error("Неправильный формат данных");
+          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
           for (let key in obj) {
             console.log(obj[key].length);
             if (obj[key].length < 1 || obj[key].length > 35) {
-              throw Error("Название должно быть от 1 до 35 символов");
+              throw Error('Название должно быть от 1 до 35 символов');
             }
           }
 
-          let isValidLang = "ua" in obj && "ru" in obj;
+          let isValidLang = 'ua' in obj && 'ru' in obj;
 
           if (Object.keys(obj).length != 2 || !isValidLang) {
             throw Error(`Неправильный формат данных`);
@@ -37,7 +37,7 @@ let Scheme = function () {
       validate: {
         is: {
           args: colorHex,
-          msg: "Значение цвета должно быть в формате HEX (#******)",
+          msg: 'Значение цвета должно быть в формате HEX (#******)',
         },
       },
     },
@@ -58,7 +58,7 @@ let Scheme = function () {
   };
 };
 
-const name = "ratings_labels";
+const name = 'ratings_labels';
 class M_RatingsLabels extends Model {}
 
 M_RatingsLabels.init(new Scheme(), {

@@ -1,7 +1,7 @@
-let { M_Sections } = require(ROOT_PATH + "/models/sections.js");
-let Ratings = require(ROOT_PATH + "/class/ratings.js");
-let striptags = require("striptags");
-let fse = require("fs-extra");
+let { M_Sections } = require(global.ROOT_PATH + '/models/sections.js');
+let Ratings = require(global.ROOT_PATH + '/class/ratings.js');
+let striptags = require('striptags');
+let fse = require('fs-extra');
 
 class Sections {
   // Создать раздел
@@ -18,7 +18,7 @@ class Sections {
   async deleteSection({ id }) {
     let result = await M_Sections.destroy({ where: { id } });
     if (result) return true;
-    throw Error("Такого id нет");
+    throw Error('Такого id нет');
   }
 
   // Изменить раздел
@@ -34,11 +34,11 @@ class Sections {
   // Получить все разделы
   async getSections() {
     let result = await M_Sections.findAll({
-      attributes: ["id", "name", "priority", "isHiden"],
+      attributes: ['id', 'name', 'priority', 'isHiden'],
       order: [
-        ["isHiden", "ASC"],
-        ["priority", "DESC"],
-        ["name", "ASC"],
+        ['isHiden', 'ASC'],
+        ['priority', 'DESC'],
+        ['name', 'ASC'],
       ],
     });
     return result;
@@ -47,7 +47,7 @@ class Sections {
   // Получить раздел по id
   async getSectionById({ id }) {
     let result = await M_Sections.findAll({
-      attributes: ["id", "name", "priority", "isHiden"],
+      attributes: ['id', 'name', 'priority', 'isHiden'],
       where: { id },
     });
     return result[0];
@@ -69,7 +69,7 @@ class Sections {
       item.ratingsCount = await ratings.getRatingCountBySectionId({ sectionId: item.id });
     }
     sections = sections.filter((el) => el.ratingsCount);
-    fse.writeJson(ROOT_PATH + "/cashe/sections.json", sections);
+    fse.writeJson(global.ROOT_PATH + '/cashe/sections.json', sections);
   }
 }
 

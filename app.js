@@ -1,32 +1,32 @@
-global.ROOT_PATH = require("app-root-path");
-let createError = require("http-errors");
-let express = require("express");
-let path = require("path");
-let cookieParser = require("cookie-parser");
-let logger = require("morgan");
+global.ROOT_PATH = require('app-root-path');
+let createError = require('http-errors');
+let express = require('express');
+let path = require('path');
+let cookieParser = require('cookie-parser');
+let logger = require('morgan');
 // require("dotenv").config();
-let api = require("./api");
-let processScripts = require("./process/index");
+let api = require('./api');
+let processScripts = require('./process/index');
 let app = express();
-let config = require("./env.config");
+let config = require('./env.config');
 
 // view engine setup
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "jade");
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
-app.use("/images", (req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+app.use('/images', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
   next();
 });
 
-app.use(logger("dev"));
+app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, config.assets)));
 
-app.use("/api", api);
+app.use('/api', api);
 
 if (!global.isRunProcessScripts) {
   global.isRunProcessScripts = true;
@@ -44,11 +44,11 @@ app.use(function (req, res, next) {
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
   res.status(err.status || 500);
-  res.render("error");
+  res.render('error');
 });
 
 module.exports = app;

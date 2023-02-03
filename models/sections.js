@@ -1,5 +1,5 @@
-let { Model, DataTypes } = require("sequelize");
-let { db } = require("./_base.js");
+let { Model, DataTypes } = require('sequelize');
+let { db } = require('./_base.js');
 
 // Разделы сайта
 let Scheme = function () {
@@ -16,14 +16,14 @@ let Scheme = function () {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (obj) => {
-          if (typeof obj !== "object") throw Error("Неправильный формат данных");
+          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
           for (let key in obj) {
             if (obj[key].length < 3 || obj[key].length > 50) {
-              throw Error("Название может быть от 3 до 50 символов");
+              throw Error('Название может быть от 3 до 50 символов');
             }
           }
 
-          let isValidLang = "ua" in obj && "ru" in obj;
+          let isValidLang = 'ua' in obj && 'ru' in obj;
 
           if (Object.keys(obj).length != 2 || !isValidLang) {
             throw Error(`Неправильный формат данных`);
@@ -50,7 +50,7 @@ let Scheme = function () {
   };
 };
 
-const name = "sections";
+const name = 'sections';
 class M_Sections extends Model {}
 
 M_Sections.init(new Scheme(), {
