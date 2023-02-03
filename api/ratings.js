@@ -5,13 +5,12 @@ let RatingsItems = require(ROOT_PATH + "/class/ratings-items");
 let ErrorsMessage = require(ROOT_PATH + "/class/errors-message");
 
 // Получить все рейтинги пользователя
-router.get("/user", async (req, res, next) => {
+router.get("/user/:userId", async (req, res, next) => {
   let result;
   let ratings = new Ratings();
   let errorsMessage = new ErrorsMessage();
   try {
-    let { id: userId } = JSON.parse(req.cookies.user);
-    console.log(req.cookies.user)
+    let { userId } = req.params;
     result = await ratings.getRatingsUser({ userId });
   } catch (error) {
     result = errorsMessage.createMessage(error);

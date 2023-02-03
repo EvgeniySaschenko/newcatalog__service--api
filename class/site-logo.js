@@ -5,10 +5,15 @@ let config = require(ROOT_PATH + "/env.config");
 
 class SiteLogo {
   async init({ id, params, color }) {
+    if(!color || !params.cutHeight || !id) {
+      throw Error("Не хватает данных");
+    }
+
     let { imgId } = await this.getSiteProcessingById(id);
     await this.createLogo({ id, params });
     await this.updateRatingsItemsImg({ id: imgId, color, name: id });
     await this.updateSiteProcessingById(id);
+    return true;
   }
 
   async getSiteProcessingById(id) {

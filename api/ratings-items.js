@@ -44,8 +44,7 @@ router.put("/sites-logos", async (req, res, next) => {
   let result;
   try {
     let siteLogo = new SiteLogo();
-    //siteLogo.init(req.body);
-    console.log(req.body)
+    result = await siteLogo.init(req.body);
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
@@ -108,6 +107,7 @@ router.put("/:id", async (req, res, next) => {
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
+    res.status(400);
   }
   res.send(result);
 });
@@ -121,6 +121,7 @@ router.delete("/:id", async (req, res, next) => {
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
+    res.status(400);
   }
   res.send(result);
 });
