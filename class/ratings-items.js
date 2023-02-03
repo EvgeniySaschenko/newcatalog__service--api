@@ -1,14 +1,14 @@
-let { M_RatingsItems } = require(ROOT_PATH + "/models/ratings-items");
-let { M_RatingsItemsImg } = require(ROOT_PATH + "/models/ratings-items-img");
-let { M_ScreensProcessing } = require(ROOT_PATH + "/models/screens-processing");
-let Ratings = require(ROOT_PATH + "/class/ratings.js");
+let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items');
+let { M_RatingsItemsImg } = require(global.ROOT_PATH + '/models/ratings-items-img');
+let { M_ScreensProcessing } = require(global.ROOT_PATH + '/models/screens-processing');
+let Ratings = require(global.ROOT_PATH + '/class/ratings.js');
 
-let fse = require("fs-extra");
-let striptags = require("striptags");
-let axios = require("axios");
-let xml2js = require("xml2js");
-let whois = require("whois-json");
-let config = require(ROOT_PATH + "/env.config");
+let fse = require('fs-extra');
+let striptags = require('striptags');
+let axios = require('axios');
+let xml2js = require('xml2js');
+let whois = require('whois-json');
+let config = require(global.ROOT_PATH + '/env.config');
 
 class RatingsItems {
   // Создать елемент рейтинга
@@ -17,7 +17,7 @@ class RatingsItems {
     let itemRatingByUrl = await this.getItemRatingByUrl({ ratingId, url });
 
     if (itemRatingByUrl) {
-      throw { errors: [{ path: "url", message: "Такой url уже есть в рейтинге" }] };
+      throw { errors: [{ path: 'url', message: 'Такой url уже есть в рейтинге' }] };
     }
     let { host } = this.parseUrl(url);
 
@@ -197,17 +197,17 @@ class RatingsItems {
     } catch (error) {
       console.warn(error);
       return {
-        name: "",
-        pageHtml: "",
+        name: '',
+        pageHtml: '',
       };
     }
   }
 
   // Парсинг HTML
   parsePageHTML(html) {
-    let titleResult = /<title[^>]*>(.*?)<\/title>/gi.exec(html.replace(/\r?\n/g, ""));
+    let titleResult = /<title[^>]*>(.*?)<\/title>/gi.exec(html.replace(/\r?\n/g, ''));
     return {
-      name: titleResult ? striptags(titleResult[0]).slice(0, 254) : "",
+      name: titleResult ? striptags(titleResult[0]).slice(0, 254) : '',
       html,
     };
   }
@@ -253,7 +253,7 @@ class RatingsItems {
   // Получить елемент в который находится в обработке (проверка)
   async getItemProcessingByHost({ host }) {
     let result = await M_ScreensProcessing.findOne({
-      attributes: ["id"],
+      attributes: ['id'],
       where: {
         host,
         isProcessed: true,
@@ -270,7 +270,7 @@ class RatingsItems {
       return { host };
     } catch (error) {
       console.warn(error);
-      return { host: "" };
+      return { host: '' };
     }
   }
 
@@ -278,31 +278,31 @@ class RatingsItems {
   async getItems({ ratingId, typeSort }) {
     let order = {
       alexa: [
-        ["priority", "DESC"],
-        ["alexaRank", "ASC"],
-        ["click", "DESC"],
-        ["id", "ASC"],
+        ['priority', 'DESC'],
+        ['alexaRank', 'ASC'],
+        ['click', 'DESC'],
+        ['id', 'ASC'],
       ],
       click: [
-        ["priority", "DESC"],
-        ["click", "DESC"],
-        ["alexaRank", "ASC"],
-        ["id", "ASC"],
+        ['priority', 'DESC'],
+        ['click', 'DESC'],
+        ['alexaRank', 'ASC'],
+        ['id', 'ASC'],
       ],
     };
 
     let result = await M_RatingsItems.findAll({
       attributes: [
-        "id",
-        "ratingId",
-        "name",
-        "url",
-        "whois",
-        "labelsIds",
-        "priority",
-        "click",
-        "isHiden",
-        "alexaRank",
+        'id',
+        'ratingId',
+        'name',
+        'url',
+        'whois',
+        'labelsIds',
+        'priority',
+        'click',
+        'isHiden',
+        'alexaRank',
       ],
       where: {
         ratingId: +ratingId,
@@ -311,8 +311,8 @@ class RatingsItems {
       include: [
         {
           model: M_RatingsItemsImg,
-          attributes: ["id", "color", "name"],
-          as: "img",
+          attributes: ['id', 'color', 'name'],
+          as: 'img',
         },
       ],
       raw: true,
@@ -329,7 +329,7 @@ class RatingsItems {
   // Получить сайт по url и ratingId (для проверки на уникальность)
   async getItemRatingByUrl({ ratingId, url }) {
     let result = await M_RatingsItems.findOne({
-      attributes: ["id"],
+      attributes: ['id'],
       where: {
         ratingId,
         url: striptags(url),
@@ -346,16 +346,16 @@ class RatingsItems {
 
   // Получить запись о картинке
   async getRatingsItemsImgByHost({ host }) {
-    let parts = host.split(".");
+    let parts = host.split('.');
     let result;
     // Нужен потомучто элементы удаляются из массива
     let partsCopy = [...parts];
 
     for (let item of parts) {
       result = await M_RatingsItemsImg.findOne({
-        attributes: ["id"],
+        attributes: ['id'],
         where: {
-          host: partsCopy.join("."),
+          host: partsCopy.join('.'),
         },
       });
       partsCopy.shift();
@@ -367,7 +367,7 @@ class RatingsItems {
   // Проверка на наличие картинки в обработке
   async checkScreensProcessingByHost({ host }) {
     let result = await M_ScreensProcessing.findOne({
-      attributes: ["imgId"],
+      attributes: ['imgId'],
       where: {
         host,
         isProcessed: true,
@@ -380,17 +380,17 @@ class RatingsItems {
   async getItemRatingById({ id }) {
     let result = await M_RatingsItems.findOne({
       attributes: [
-        "id",
-        "ratingId",
-        "name",
-        "url",
-        "imgId",
-        "labelsIds",
-        "priority",
-        "whois",
-        "alexaRank",
-        "click",
-        "isHiden",
+        'id',
+        'ratingId',
+        'name',
+        'url',
+        'imgId',
+        'labelsIds',
+        'priority',
+        'whois',
+        'alexaRank',
+        'click',
+        'isHiden',
       ],
       where: {
         id,
@@ -403,7 +403,7 @@ class RatingsItems {
   async deleteItem({ id }) {
     let result = await M_RatingsItems.destroy({ where: { id } });
     if (result) return true;
-    throw Error("Такого id нет");
+    throw Error('Такого id нет');
   }
 
   // Обновить все ярлыки у елементов
@@ -431,14 +431,14 @@ class RatingsItems {
         (
           el.whois.creationDate ||
           el.whois.created ||
-          (el.whois.createdOn || "").slice(7, 11) ||
-          ""
+          (el.whois.createdOn || '').slice(7, 11) ||
+          ''
         ).slice(0, 4);
         delete el.whois;
         return el;
       });
 
-      await fse.writeJson(ROOT_PATH + `/cashe/ratings-items/${item.id}.json`, ratingsItems);
+      await fse.writeJson(global.ROOT_PATH + `/cashe/ratings-items/${item.id}.json`, ratingsItems);
     }
   }
 }

@@ -1,12 +1,12 @@
-let express = require("express");
+let express = require('express');
 let router = express.Router();
-let RatingsItems = require(ROOT_PATH + "/class/ratings-items");
-let ErrorsMessage = require(ROOT_PATH + "/class/errors-message");
-let SiteScreen = require(ROOT_PATH + "/class/site-screen");
-let SiteLogo = require(ROOT_PATH + "/class/site-logo");
+let RatingsItems = require(global.ROOT_PATH + '/class/ratings-items');
+let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
+let SiteScreen = require(global.ROOT_PATH + '/class/site-screen');
+let SiteLogo = require(global.ROOT_PATH + '/class/site-logo');
 
 // Получить все елемнты рейтинга
-router.get("/rating/:ratingId", async (req, res, next) => {
+router.get('/rating/:ratingId', async (req, res, next) => {
   let result;
 
   try {
@@ -24,7 +24,7 @@ router.get("/rating/:ratingId", async (req, res, next) => {
 });
 
 // Елементы рейтинга для которых есть скриншоты, которые нужно обработать
-router.get("/sites-screens/:ratingId", async (req, res, next) => {
+router.get('/sites-screens/:ratingId', async (req, res, next) => {
   let result;
   try {
     let { ratingId } = req.params;
@@ -40,7 +40,7 @@ router.get("/sites-screens/:ratingId", async (req, res, next) => {
 });
 
 // Логотип сайта
-router.put("/sites-logos", async (req, res, next) => {
+router.put('/sites-logos', async (req, res, next) => {
   let result;
   try {
     let siteLogo = new SiteLogo();
@@ -54,7 +54,7 @@ router.put("/sites-logos", async (req, res, next) => {
 });
 
 // Обновить елементы рейтинга
-router.put("/labels", async (req, res, next) => {
+router.put('/labels', async (req, res, next) => {
   let result;
 
   // let ratingsItems = new RatingsItems();
@@ -84,7 +84,7 @@ router.put("/labels", async (req, res, next) => {
 });
 
 // Добавить елемент рейтинга
-router.post("/", async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   let result;
   try {
     let ratingsItems = new RatingsItems();
@@ -98,7 +98,7 @@ router.post("/", async (req, res, next) => {
 });
 
 // Редактировать елемент рейтинга
-router.put("/:id", async (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
   let result;
 
   try {
@@ -113,7 +113,7 @@ router.put("/:id", async (req, res, next) => {
 });
 
 // Удалить елемент рейтинга
-router.delete("/:id", async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
   let result;
   try {
     let ratingsItems = new RatingsItems();

@@ -1,5 +1,5 @@
-let { Model, DataTypes } = require("sequelize");
-let { db } = require("./_base.js");
+let { Model, DataTypes } = require('sequelize');
+let { db } = require('./_base.js');
 
 // Отображает к каким разделам относится рейтинг
 let Scheme = function () {
@@ -11,15 +11,15 @@ let Scheme = function () {
     },
     name: {
       type: DataTypes.STRING,
-      defaultValue: "",
+      defaultValue: '',
     },
     color: {
       type: DataTypes.STRING,
-      defaultValue: "",
+      defaultValue: '',
     },
     host: {
       type: DataTypes.STRING,
-      defaultValue: "",
+      defaultValue: '',
       unique: true,
     },
     dateCreate: {
@@ -29,7 +29,7 @@ let Scheme = function () {
   };
 };
 
-const name = "ratings_items_img";
+const name = 'ratings_items_img';
 class M_RatingsItemsImg extends Model {}
 
 M_RatingsItemsImg.init(new Scheme(), {

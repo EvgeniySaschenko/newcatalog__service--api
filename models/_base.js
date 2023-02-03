@@ -1,3 +1,3 @@
-let db = require("./_db");
+let db = require('./_db');
 
 module.exports = { db };

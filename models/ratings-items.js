@@ -1,6 +1,6 @@
-let { Model, DataTypes } = require("sequelize");
-let { db } = require("./_base.js");
-let { M_RatingsItemsImg } = require("./ratings-items-img");
+let { Model, DataTypes } = require('sequelize');
+let { db } = require('./_base.js');
+let { M_RatingsItemsImg } = require('./ratings-items-img');
 
 // Отображает к каким разделам относится рейтинг
 let Scheme = function () {
@@ -26,28 +26,28 @@ let Scheme = function () {
           try {
             new URL(url);
           } catch (error) {
-            throw Error("Ссылка должна начинатся с http или https");
+            throw Error('Ссылка должна начинатся с http или https');
           }
         },
       },
-      defaultValue: "",
+      defaultValue: '',
     },
     ref: {
       type: DataTypes.STRING(),
-      defaultValue: "",
+      defaultValue: '',
     },
     name: {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (obj) => {
-          if (typeof obj !== "object") throw Error("Неправильный формат данных");
+          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
           for (let key in obj) {
             if (obj[key].length > 255) {
-              throw Error("Длина названия может быть от 0 до 255 символов");
+              throw Error('Длина названия может быть от 0 до 255 символов');
             }
           }
 
-          let isValidLang = "ua" in obj && "ru" in obj;
+          let isValidLang = 'ua' in obj && 'ru' in obj;
 
           if (Object.keys(obj).length != 2 || !isValidLang) {
             throw Error(`Неправильный формат данных`);
@@ -58,16 +58,16 @@ let Scheme = function () {
     },
     pageHtml: {
       type: DataTypes.TEXT,
-      defaultValue: "",
+      defaultValue: '',
     },
     labelsIds: {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (obj) => {
-          if (typeof obj !== "object") throw Error("Неправильный формат данных");
+          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
           for (let key in obj) {
             if (!Number.isInteger(obj[key]) || key != obj[key]) {
-              throw Error("Неправильный формат данных");
+              throw Error('Неправильный формат данных');
             }
           }
 
@@ -86,7 +86,7 @@ let Scheme = function () {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (obj) => {
-          if (typeof obj !== "object") throw Error("Неправильный формат данных");
+          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
         },
       },
       defaultValue: {},
@@ -118,7 +118,7 @@ let Scheme = function () {
   };
 };
 
-const name = "ratings_items";
+const name = 'ratings_items';
 class M_RatingsItems extends Model {}
 
 M_RatingsItems.init(new Scheme(), {
@@ -127,9 +127,9 @@ M_RatingsItems.init(new Scheme(), {
 });
 
 M_RatingsItems.belongsTo(M_RatingsItemsImg, {
-  foreignKey: "imgId",
-  targetKey: "id",
-  as: "img",
+  foreignKey: 'imgId',
+  targetKey: 'id',
+  as: 'img',
 });
 
 module.exports = { M_RatingsItems, Scheme, name };

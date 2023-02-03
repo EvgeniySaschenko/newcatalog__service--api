@@ -1,10 +1,10 @@
-let express = require("express");
+let express = require('express');
 let router = express.Router();
-let RatingsLabels = require(ROOT_PATH + "/class/ratings-labels");
-let ErrorsMessage = require(ROOT_PATH + "/class/errors-message");
+let RatingsLabels = require(global.ROOT_PATH + '/class/ratings-labels');
+let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
 
 // Получить ярлыки рейтинга
-router.get("/rating/:ratingId", async (req, res, next) => {
+router.get('/rating/:ratingId', async (req, res, next) => {
   let result;
   try {
     let ratingsLabels = new RatingsLabels();
@@ -18,7 +18,7 @@ router.get("/rating/:ratingId", async (req, res, next) => {
 });
 
 // Добавить ярлык
-router.post("/", async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   let result;
   try {
     let ratingsLabels = new RatingsLabels();
@@ -32,7 +32,7 @@ router.post("/", async (req, res, next) => {
 });
 
 // Удалить ярлык
-router.delete("/:id", async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
   let result;
   try {
     let ratingsLabels = new RatingsLabels();
@@ -46,7 +46,7 @@ router.delete("/:id", async (req, res, next) => {
 });
 
 // Редактировать ярлык
-router.put("/:id", async (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
   let result;
   try {
     let ratingsLabels = new RatingsLabels();

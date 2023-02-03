@@ -1,3 +1,3 @@
 module.exports = {
-  siteScreen: require("./site-screen"),
+  siteScreen: require('./site-screen'),
 };

@@ -1,13 +1,13 @@
-let express = require("express");
+let express = require('express');
 let router = express.Router();
-let Sections = require(ROOT_PATH + "/class/sections");
-let Ratings = require(ROOT_PATH + "/class/ratings");
-let RatingsLabels = require(ROOT_PATH + "/class/ratings-labels");
-let RatingsItems = require(ROOT_PATH + "/class/ratings-items");
+let Sections = require(global.ROOT_PATH + '/class/sections');
+let Ratings = require(global.ROOT_PATH + '/class/ratings');
+let RatingsLabels = require(global.ROOT_PATH + '/class/ratings-labels');
+let RatingsItems = require(global.ROOT_PATH + '/class/ratings-items');
 
-let ErrorsMessage = require(ROOT_PATH + "/class/errors-message");
+let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
 
-router.get("/", async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   let result = true;
   try {
     let ratings = new Ratings();

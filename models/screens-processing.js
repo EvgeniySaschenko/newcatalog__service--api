@@ -1,5 +1,5 @@
-let { Model, DataTypes } = require("sequelize");
-let { db } = require("./_base.js");
+let { Model, DataTypes } = require('sequelize');
+let { db } = require('./_base.js');
 
 // Создание скриншотов сайта
 let Scheme = function () {
@@ -23,7 +23,7 @@ let Scheme = function () {
     },
     url: {
       type: DataTypes.TEXT,
-      defaultValue: "",
+      defaultValue: '',
     },
     // Указывает на то что скриншот отменён
     isСanceled: {
@@ -51,7 +51,7 @@ let Scheme = function () {
     },
     errorMessage: {
       type: DataTypes.JSONB,
-      defaultValue: "",
+      defaultValue: '',
     },
     dateUpdate: {
       type: DataTypes.DATE,
@@ -64,7 +64,7 @@ let Scheme = function () {
   };
 };
 
-const name = "screens_processing";
+const name = 'screens_processing';
 class M_ScreensProcessing extends Model {}
 
 M_ScreensProcessing.init(new Scheme(), {

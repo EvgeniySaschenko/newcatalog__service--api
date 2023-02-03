@@ -1,5 +1,5 @@
-let { Model, DataTypes } = require("sequelize");
-let { db } = require("./_base.js");
+let { Model, DataTypes } = require('sequelize');
+let { db } = require('./_base.js');
 
 // Пользователи
 let Scheme = function () {
@@ -11,18 +11,18 @@ let Scheme = function () {
     },
     avatar: {
       type: DataTypes.STRING(32),
-      defaultValue: "",
+      defaultValue: '',
     },
     name: {
       type: DataTypes.STRING(100),
       unique: true,
       validate: {
         isAlphanumeric: {
-          msg: "Имя может содержать только буквы (лат.) или цифры",
+          msg: 'Имя может содержать только буквы (лат.) или цифры',
         },
         len: {
           args: [3, 100],
-          msg: "Длина может быть от 3 до 100 символов",
+          msg: 'Длина может быть от 3 до 100 символов',
         },
       },
     },
@@ -31,10 +31,10 @@ let Scheme = function () {
       unique: true,
       isEmail: true,
       validate: {
-        isEmail: { msg: "Значение должно быть e-mail" },
+        isEmail: { msg: 'Значение должно быть e-mail' },
         len: {
           args: [3, 255],
-          msg: "Поле не может быть пустым. Максимольное количество символов 255",
+          msg: 'Поле не может быть пустым. Максимольное количество символов 255',
         },
       },
     },
@@ -62,7 +62,7 @@ let Scheme = function () {
   };
 };
 
-const name = "users";
+const name = 'users';
 class M_Users extends Model {}
 
 M_Users.init(new Scheme(), {

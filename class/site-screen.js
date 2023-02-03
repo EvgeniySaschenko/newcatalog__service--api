@@ -1,10 +1,10 @@
-let puppeteer = require("puppeteer");
-let { M_ScreensProcessing } = require(ROOT_PATH + "/models/screens-processing");
-let config = require(ROOT_PATH + "/env.config");
+let puppeteer = require('puppeteer');
+let { M_ScreensProcessing } = require(global.ROOT_PATH + '/models/screens-processing');
+let config = require(global.ROOT_PATH + '/env.config');
 
 class SiteScreen {
   userAgent =
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36";
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36';
   isProcessing = false;
   sites = [];
   idInterval = null;
@@ -36,11 +36,11 @@ class SiteScreen {
     try {
       this.isProcessing = true;
       browser = await puppeteer.launch({
-        args: ["--lang=uk-UA,uk", "--no-sandbox"],
+        args: ['--lang=uk-UA,uk', '--no-sandbox'],
       });
       page = await browser.newPage();
       await page.setExtraHTTPHeaders({
-        "Accept-Language": "uk",
+        'Accept-Language': 'uk',
       });
 
       await page.setDefaultNavigationTimeout(60000);
@@ -53,7 +53,7 @@ class SiteScreen {
       await page.goto(url);
       await page.screenshot({
         path: config.setSiteScreenAssets(sitesProcessingId),
-        type: "png",
+        type: 'png',
       });
       await this.editSiteProcessing({
         id: sitesProcessingId,
@@ -83,13 +83,13 @@ class SiteScreen {
   async getSitesProcessing() {
     try {
       let result = await M_ScreensProcessing.findAll({
-        attributes: ["id", "url"],
+        attributes: ['id', 'url'],
         where: {
           isCreatedScreen: false,
           isProcessed: true,
           isError: false,
         },
-        order: [["dateCreate", "ASC"]],
+        order: [['dateCreate', 'ASC']],
       });
       return result;
     } catch (error) {
@@ -107,7 +107,7 @@ class SiteScreen {
   }) {
     try {
       let result = await M_ScreensProcessing.findAll({
-        attributes: ["id"],
+        attributes: ['id'],
         where: {
           isCreatedScreen,
           isProcessed,
@@ -115,7 +115,7 @@ class SiteScreen {
           isError,
           ratingId,
         },
-        order: [["dateCreate", "ASC"]],
+        order: [['dateCreate', 'ASC']],
       });
       return result.map((el) => {
         el.img = config.setSiteScreenUrl(el.id);
@@ -136,7 +136,7 @@ class SiteScreen {
     isProcessed,
     isCreatedScreen,
     isError = false,
-    errorMessage = "",
+    errorMessage = '',
   }) {
     await M_ScreensProcessing.update(
       { isProcessed, isCreatedScreen, isError, errorMessage },
