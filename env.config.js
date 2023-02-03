@@ -1,11 +1,11 @@
 let config = {
   development: {
-    host: `http://localhost:${process.env.API__PORT}/`,
+    host: `https://${process.env.ADMIN__DOMAIN}`,
     assets: "public/dev",
     serverApi: "/",
     // Скрины
     setSiteScreenUrl(nameImg) {
-      return `${this.host}images/sites-screens/${nameImg}.png`;
+      return `${this.host}/images/sites-screens/${nameImg}.png`;
     },
     setSiteScreenAssets(nameImg) {
       return `${this.assets}/images/sites-screens/${nameImg}.png`;
@@ -13,11 +13,11 @@ let config = {
     // Логотипы
     setSiteLogoUrl(nameImg) {
       return nameImg
-        ? `${this.host}images/sites-logos/${nameImg}.png`
+        ? `${this.host}/images/sites-logos/${nameImg}.png`
         : this.setSiteLogoUrlDefault();
     },
     setSiteLogoUrlDefault() {
-      return `${this.host}images/default.jpg`;
+      return `${this.host}/images/default.jpg`;
     },
     setSiteLogoAssets(nameImg) {
       return `${this.assets}/images/sites-logos/${nameImg}.png`;

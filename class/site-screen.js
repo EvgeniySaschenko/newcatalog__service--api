@@ -36,7 +36,7 @@ class SiteScreen {
     try {
       this.isProcessing = true;
       browser = await puppeteer.launch({
-        args: ["--lang=uk-UA,uk"],
+        args: ["--lang=uk-UA,uk", "--no-sandbox"],
       });
       page = await browser.newPage();
       await page.setExtraHTTPHeaders({
