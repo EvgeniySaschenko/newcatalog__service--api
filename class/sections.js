@@ -1,62 +1,32 @@
-let { M_Sections } = require(global.ROOT_PATH + '/models/sections.js');
+let db = require(global.ROOT_PATH + '/db');
+
 let Ratings = require(global.ROOT_PATH + '/class/ratings.js');
-let striptags = require('striptags');
 let fse = require('fs-extra');
 
 class Sections {
   // Создать раздел
   async createSection({ name }) {
-    for (let key in name) {
-      name[key] = striptags(name[key]);
-    }
-
-    let result = await M_Sections.create({ name });
-    return result.get({ plain: true });
+    return await db.sections.createSection({ name });
   }
 
   // Удалить раздел
   async deleteSection({ id }) {
-    let result = await M_Sections.destroy({ where: { id } });
-    if (result) return true;
-    throw Error('Такого id нет');
+    return await db.sections.deleteSection({ id });
   }
 
   // Изменить раздел
-  async editSection({ id, name, priority = 0, isHiden }) {
-    for (let key in name) {
-      name[key] = striptags(name[key]);
-    }
-
-    let result = await M_Sections.update({ name, priority, isHiden }, { where: { id } });
-    return result;
+  async editSection({ id, name, priority, isHiden }) {
+    return await db.sections.editSection({ id, name, priority, isHiden });
   }
 
   // Получить все разделы
   async getSections() {
-    let result = await M_Sections.findAll({
-      attributes: ['id', 'name', 'priority', 'isHiden'],
-      order: [
-        ['isHiden', 'ASC'],
-        ['priority', 'DESC'],
-        ['name', 'ASC'],
-      ],
-    });
-    return result;
+    return await db.sections.getSections();
   }
 
   // Получить раздел по id
   async getSectionById({ id }) {
-    let result = await M_Sections.findAll({
-      attributes: ['id', 'name', 'priority', 'isHiden'],
-      where: { id },
-    });
-    return result[0];
-  }
-
-  // Получить все видимые разделы
-  async getSectionsVisible() {
-    let result = await this.getSections();
-    return result.filter((el) => el.isHiden === true);
+    return await db.sections.getSectionById({ id });
   }
 
   // Создать кеш для прода
