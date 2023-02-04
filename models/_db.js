@@ -1,6 +1,6 @@
 let { Sequelize } = require('sequelize');
 let { DB_MAIN__NAME, DB_MAIN__HOST, DB_MAIN__USER, DB_MAIN__PASSWORD } = process.env;
-console.log(DB_MAIN__NAME, DB_MAIN__HOST, DB_MAIN__USER, DB_MAIN__PASSWORD);
+
 let sequelize = new Sequelize(DB_MAIN__NAME, DB_MAIN__USER, DB_MAIN__PASSWORD, {
   dialect: 'postgres',
   host: DB_MAIN__HOST,
