@@ -14,7 +14,7 @@ router.get('/', async (req, res, next) => {
     result = await sections.getSections(req.params);
   } catch (error) {
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
@@ -26,7 +26,7 @@ router.post('/', async (req, res, next) => {
     result = await sections.createSection(req.body);
   } catch (error) {
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
@@ -38,7 +38,7 @@ router.delete('/:id', async (req, res, next) => {
     result = await sections.deleteSection(req.params);
   } catch (error) {
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
@@ -50,7 +50,7 @@ router.put('/', async (req, res, next) => {
     result = await sections.editSection(req.body);
   } catch (error) {
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });

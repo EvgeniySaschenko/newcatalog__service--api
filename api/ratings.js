@@ -14,7 +14,7 @@ router.get('/user/:userId', async (req, res, next) => {
     result = await ratings.getRatingsUser({ userId });
   } catch (error) {
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
@@ -35,7 +35,7 @@ router.get('/:id', async (req, res, next) => {
     result = await ratings.getRating(req.params);
   } catch (error) {
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
@@ -50,7 +50,7 @@ router.post('/', async (req, res, next) => {
     result = await ratings.createRating({ userId, ...req.body });
   } catch (error) {
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
@@ -65,7 +65,7 @@ router.put('/', async (req, res, next) => {
     result = await ratings.editRating({ userId, ...req.body });
   } catch (error) {
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
