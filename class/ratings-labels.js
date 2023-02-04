@@ -1,6 +1,6 @@
+let db = require(global.ROOT_PATH + '/db');
 let { M_RatingsLabels } = require(global.ROOT_PATH + '/models/ratings-labels.js');
 let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items.js');
-let Ratings = require(global.ROOT_PATH + '/class/ratings.js');
 let fse = require('fs-extra');
 let striptags = require('striptags');
 
@@ -126,8 +126,7 @@ class RatingsLabels {
 
   // Создать кеш для прода
   async createCache() {
-    let ratings = new Ratings();
-    let ratingsList = await ratings.getRatingsNotHidden();
+    let ratingsList = db.ratings.getRatingsNotHidden();
     // console.log(ratingsList);
     for (let item of ratingsList) {
       let labels = await this.getLabels({ ratingId: item.id });
