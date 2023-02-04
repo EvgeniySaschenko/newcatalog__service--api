@@ -3,6 +3,7 @@ class ErrorsMessage {
   createMessage(data) {
     let result = {};
     let isMessage = false;
+    let status = 400;
     if (data.errors) {
       for (let item of data.errors) {
         // Условие для того чтобы не показывать ошибку которую не должен видить фронт
@@ -19,9 +20,10 @@ class ErrorsMessage {
 
     // Дефолтное сообщение об ошибке
     if (!isMessage) {
+      status = 500;
       result = { server: 'Ошибка сервера' };
     }
-    return { errors: result };
+    return { status, errors: result };
   }
 }
 

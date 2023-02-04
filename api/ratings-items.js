@@ -18,7 +18,7 @@ router.get('/rating/:ratingId', async (req, res, next) => {
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
@@ -34,7 +34,7 @@ router.get('/sites-screens/:ratingId', async (req, res, next) => {
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
@@ -48,7 +48,7 @@ router.put('/sites-logos', async (req, res, next) => {
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
@@ -78,7 +78,7 @@ router.put('/labels', async (req, res, next) => {
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
@@ -92,7 +92,7 @@ router.post('/', async (req, res, next) => {
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
@@ -107,7 +107,7 @@ router.put('/:id', async (req, res, next) => {
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
@@ -121,7 +121,7 @@ router.delete('/:id', async (req, res, next) => {
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
-    res.status(400);
+    res.status(result.status);
   }
   res.send(result);
 });
