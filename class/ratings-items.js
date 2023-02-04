@@ -8,41 +8,24 @@ let striptags = require('striptags');
 let axios = require('axios');
 let xml2js = require('xml2js');
 let whois = require('whois-json');
+let tldts = require('tldts');
 let config = require(global.ROOT_PATH + '/env.config');
 
 class RatingsItems {
   // Создать елемент рейтинга
   async createItem({ ratingId, url, name, labelsIds, priority, isHidden }) {
     url = striptags(url);
-    let itemRatingByUrl = await this.getItemRatingByUrl({ ratingId, url });
 
-    if (itemRatingByUrl) {
-      throw { errors: [{ path: 'url', message: 'Такой url уже есть в рейтинге' }] };
-    }
-    let { host } = this.parseUrl(url);
+    // Проверяем существует ли такой url
+    await this.checkRatingUrlExist({ ratingId, url });
 
+    let { hostname, subdomain, domain } = tldts.parse(url);
+    let isSubdomain = subdomain && subdomain !== 'www';
+    let host = isSubdomain ? hostname : domain;
+    let ratingsItemsImg = await this.checkImageExist({ host, ratingId, url, isSubdomain });
     let whoisData = await this.getWhois(host);
-
-    let isCreatedScreen = false;
-    // Проверяем наличие id картинки для домена
-    let ratingsItemsImg = await this.getRatingsItemsImgByHost({ host });
-    // Если id нет, то создаём
-    if (!ratingsItemsImg) {
-      isCreatedScreen = true;
-      ratingsItemsImg = await this.createRatingsItemsImg({ host });
-    }
-    // Добавить в обработку - если отсутсвует изображение
-    if (isCreatedScreen) {
-      await this.addItemToProcessing({
-        ratingId,
-        imgId: ratingsItemsImg.id,
-        url,
-        host,
-      });
-    }
-
     let { rank: alexaRank, json: alexaJson } = await this.getAlexa(host);
-    let page = await this.getPage(url);
+    let page = await this.getPage(url); // получить заголовок страницы
 
     name.ua = striptags(name.ua ? name.ua : page.name);
     name.ru = striptags(name.ru ? name.ru : name.ua);
@@ -66,6 +49,41 @@ class RatingsItems {
     return result;
   }
 
+  // Ппроверяем существует ли такой url в рейтинге
+  async checkRatingUrlExist({ ratingId, url }) {
+    let itemRatingByUrl = await this.getItemRatingByUrl({ ratingId, url });
+    if (itemRatingByUrl) {
+      throw { errors: [{ path: 'url', message: 'Такой url уже есть в рейтинге' }] };
+    }
+    return false;
+  }
+
+  // Проверяем наличие картинки для "host"
+  async checkImageExist({ host, ratingId, url, isSubdomain }) {
+    let isCreatedScreen = false;
+
+    let ratingsItemsImg = null;
+    ratingsItemsImg = await this.getRatingsItemsImgByHost({ host });
+
+    // если картинки нет то создаём запись
+    if (!ratingsItemsImg) {
+      isCreatedScreen = true;
+      ratingsItemsImg = await this.createRatingsItemsImg({ host });
+    }
+
+    // Добавить url в очередь на создание скрина - если это субдомен скрин автоматически не создаётся, потому что может быть одинаковый логотип с доменом
+    if (isCreatedScreen && !isSubdomain) {
+      await this.addItemToProcessing({
+        ratingId,
+        imgId: ratingsItemsImg.id,
+        url,
+        host,
+      });
+    }
+
+    return ratingsItemsImg;
+  }
+
   // Редактировать елемент рейтинга
   async editItem({ id, name, url, labelsIds, priority, isHiden, isCreatedScreen }) {
     let page;
@@ -75,10 +93,9 @@ class RatingsItems {
 
     name.ua = striptags(name.ua ? name.ua : page.name);
     name.ru = striptags(name.ru ? name.ru : name.ua);
-    let { host } = this.parseUrl(url);
-
+    let { hostname } = tldts.parse(url);
     // Проверяем находится ли сейчас в обработке елемент (чобы не поставить повторно)
-    let screensProcessing = await this.checkScreensProcessingByHost({ host });
+    let screensProcessing = await this.checkScreensProcessingByHost({ host: hostname });
 
     let result = await M_RatingsItems.update(
       {
@@ -97,7 +114,7 @@ class RatingsItems {
         ratingId: itemRating.ratingId,
         imgId: itemRating.imgId,
         url,
-        host,
+        host: hostname,
       });
     }
 
@@ -232,7 +249,7 @@ class RatingsItems {
     }
   }
 
-  // Добавить елемент в обработку
+  // Добавить елемент в очередь на создание скрина
   async addItemToProcessing({ ratingId, url, imgId, host }) {
     let itemProcessingByUrl = await this.getItemProcessingByHost({ host });
     let result;
@@ -261,17 +278,6 @@ class RatingsItems {
     });
 
     return result;
-  }
-
-  // Получить домен из URL
-  parseUrl(url) {
-    try {
-      let { host } = new URL(url);
-      return { host };
-    } catch (error) {
-      console.warn(error);
-      return { host: '' };
-    }
   }
 
   // Получить все елементы рейтинга
@@ -346,22 +352,12 @@ class RatingsItems {
 
   // Получить запись о картинке
   async getRatingsItemsImgByHost({ host }) {
-    let parts = host.split('.');
-    let result;
-    // Нужен потомучто элементы удаляются из массива
-    let partsCopy = [...parts];
-
-    for (let item of parts) {
-      result = await M_RatingsItemsImg.findOne({
-        attributes: ['id'],
-        where: {
-          host: partsCopy.join('.'),
-        },
-      });
-      partsCopy.shift();
-      if (result) break;
-    }
-    return result;
+    return await M_RatingsItemsImg.findOne({
+      attributes: ['id', 'name'],
+      where: {
+        host,
+      },
+    });
   }
 
   // Проверка на наличие картинки в обработке
