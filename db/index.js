@@ -1,7 +1,5 @@
-let sections = require('./sections.js');
-let ratings = require('./ratings.js');
-
 module.exports = {
-  sections,
-  ratings,
+  sections: require('./sections.js'),
+  ratings: require('./ratings.js'),
+  'ratings-labels': require('./ratings-labels.js'),
 };
