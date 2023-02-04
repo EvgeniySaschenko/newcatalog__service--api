@@ -1,157 +1,30 @@
-let { M_Ratings } = require(global.ROOT_PATH + '/models/ratings.js');
-let striptags = require('striptags');
+let db = require(global.ROOT_PATH + '/db');
 let fse = require('fs-extra');
 
 class Ratings {
   // Создать рейтинг
-  async createRating({
-    userId,
-    name,
-    descr,
-    typeRating,
-    typeSort,
-    typeDisplay,
-    sectionsIds,
-    isHiden,
-  }) {
-    for (let key in name) {
-      name[key] = striptags(name[key]);
-      descr[key] = striptags(descr[key]);
-    }
-
-    let result = await M_Ratings.create({
-      userId,
-      name,
-      descr,
-      typeRating,
-      typeSort,
-      typeDisplay,
-      sectionsIds,
-      isHiden,
-    });
-    return result.get({ plain: true });
+  async createRating(rating = {}) {
+    return await db.ratings.createRating(rating);
   }
 
   // Редактировать рейтинг
-  async editRating({
-    id,
-    name,
-    descr,
-    isHiden,
-    typeRating,
-    typeSort,
-    typeDisplay,
-    sectionsIds,
-    visitorId,
-  }) {
-    for (let key in name) {
-      name[key] = striptags(name[key]);
-      descr[key] = striptags(descr[key]);
-    }
-
-    let result = await M_Ratings.update(
-      {
-        name,
-        descr,
-        isHiden,
-        typeRating,
-        typeSort,
-        typeDisplay,
-        sectionsIds,
-        visitorId,
-      },
-      {
-        where: { id },
-      }
-    );
-    return result;
+  async editRating(rating = {}) {
+    return await db.ratings.editRating(rating);
   }
 
   // Получить рейтинг
   async getRating({ id }) {
-    let result = await M_Ratings.findOne({
-      attributes: [
-        'id',
-        'name',
-        'descr',
-        'isHiden',
-        'typeRating',
-        'typeSort',
-        'typeDisplay',
-        'sectionsIds',
-        'dateCreate',
-      ],
-      where: {
-        id,
-      },
-    });
-    return result;
-  }
-
-  // Получить сайт по url и ratingId (для проверки на уникальность)
-  async getRatingCountBySectionId({ sectionId }) {
-    let result = await M_Ratings.count({
-      where: {
-        sectionsIds: {
-          [sectionId]: sectionId,
-        },
-      },
-    });
-    return result;
+    return await db.ratings.getRating({ id });
   }
 
   // Получить все рейтинги пользователя
   async getRatingsUser({ userId }) {
-    let result = await M_Ratings.findAll({
-      attributes: [
-        'id',
-        'name',
-        'descr',
-        'isHiden',
-        'typeRating',
-        'typeSort',
-        'typeDisplay',
-        'sectionsIds',
-        'dateCreate',
-      ],
-      where: {
-        userId,
-      },
-      order: [
-        ['isHiden', 'ASC'],
-        ['name.ua', 'ASC'],
-      ],
-    });
-    return result;
-  }
-
-  // Получить все видимые рейтинги
-  async getRatingsNotHidden() {
-    let result = await M_Ratings.findAll({
-      attributes: [
-        'id',
-        'name',
-        'descr',
-        'typeRating',
-        'typeSort',
-        'typeDisplay',
-        'sectionsIds',
-        'dateCreate',
-      ],
-      where: {
-        isHiden: false,
-      },
-      order: [
-        ['dateCreate', 'DESC'],
-        ['name.ua', 'ASC'],
-      ],
-    });
-    return result;
+    return await db.ratings.getRatingsUser({ userId });
   }
 
   // Создать кеш для прода
   async createCache() {
-    let ratings = await this.getRatingsNotHidden();
+    let ratings = await db.ratings.getRatingsNotHidden();
     fse.writeJson(global.ROOT_PATH + '/cashe/ratings.json', ratings);
   }
 }

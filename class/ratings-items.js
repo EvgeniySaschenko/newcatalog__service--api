@@ -1,7 +1,7 @@
+let db = require(global.ROOT_PATH + '/db');
 let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items');
 let { M_RatingsItemsImg } = require(global.ROOT_PATH + '/models/ratings-items-img');
 let { M_ScreensProcessing } = require(global.ROOT_PATH + '/models/screens-processing');
-let Ratings = require(global.ROOT_PATH + '/class/ratings.js');
 
 let fse = require('fs-extra');
 let striptags = require('striptags');
@@ -418,8 +418,7 @@ class RatingsItems {
 
   // Создать кеш для прода
   async createCache() {
-    let ratings = new Ratings();
-    let ratingsList = await ratings.getRatingsNotHidden();
+    let ratingsList = db.ratings.getRatingsNotHidden();
     for (let item of ratingsList) {
       let ratingsItems = await this.getItems({ ratingId: item.id, typeSort: item.typeSort });
 
