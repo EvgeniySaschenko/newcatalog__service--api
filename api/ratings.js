@@ -24,13 +24,6 @@ router.get('/:id', async (req, res, next) => {
   let result;
   let ratings = new Ratings();
   let errorsMessage = new ErrorsMessage();
-  //let ratingsItems = new RatingsItems();
-  // let end = await ratingsItems.updateWhoisAll();
-  // console.log(end, "end");
-
-  // await ratingsItems.updateRatingIdFromItems({ ratingIdOld: 20, ratingIdNew: 19 });
-  // await ratingsItems.updateRatingIdFromScreensProcessings({ ratingIdOld: 20, ratingIdNew: 19 });
-
   try {
     result = await ratings.getRating(req.params);
   } catch (error) {

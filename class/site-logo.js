@@ -1,6 +1,6 @@
+let db = require(global.ROOT_PATH + '/db');
 let sharp = require('sharp');
 let { M_RatingsItemsImg } = require(global.ROOT_PATH + '/models/ratings-items-img');
-let { M_ScreensProcessing } = require(global.ROOT_PATH + '/models/screens-processing');
 let config = require(global.ROOT_PATH + '/env.config');
 
 class SiteLogo {
@@ -9,19 +9,16 @@ class SiteLogo {
       throw Error('Не хватает данных');
     }
 
-    let { imgId } = await this.getSiteProcessingById(id);
+    let { imgId } = await db['screenshots-sites'].getScreenById({ id });
     await this.createLogo({ id, params });
     await this.updateRatingsItemsImg({ id: imgId, color, name: id });
-    await this.updateSiteProcessingById(id);
-    return true;
-  }
-
-  async getSiteProcessingById(id) {
-    let result = await M_ScreensProcessing.findOne({
-      attributes: ['imgId'],
-      where: { id },
+    // Обновить информацию о том что лого создано и убрать из процесса
+    await db['screenshots-sites'].editScreenProcessing({
+      id,
+      isProcessed: false,
+      isCreatedLogo: true,
     });
-    return result;
+    return true;
   }
 
   // Создать логотип
@@ -86,17 +83,6 @@ class SiteLogo {
       { where: { id } }
     );
     return result[0];
-  }
-  // Обновить информацию о том что лого создано и убрать из процесса
-  async updateSiteProcessingById(id) {
-    let result = await M_ScreensProcessing.update(
-      {
-        isProcessed: false,
-        isCreatedLogo: true,
-      },
-      { where: { id } }
-    );
-    return result;
   }
 }
 

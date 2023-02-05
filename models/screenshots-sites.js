@@ -64,12 +64,12 @@ let Scheme = function () {
   };
 };
 
-const name = 'screens_processing';
-class M_ScreensProcessing extends Model {}
+const name = 'screenshots_sites';
+class M_ScreenshotsSites extends Model {}
 
-M_ScreensProcessing.init(new Scheme(), {
+M_ScreenshotsSites.init(new Scheme(), {
   sequelize: db,
   modelName: name,
 });
 
-module.exports = { M_ScreensProcessing, Scheme, name };
+module.exports = { M_ScreenshotsSites, Scheme, name };
