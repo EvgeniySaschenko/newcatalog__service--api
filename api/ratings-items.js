@@ -2,7 +2,7 @@ let express = require('express');
 let router = express.Router();
 let RatingsItems = require(global.ROOT_PATH + '/class/ratings-items');
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
-let SiteScreen = require(global.ROOT_PATH + '/class/site-screen');
+let ScreenshotsSites = require(global.ROOT_PATH + '/class/screenshots-sites');
 let SiteLogo = require(global.ROOT_PATH + '/class/site-logo');
 
 // Получить все елемнты рейтинга
@@ -28,9 +28,9 @@ router.get('/sites-screens/:ratingId', async (req, res, next) => {
   let result;
   try {
     let { ratingId } = req.params;
-    let siteScreen = new SiteScreen();
+    let screenshotsSites = new ScreenshotsSites();
 
-    result = await siteScreen.getReadyScreensSitesForRating({ ratingId });
+    result = await screenshotsSites.getReadyScreensSitesForRating({ ratingId });
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
@@ -56,22 +56,6 @@ router.put('/sites-logos', async (req, res, next) => {
 // Обновить елементы рейтинга
 router.put('/labels', async (req, res, next) => {
   let result;
-
-  // let ratingsItems = new RatingsItems();
-  // for (let key in req.body.labelsItems) {
-  //   console.log(key);
-  //   let item = await ratingsItems.getItemRatingById({ id: key });
-  //   await ratingsItems.updateRatingIdFromItemById({ itemId: key, ratingIdNew: 32 });
-  //   await ratingsItems.updateRatingIdFromScreenProcessingByImgIdAndItemId({
-  //     ratingIdOld: 26,
-  //     ratingIdNew: 32,
-  //     imgId: item.imgId,
-  //   });
-  //   console.log(item.imgId);
-  // }
-
-  //ratingsItems.updateRatingIdFromItems({ ratingIdOld, ratingIdNew });
-
   try {
     let ratingsItems = new RatingsItems();
     result = await ratingsItems.editLabelsItems(req.body);

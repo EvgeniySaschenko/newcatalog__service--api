@@ -7,7 +7,7 @@ let ratings = require('./ratings');
 let ratingsLabels = require('./ratings-labels');
 let ratingsItems = require('./ratings-items');
 let ratingsItemsImg = require('./ratings-items-img');
-let screensProcessing = require('./screens-processing');
+let screensProcessing = require('./screenshots-sites');
 let { DataTypes } = require('sequelize');
 
 let models = [

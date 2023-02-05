@@ -1,7 +1,6 @@
 let db = require(global.ROOT_PATH + '/db');
 let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items');
 let { M_RatingsItemsImg } = require(global.ROOT_PATH + '/models/ratings-items-img');
-let { M_ScreensProcessing } = require(global.ROOT_PATH + '/models/screens-processing');
 
 let fse = require('fs-extra');
 let striptags = require('striptags');
@@ -95,7 +94,9 @@ class RatingsItems {
     name.ru = striptags(name.ru ? name.ru : name.ua);
     let { hostname } = tldts.parse(url);
     // Проверяем находится ли сейчас в обработке елемент (чобы не поставить повторно)
-    let screensProcessing = await this.checkScreensProcessingByHost({ host: hostname });
+    let screensProcessing = await db['screenshots-sites'].getScreenProcessingByHost({
+      host: hostname,
+    });
 
     let result = await M_RatingsItems.update(
       {
@@ -176,16 +177,6 @@ class RatingsItems {
     );
   }
 
-  // Обновить рейтинг id у screens-processing
-  async updateRatingIdFromScreensProcessings({ ratingIdOld, ratingIdNew }) {
-    await M_ScreensProcessing.update(
-      {
-        ratingId: ratingIdNew,
-      },
-      { where: { ratingId: ratingIdOld } }
-    );
-  }
-
   // Обновить рейтинг id у item
   async updateRatingIdFromItemById({ itemId, ratingIdNew }) {
     await M_RatingsItems.update(
@@ -193,16 +184,6 @@ class RatingsItems {
         ratingId: ratingIdNew,
       },
       { where: { id: itemId } }
-    );
-  }
-
-  // Обновить рейтинг id у screens-processing
-  async updateRatingIdFromScreenProcessingByImgIdAndItemId({ ratingIdOld, ratingIdNew, imgId }) {
-    await M_ScreensProcessing.update(
-      {
-        ratingId: ratingIdNew,
-      },
-      { where: { ratingId: ratingIdOld, imgId } }
     );
   }
 
@@ -251,31 +232,17 @@ class RatingsItems {
 
   // Добавить елемент в очередь на создание скрина
   async addItemToProcessing({ ratingId, url, imgId, host }) {
-    let itemProcessingByUrl = await this.getItemProcessingByHost({ host });
+    let itemProcessingByUrl = await db['screenshots-sites'].getScreenProcessingByHost({ host });
     let result;
 
     if (!itemProcessingByUrl) {
-      result = await M_ScreensProcessing.create({
+      result = await db['screenshots-sites'].addScreenProcessing({
         ratingId,
         url,
         imgId,
         host,
       });
-      return result.get({ plain: true });
     }
-
-    return result;
-  }
-
-  // Получить елемент в который находится в обработке (проверка)
-  async getItemProcessingByHost({ host }) {
-    let result = await M_ScreensProcessing.findOne({
-      attributes: ['id'],
-      where: {
-        host,
-        isProcessed: true,
-      },
-    });
 
     return result;
   }
@@ -358,18 +325,6 @@ class RatingsItems {
         host,
       },
     });
-  }
-
-  // Проверка на наличие картинки в обработке
-  async checkScreensProcessingByHost({ host }) {
-    let result = await M_ScreensProcessing.findOne({
-      attributes: ['imgId'],
-      where: {
-        host,
-        isProcessed: true,
-      },
-    });
-    return result;
   }
 
   // Получить елемент по id
