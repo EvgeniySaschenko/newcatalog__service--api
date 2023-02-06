@@ -1,5 +1,4 @@
 let db = require(global.ROOT_PATH + '/db');
-let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items.js');
 let fse = require('fs-extra');
 let striptags = require('striptags');
 
@@ -26,7 +25,7 @@ class RatingsLabels {
 
   // Удалить ярлык + удаляется у элементов
   async deleteLabel({ id: labelId }) {
-    let ratingItems = await this.getRatingItemsByLabelId({ labelId });
+    let ratingItems = await db['ratings-items'].getItemsRatingByLabelId({ labelId });
     await this.editRatingItemsLabel({ ratingItems, labelId });
     let result = await db['ratings-labels'].deleteLabel({ id: labelId });
     if (result) return true;
@@ -50,29 +49,11 @@ class RatingsLabels {
       throw { errors: [{ path: 'name', message: 'Ярлык с таким именем уже существует' }] };
   }
 
-  // Получить все елементы рейтинга - нужны для проверки label при удалении
-  async getRatingItemsByLabelId({ labelId }) {
-    let result = await M_RatingsItems.findAll({
-      attributes: ['id', 'labelsIds'],
-      where: {
-        labelsIds: { [labelId]: labelId },
-      },
-    });
-    return result;
-  }
-
   // Обновляем ярлыки для элементов рейтнга (удаляем ярлык)
   async editRatingItemsLabel({ ratingItems, labelId }) {
-    for (let item of ratingItems) {
+    for await (let item of ratingItems) {
       delete item.labelsIds[labelId];
-      await M_RatingsItems.update(
-        { labelsIds: item.labelsIds },
-        {
-          where: {
-            id: item.id,
-          },
-        }
-      );
+      await db['ratings-items'].editItemsRatingLabel({ id: item.id, labelsIds: item.labelsIds });
     }
   }
 
