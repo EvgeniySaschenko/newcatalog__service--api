@@ -1,6 +1,5 @@
 let db = require(global.ROOT_PATH + '/db');
 let sharp = require('sharp');
-let { M_RatingsItemsImg } = require(global.ROOT_PATH + '/models/ratings-items-img');
 let config = require(global.ROOT_PATH + '/env.config');
 
 class SiteLogo {
@@ -11,7 +10,7 @@ class SiteLogo {
 
     let { imgId } = await db['screenshots-sites'].getScreenById({ id });
     await this.createLogo({ id, params });
-    await this.updateRatingsItemsImg({ id: imgId, color, name: id });
+    await db['ratings-items-img'].updateImg({ id: imgId, color, name: id });
     // Обновить информацию о том что лого создано и убрать из процесса
     await db['screenshots-sites'].editScreenProcessing({
       id,
@@ -71,18 +70,6 @@ class SiteLogo {
       // Если норм
       await sharp(file).toFile(config.setSiteLogoAssets(id));
     }
-  }
-
-  // Обновить информацию о картинке
-  async updateRatingsItemsImg({ id, color, name }) {
-    let result = await M_RatingsItemsImg.update(
-      {
-        name,
-        color,
-      },
-      { where: { id } }
-    );
-    return result[0];
   }
 }
 

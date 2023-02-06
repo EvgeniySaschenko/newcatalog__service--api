@@ -62,12 +62,12 @@ class RatingsItems {
     let isCreatedScreen = false;
 
     let ratingsItemsImg = null;
-    ratingsItemsImg = await this.getRatingsItemsImgByHost({ host });
+    ratingsItemsImg = await db['ratings-items-img'].getImgByHost({ host });
 
     // если картинки нет то создаём запись
     if (!ratingsItemsImg) {
       isCreatedScreen = true;
-      ratingsItemsImg = await this.createRatingsItemsImg({ host });
+      ratingsItemsImg = await db['ratings-items-img'].createImg({ host });
     }
 
     // Добавить url в очередь на создание скрина - если это субдомен скрин автоматически не создаётся, потому что может быть одинаковый логотип с доменом
@@ -309,22 +309,6 @@ class RatingsItems {
       },
     });
     return result;
-  }
-
-  // Создать запись для новой картинки (если такого домена никогда еще небыло)
-  async createRatingsItemsImg({ host }) {
-    let result = await M_RatingsItemsImg.create({ host });
-    return result.get({ plain: true });
-  }
-
-  // Получить запись о картинке
-  async getRatingsItemsImgByHost({ host }) {
-    return await M_RatingsItemsImg.findOne({
-      attributes: ['id', 'name'],
-      where: {
-        host,
-      },
-    });
   }
 
   // Получить елемент по id
