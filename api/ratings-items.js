@@ -14,7 +14,7 @@ router.get('/rating/:ratingId', async (req, res, next) => {
     let { ratingId } = req.params;
     let ratingsItems = new RatingsItems();
 
-    result = await ratingsItems.getItems({ typeSort, ratingId });
+    result = await ratingsItems.getItemsRating({ typeSort, ratingId });
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
@@ -45,20 +45,6 @@ router.put('/sites-logos', async (req, res, next) => {
   try {
     let siteLogo = new SiteLogo();
     result = await siteLogo.init(req.body);
-  } catch (error) {
-    let errorsMessage = new ErrorsMessage();
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
-  }
-  res.send(result);
-});
-
-// Обновить елементы рейтинга
-router.put('/labels', async (req, res, next) => {
-  let result;
-  try {
-    let ratingsItems = new RatingsItems();
-    result = await ratingsItems.editLabelsItems(req.body);
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
