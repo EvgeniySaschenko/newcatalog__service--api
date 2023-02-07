@@ -1,6 +1,6 @@
 let { Model, DataTypes } = require('sequelize');
 let { db } = require('./_base.js');
-let { M_RatingsItemsImg } = require('./ratings-items-img');
+let { M_Sites } = require('./sites');
 
 // Отображает к каким разделам относится рейтинг
 let Scheme = function () {
@@ -14,7 +14,7 @@ let Scheme = function () {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    imgId: {
+    siteId: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
@@ -30,10 +30,6 @@ let Scheme = function () {
           }
         },
       },
-      defaultValue: '',
-    },
-    ref: {
-      type: DataTypes.STRING(),
       defaultValue: '',
     },
     name: {
@@ -56,10 +52,6 @@ let Scheme = function () {
       },
       defaultValue: {},
     },
-    pageHtml: {
-      type: DataTypes.TEXT,
-      defaultValue: '',
-    },
     labelsIds: {
       type: DataTypes.JSONB,
       validate: {
@@ -81,27 +73,6 @@ let Scheme = function () {
     priority: {
       type: DataTypes.INTEGER(3),
       defaultValue: 0,
-    },
-    whois: {
-      type: DataTypes.JSONB,
-      validate: {
-        checkJSON: (obj) => {
-          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
-        },
-      },
-      defaultValue: {},
-    },
-    alexaRankContry: {
-      type: DataTypes.INTEGER(8),
-      defaultValue: 10000000,
-    },
-    alexaRank: {
-      type: DataTypes.INTEGER(8),
-      defaultValue: 10000000,
-    },
-    alexaJson: {
-      type: DataTypes.JSONB,
-      defaultValue: {},
     },
     click: {
       type: DataTypes.INTEGER(8),
@@ -126,10 +97,10 @@ M_RatingsItems.init(new Scheme(), {
   modelName: name,
 });
 
-M_RatingsItems.belongsTo(M_RatingsItemsImg, {
-  foreignKey: 'imgId',
+M_RatingsItems.belongsTo(M_Sites, {
+  foreignKey: 'siteId',
   targetKey: 'id',
-  as: 'img',
+  as: 'site',
 });
 
 module.exports = { M_RatingsItems, Scheme, name };

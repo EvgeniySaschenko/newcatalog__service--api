@@ -9,10 +9,14 @@ let Scheme = function () {
       primaryKey: true,
       autoIncrement: true,
     },
-    name: {
+    siteScreenshotId: {
       type: DataTypes.STRING,
-      defaultValue: '',
+      defaultValue: 0,
     },
+    // siteScreenshotId2: {
+    //   type: DataTypes.NUMBER,
+    //   defaultValue: 0,
+    // },
     color: {
       type: DataTypes.STRING,
       defaultValue: '',
@@ -22,6 +26,14 @@ let Scheme = function () {
       defaultValue: '',
       unique: true,
     },
+    alexaRank: {
+      type: DataTypes.INTEGER,
+      defaultValue: 10000000,
+    },
+    dateDomainCreate: {
+      type: DataTypes.DATE,
+      defaultValue: null,
+    },
     dateCreate: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -29,12 +41,12 @@ let Scheme = function () {
   };
 };
 
-const name = 'ratings_items_img';
-class M_RatingsItemsImg extends Model {}
+const name = 'sites';
+class M_Sites extends Model {}
 
-M_RatingsItemsImg.init(new Scheme(), {
+M_Sites.init(new Scheme(), {
   sequelize: db,
   modelName: name,
 });
 
-module.exports = { M_RatingsItemsImg, Scheme, name };
+module.exports = { M_Sites, Scheme, name };

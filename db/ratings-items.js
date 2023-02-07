@@ -1,30 +1,15 @@
 let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items.js');
-let { M_RatingsItemsImg } = require(global.ROOT_PATH + '/models/ratings-items-img.js');
+let { M_Sites } = require(global.ROOT_PATH + '/models/sites.js');
 let config = require(global.ROOT_PATH + '/env.config');
 
 module.exports = {
   // Создать елемент рейтинга
-  async createItem({
-    ratingId,
-    url,
-    imgId,
-    name,
-    whois,
-    alexaJson,
-    alexaRank,
-    host,
-    labelsIds,
-    priority,
-    isHidden,
-  }) {
+  async createItem({ ratingId, url, siteId, name, host, labelsIds, priority, isHidden }) {
     let result = await M_RatingsItems.create({
       ratingId,
       url,
-      imgId,
+      siteId,
       name,
-      whois,
-      alexaJson,
-      alexaRank,
       host,
       labelsIds,
       priority,
@@ -92,41 +77,30 @@ module.exports = {
   async getItemsRating({ ratingId, typeSort }) {
     let order = {
       alexa: [
+        [{ model: M_Sites, as: 'site' }, 'alexaRank', 'ASC'],
         ['priority', 'DESC'],
-        ['alexaRank', 'ASC'],
         ['click', 'DESC'],
         ['id', 'ASC'],
       ],
       click: [
         ['priority', 'DESC'],
         ['click', 'DESC'],
-        ['alexaRank', 'ASC'],
+        [{ model: M_Sites, as: 'site' }, 'alexaRank', 'ASC'],
         ['id', 'ASC'],
       ],
     };
 
     let result = await M_RatingsItems.findAll({
-      attributes: [
-        'id',
-        'ratingId',
-        'name',
-        'url',
-        'whois',
-        'labelsIds',
-        'priority',
-        'click',
-        'isHiden',
-        'alexaRank',
-      ],
+      attributes: ['id', 'ratingId', 'name', 'url', 'labelsIds', 'priority', 'click', 'isHiden'],
       where: {
         ratingId: +ratingId,
       },
       order: order[typeSort],
       include: [
         {
-          model: M_RatingsItemsImg,
-          attributes: ['id', 'color', 'name'],
-          as: 'img',
+          model: M_Sites,
+          attributes: ['id', 'color', 'siteScreenshotId', 'alexaRank', 'dateDomainCreate'],
+          as: 'site',
         },
       ],
       raw: true,
@@ -134,9 +108,26 @@ module.exports = {
     });
 
     result = result.map((el) => {
-      el.img.url = config.setSiteLogoUrl(el.img.name);
+      el.site.img = config.setSiteLogoUrl(el.site.siteScreenshotId);
       return el;
     });
     return result;
   },
+
+  // async getItemByImgId({ imgId }) {
+  //   let result = await M_RatingsItems.findOne({
+  //     attributes: ['whois'],
+  //     where: {
+  //       imgId,
+  //     },
+  //   });
+  //   return result;
+  // },
+
+  // async getItems() {
+  //   let result = await M_RatingsItems.findAll({
+  //     attributes: ['id', 'imgId', 'alexaRank'],
+  //   });
+  //   return result;
+  // },
 };
