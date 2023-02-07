@@ -10,13 +10,9 @@ let Scheme = function () {
       autoIncrement: true,
     },
     siteScreenshotId: {
-      type: DataTypes.STRING,
+      type: DataTypes.NUMBER,
       defaultValue: 0,
     },
-    // siteScreenshotId2: {
-    //   type: DataTypes.NUMBER,
-    //   defaultValue: 0,
-    // },
     color: {
       type: DataTypes.STRING,
       defaultValue: '',
