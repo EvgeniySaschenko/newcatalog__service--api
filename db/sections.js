@@ -36,7 +36,6 @@ module.exports = {
       order: [
         ['isHiden', 'ASC'],
         ['priority', 'DESC'],
-        ['name', 'ASC'],
       ],
     });
     return result;

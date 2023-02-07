@@ -1,3 +1,3 @@
 module.exports = {
-  screenshotsSites: require('./screenshots-sites'),
+  sitesScreenshots: require('./sites-screenshots'),
 };

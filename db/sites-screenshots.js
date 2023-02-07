@@ -1,13 +1,13 @@
-let { M_ScreenshotsSites } = require(global.ROOT_PATH + '/models/screenshots-sites.js');
+let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots.js');
 let config = require(global.ROOT_PATH + '/env.config');
 
 module.exports = {
   // Добавить елемент в очередь на создание скрина
-  async addScreenProcessing({ ratingId, url, imgId, host }) {
-    let result = await M_ScreenshotsSites.create({
+  async addScreenProcessing({ ratingId, url, siteId, host }) {
+    let result = await M_SitesScreenshots.create({
       ratingId,
       url,
-      imgId,
+      siteId,
       host,
     });
     return result.get({ plain: true });
@@ -17,7 +17,7 @@ module.exports = {
   /* 
     isCreatedScreen - параметр нужен при редактировании сайтой - чтобы не поставить в обработку пока не готово лого 
   */
-  async editScreenProcessing(params = {}) {
+  async editProcessing(params = {}) {
     let validFields = {
       isProcessed: true,
       isCreatedScreen: true,
@@ -34,7 +34,7 @@ module.exports = {
       }
     }
 
-    await M_ScreenshotsSites.update(
+    await M_SitesScreenshots.update(
       { ...queryParams },
       {
         where: {
@@ -45,8 +45,8 @@ module.exports = {
   },
 
   // Получить сайты которые необходимо обработать (isError - сайты у котрых появилась ошибка при обработке)
-  async getScreensProcessing() {
-    let result = await M_ScreenshotsSites.findAll({
+  async getProcessing() {
+    let result = await M_SitesScreenshots.findAll({
       attributes: ['id', 'url'],
       where: {
         isCreatedScreen: false,
@@ -60,8 +60,8 @@ module.exports = {
 
   // Получить елемент в который находится в обработке
   async getScreenProcessingByHost({ host }) {
-    let result = await M_ScreenshotsSites.findOne({
-      attributes: ['id', 'imgId'],
+    let result = await M_SitesScreenshots.findOne({
+      attributes: ['id', 'siteId'],
       where: {
         host,
         isProcessed: true,
@@ -73,21 +73,21 @@ module.exports = {
 
   // Получить скриншот по id
   async getScreenById({ id }) {
-    let result = await M_ScreenshotsSites.findOne({
-      attributes: ['imgId'],
+    let result = await M_SitesScreenshots.findOne({
+      attributes: ['siteId'],
       where: { id },
     });
     return result;
   },
 
-  async getReadyScreensSitesForRating({
+  async getReadyScreenshotsForRating({
     ratingId,
     isCreatedScreen = true,
     isProcessed = true,
     isСanceled = false,
     isError = false,
   }) {
-    let result = await M_ScreenshotsSites.findAll({
+    let result = await M_SitesScreenshots.findAll({
       attributes: ['id'],
       where: {
         isCreatedScreen,

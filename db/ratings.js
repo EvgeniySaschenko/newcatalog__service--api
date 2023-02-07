@@ -118,7 +118,7 @@ module.exports = {
       },
       order: [
         ['isHiden', 'ASC'],
-        ['name.ua', 'ASC'],
+        ['dateCreate', 'DESC'],
       ],
     });
     return result;
@@ -140,10 +140,7 @@ module.exports = {
       where: {
         isHiden: false,
       },
-      order: [
-        ['dateCreate', 'DESC'],
-        ['name.ua', 'ASC'],
-      ],
+      order: [['dateCreate', 'DESC']],
     });
     return result;
   },

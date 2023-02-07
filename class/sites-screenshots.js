@@ -2,7 +2,7 @@ let puppeteer = require('puppeteer');
 let db = require(global.ROOT_PATH + '/db');
 let config = require(global.ROOT_PATH + '/env.config');
 
-class ScreenshotsSites {
+class SitesScreenshots {
   userAgent =
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36';
   isProcessing = false;
@@ -10,15 +10,15 @@ class ScreenshotsSites {
   idInterval = null;
 
   async init() {
-    this.sites = await db['screenshots-sites'].getScreensProcessing();
+    this.sites = await db['sites-screenshots'].getProcessing();
     this.idInterval = setInterval(async () => {
       // Полчить сайты для обработки
       if (!this.sites.length) {
-        this.sites = await db['screenshots-sites'].getScreensProcessing();
+        this.sites = await db['sites-screenshots'].getProcessing();
       } else {
         if (!this.isProcessing) {
           let { url, id } = this.sites[this.sites.length - 1];
-          await this.createScreenSite({ url, sitesProcessingId: id });
+          await this.createScreenshot({ url, siteScreenshotId: id });
         }
       }
     }, 2000);
@@ -29,7 +29,7 @@ class ScreenshotsSites {
   }
 
   // Сделать скриншот сайта
-  async createScreenSite({ url, sitesProcessingId }) {
+  async createScreenshot({ url, siteScreenshotId }) {
     let browser;
     let page;
 
@@ -52,19 +52,19 @@ class ScreenshotsSites {
       await page.setUserAgent(this.userAgent);
       await page.goto(url);
       await page.screenshot({
-        path: config.setSiteScreenAssets(sitesProcessingId),
+        path: config.setSiteScreenAssets(siteScreenshotId),
         type: 'png',
       });
       // Указывает на то что скриншот создан
-      await db['screenshots-sites'].editScreenProcessing({
-        id: sitesProcessingId,
+      await db['sites-screenshots'].editProcessing({
+        id: siteScreenshotId,
         isProcessed: true,
         isCreatedScreen: true,
       });
     } catch (error) {
       // Указывает на то что при создании скрина произошла ошибка
-      await db['screenshots-sites'].editScreenProcessing({
-        id: sitesProcessingId,
+      await db['sites-screenshots'].editProcessing({
+        id: siteScreenshotId,
         isError: true,
         isCreatedScreen: false,
         isProcessed: true,
@@ -81,10 +81,10 @@ class ScreenshotsSites {
     }
   }
 
-  async getReadyScreensSitesForRating(params = {}) {
-    let result = await db['screenshots-sites'].getReadyScreensSitesForRating(params);
+  async getReadyScreenshotsForRating(params = {}) {
+    let result = await db['sites-screenshots'].getReadyScreenshotsForRating(params);
     return result;
   }
 }
 
-module.exports = ScreenshotsSites;
+module.exports = SitesScreenshots;

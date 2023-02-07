@@ -2,8 +2,6 @@ let db = require(global.ROOT_PATH + '/db');
 let fse = require('fs-extra');
 let striptags = require('striptags');
 let axios = require('axios');
-let xml2js = require('xml2js');
-let whois = require('whois-json');
 let tldts = require('tldts');
 
 class RatingsItems {
@@ -17,28 +15,25 @@ class RatingsItems {
     let { hostname, subdomain, domain } = tldts.parse(url);
     let isSubdomain = subdomain && subdomain !== 'www';
     let host = isSubdomain ? hostname : domain;
-    let ratingsItemsImg = await this.checkImageExist({ host, ratingId, url, isSubdomain });
-    let whoisData = await this.getWhois(host);
-    let { rank: alexaRank, json: alexaJson } = await this.getAlexa(host);
+    let site = await this.checkImageExist({ host, ratingId, url, isSubdomain });
     let page = await this.getPage(url); // получить заголовок страницы
 
     for (let key in name) {
       name[key] = striptags(name[key] || page.name);
     }
 
-    await db['ratings-items'].createItem({
+    let result = await db['ratings-items'].createItem({
       ratingId,
       url,
-      imgId: ratingsItemsImg.id,
+      siteId: site.id,
       name,
-      whois: whoisData,
-      alexaJson,
-      alexaRank,
       host,
       labelsIds,
       priority,
       isHidden,
     });
+
+    return result;
   }
 
   // Ппроверяем существует ли такой url в рейтинге
@@ -58,50 +53,46 @@ class RatingsItems {
   async checkImageExist({ host, ratingId, url, isSubdomain }) {
     let isCreatedScreen = false;
 
-    let ratingsItemsImg = null;
-    ratingsItemsImg = await db['ratings-items-img'].getImgByHost({ host });
+    let site = await db.sites.getSiteByHost({ host });
 
     // если картинки нет то создаём запись
-    if (!ratingsItemsImg) {
+    if (!site) {
       isCreatedScreen = true;
-      ratingsItemsImg = await db['ratings-items-img'].createImg({ host });
+      site = await db.sites.createSite({ host });
     }
 
     // Добавить url в очередь на создание скрина - если это субдомен скрин автоматически не создаётся, потому что может быть одинаковый логотип с доменом
     if (isCreatedScreen && !isSubdomain) {
       await this.addItemToProcessing({
         ratingId,
-        imgId: ratingsItemsImg.id,
+        siteId: site.id,
         url,
         host,
       });
     }
 
-    return ratingsItemsImg;
+    return site;
   }
 
   // Редактировать елемент рейтинга
   async editItem({ id, name, url, labelsIds, priority, isHiden }) {
     let page;
-    if (!name.ua) {
+    let isTextName = false;
+    for (let key in name) {
+      if (name[key]) {
+        isTextName = true;
+      }
+    }
+
+    if (!isTextName) {
       page = await this.getPage(url);
     }
+
     for (let key in name) {
       name[key] = striptags(name[key] || page.name);
     }
     let result = await db['ratings-items'].editItem({ id, name, labelsIds, priority, isHiden });
     return result;
-  }
-
-  // Получить whois
-  async getWhois(host) {
-    try {
-      let results = await whois(host);
-      return Object.keys(results).length ? results : {};
-    } catch (error) {
-      console.warn(error);
-      return {};
-    }
   }
 
   // Получить страницу
@@ -127,36 +118,16 @@ class RatingsItems {
     };
   }
 
-  // Получить Alexa
-  async getAlexa(host) {
-    const defaultAlexa = 10000000;
-    try {
-      let { data } = await axios.get(`http://data.alexa.com/data?code=ua&cli=10&dat=s&url=${host}`);
-      let parser = new xml2js.Parser();
-      let result = await parser.parseStringPromise(data);
-      return {
-        json: JSON.stringify(result),
-        rank: result.ALEXA.SD[1].REACH[0].$.RANK || defaultAlexa,
-      };
-    } catch (error) {
-      console.warn(error);
-      return {
-        json: {},
-        rank: defaultAlexa,
-      };
-    }
-  }
-
   // Добавить елемент в очередь на создание скрина
-  async addItemToProcessing({ ratingId, url, imgId, host }) {
-    let itemProcessingByUrl = await db['screenshots-sites'].getScreenProcessingByHost({ host });
+  async addItemToProcessing({ ratingId, url, siteId, host }) {
+    let itemProcessingByUrl = await db['sites-screenshots'].getScreenProcessingByHost({ host });
     let result;
 
     if (!itemProcessingByUrl) {
-      result = await db['screenshots-sites'].addScreenProcessing({
+      result = await db['sites-screenshots'].addScreenProcessing({
         ratingId,
         url,
-        imgId,
+        siteId,
         host,
       });
     }

@@ -6,6 +6,7 @@ router.use('/users', require('./users'));
 router.use('/ratings', require('./ratings'));
 router.use('/ratings-labels', require('./ratings-labels'));
 router.use('/ratings-items', require('./ratings-items'));
+router.use('/sites', require('./sites'));
 router.use('/cashe', require('./cashe'));
 
 module.exports = router;

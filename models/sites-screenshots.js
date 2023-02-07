@@ -12,7 +12,7 @@ let Scheme = function () {
     ratingId: {
       type: DataTypes.INTEGER,
     },
-    imgId: {
+    siteId: {
       type: DataTypes.INTEGER,
     },
     typeRating: {
@@ -64,12 +64,12 @@ let Scheme = function () {
   };
 };
 
-const name = 'screenshots_sites';
-class M_ScreenshotsSites extends Model {}
+const name = 'sites_screenshots';
+class M_SitesScreenshots extends Model {}
 
-M_ScreenshotsSites.init(new Scheme(), {
+M_SitesScreenshots.init(new Scheme(), {
   sequelize: db,
   modelName: name,
 });
 
-module.exports = { M_ScreenshotsSites, Scheme, name };
+module.exports = { M_SitesScreenshots, Scheme, name };
