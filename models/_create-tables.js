@@ -4,21 +4,13 @@ let { db } = require('./_base');
 let users = require('./users');
 let sections = require('./sections');
 let ratings = require('./ratings');
-let ratingsLabels = require('./ratings-labels');
+let labels = require('./labels');
 let ratingsItems = require('./ratings-items');
 let ratingsItemsImg = require('./sites');
 let screensProcessing = require('./sites-screenshots');
 let { DataTypes } = require('sequelize');
 
-let models = [
-  users,
-  sections,
-  ratingsLabels,
-  ratings,
-  ratingsItems,
-  ratingsItemsImg,
-  screensProcessing,
-];
+let models = [users, sections, labels, ratings, ratingsItems, ratingsItemsImg, screensProcessing];
 // node models/_create-tables.js
 // Создаём таблицы в БД
 (async () => {
@@ -27,7 +19,7 @@ let models = [
   // Удалить 1 таблицу
   // ratingsItems.M_RatingsItems.drop();
   // Очистить 1 таблицу
-  // ratingsLabels.M_RatingsLabels.destroy({
+  // ratingsLabels.M_Labels.destroy({
   //   truncate: true,
   // });
   // screensProcessing.M_SitesProcessing.destroy({

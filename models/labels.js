@@ -58,12 +58,12 @@ let Scheme = function () {
   };
 };
 
-const name = 'ratings_labels';
-class M_RatingsLabels extends Model {}
+const name = 'labels';
+class M_Labels extends Model {}
 
-M_RatingsLabels.init(new Scheme(), {
+M_Labels.init(new Scheme(), {
   sequelize: db,
   modelName: name,
 });
 
-module.exports = { M_RatingsLabels, Scheme, name };
+module.exports = { M_Labels, Scheme, name };

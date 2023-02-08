@@ -1,4 +1,4 @@
-let { M_RatingsLabels } = require(global.ROOT_PATH + '/models/ratings-labels.js');
+let { M_Labels } = require(global.ROOT_PATH + '/models/labels.js');
 
 let striptags = require('striptags');
 const { Op } = require('sequelize');
@@ -9,7 +9,7 @@ module.exports = {
     for (let key in name) {
       name[key] = striptags(name[key]);
     }
-    let result = await M_RatingsLabels.create({
+    let result = await M_Labels.create({
       ratingId,
       name,
       color: striptags(color).toLocaleLowerCase(),
@@ -22,7 +22,7 @@ module.exports = {
     for (let key in name) {
       name[key] = striptags(name[key]);
     }
-    let result = await M_RatingsLabels.update(
+    let result = await M_Labels.update(
       { name, color: striptags(color).toLocaleLowerCase() },
       { where: { labelId } }
     );
@@ -31,7 +31,7 @@ module.exports = {
 
   // Изменить ярлык
   async getLabels({ ratingId }) {
-    let result = await M_RatingsLabels.findAll({
+    let result = await M_Labels.findAll({
       attributes: ['labelId', 'name', 'color'],
       where: {
         ratingId,
@@ -43,7 +43,7 @@ module.exports = {
 
   // Получить ярлык по имени
   async getLabelRatingByName({ labelId = null, name, ratingId, lang }) {
-    let result = await M_RatingsLabels.findOne({
+    let result = await M_Labels.findOne({
       attributes: ['labelId', 'name', 'color'],
       where: {
         ratingId,
@@ -58,6 +58,6 @@ module.exports = {
 
   // Удалить ярлык
   async deleteLabel({ labelId }) {
-    return await M_RatingsLabels.destroy({ where: { labelId } });
+    return await M_Labels.destroy({ where: { labelId } });
   },
 };

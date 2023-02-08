@@ -2,14 +2,14 @@ let db = require(global.ROOT_PATH + '/db');
 let fse = require('fs-extra');
 let striptags = require('striptags');
 
-class RatingsLabels {
+class Labels {
   // Создать ярлык
   async createLabel({ ratingId, name, color }) {
     for (let key in name) {
       name[key] = striptags(name[key]);
     }
     await this.checkLabelExist({ name, ratingId });
-    let result = await db['ratings-labels'].createLabel({ ratingId, name, color });
+    let result = await db['labels'].createLabel({ ratingId, name, color });
     return result;
   }
 
@@ -19,7 +19,7 @@ class RatingsLabels {
       name[key] = striptags(name[key]);
     }
     await this.checkLabelExist({ labelId, name, ratingId });
-    let result = await db['ratings-labels'].editLabel({ labelId, name, color });
+    let result = await db['labels'].editLabel({ labelId, name, color });
     return result;
   }
 
@@ -27,7 +27,7 @@ class RatingsLabels {
   async deleteLabel({ labelId }) {
     let ratingItems = await db['ratings-items'].getItemsRatingByLabelId({ labelId });
     await this.editRatingItemsLabel({ ratingItems, labelId });
-    let result = await db['ratings-labels'].deleteLabel({ labelId });
+    let result = await db['labels'].deleteLabel({ labelId });
     if (result) return true;
     throw Error('Такого id нет');
   }
@@ -36,7 +36,7 @@ class RatingsLabels {
   async checkLabelExist({ labelId, name, ratingId }) {
     let isExist;
     for await (let lang of Object.keys(name)) {
-      isExist = await db['ratings-labels'].getLabelRatingByName({
+      isExist = await db['labels'].getLabelRatingByName({
         labelId,
         name: name[lang],
         ratingId,
@@ -59,7 +59,7 @@ class RatingsLabels {
 
   // Получить все ярлыки ярлыки
   async getLabels({ ratingId }) {
-    let result = await db['ratings-labels'].getLabels({ ratingId });
+    let result = await db['labels'].getLabels({ ratingId });
     return result;
   }
 
@@ -73,4 +73,4 @@ class RatingsLabels {
   }
 }
 
-module.exports = RatingsLabels;
+module.exports = Labels;
