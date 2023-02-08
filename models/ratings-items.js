@@ -99,7 +99,7 @@ M_RatingsItems.init(new Scheme(), {
 
 M_RatingsItems.belongsTo(M_Sites, {
   foreignKey: 'siteId',
-  targetKey: 'id',
+  targetKey: 'siteId',
   as: 'site',
 });
 

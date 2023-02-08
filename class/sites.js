@@ -13,7 +13,7 @@ class Sites {
 
     let { siteId } = await db['sites-screenshots'].getScreenById({ id });
     await this.createLogo({ id, logoScreenshotParams });
-    await db.sites.updateSite({ id: siteId, color, siteScreenshotId: id });
+    await db.sites.updateSite({ siteId, color, siteScreenshotId: id });
     // Обновить информацию о том что лого создано и убрать из процесса
     await db['sites-screenshots'].editProcessing({
       id,

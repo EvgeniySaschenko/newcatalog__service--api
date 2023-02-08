@@ -99,7 +99,7 @@ module.exports = {
       include: [
         {
           model: M_Sites,
-          attributes: ['id', 'color', 'siteScreenshotId', 'alexaRank', 'dateDomainCreate'],
+          attributes: ['siteId', 'color', 'siteScreenshotId', 'alexaRank', 'dateDomainCreate'],
           as: 'site',
         },
       ],

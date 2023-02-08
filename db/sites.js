@@ -8,13 +8,13 @@ module.exports = {
   },
 
   // Обновить информацию о картинке
-  async updateSite({ id, color, siteScreenshotId }) {
+  async updateSite({ siteId, color, siteScreenshotId }) {
     let result = await M_Sites.update(
       {
         siteScreenshotId,
         color,
       },
-      { where: { id } }
+      { where: { siteId } }
     );
     return result[0];
   },
@@ -22,36 +22,10 @@ module.exports = {
   // Получить запись о картинке по "host"
   async getSiteByHost({ host }) {
     return await M_Sites.findOne({
-      attributes: ['id', 'siteScreenshotId'],
+      attributes: ['siteId', 'siteScreenshotId'],
       where: {
         host,
       },
     });
   },
-
-  // async updateSiteScreenshotId() {
-  //   let sites = await M_Sites.findAll({
-  //     attributes: ['id', 'siteScreenshotId'],
-  //   });
-  //   console.log(sites);
-  //   for await (let item of sites) {
-  //     await M_Sites.update(
-  //       {
-  //         siteScreenshotId2: +item.siteScreenshotId || 0,
-  //       },
-  //       { where: { id: item.id } }
-  //     );
-  //   }
-  // },
-
-  // Обновить информацию о картинке
-  // async updateSiteAlexaRank({ alexaRank, siteId }) {
-  //   let result = await M_Sites.update(
-  //     {
-  //       alexaRank,
-  //     },
-  //     { where: { id: siteId } }
-  //   );
-  //   return result[0];
-  // },
 };

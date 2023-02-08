@@ -15,7 +15,7 @@ class RatingsItems {
     let { hostname, subdomain, domain } = tldts.parse(url);
     let isSubdomain = subdomain && subdomain !== 'www';
     let host = isSubdomain ? hostname : domain;
-    let site = await this.checkImageExist({ host, ratingId, url, isSubdomain });
+    let { siteId } = await this.checkImageExist({ host, ratingId, url, isSubdomain });
     let page = await this.getPage(url); // получить заголовок страницы
 
     for (let key in name) {
@@ -25,7 +25,7 @@ class RatingsItems {
     let result = await db['ratings-items'].createItem({
       ratingId,
       url,
-      siteId: site.id,
+      siteId,
       name,
       host,
       labelsIds,
@@ -65,7 +65,7 @@ class RatingsItems {
     if (isCreatedScreen && !isSubdomain) {
       await this.addItemToProcessing({
         ratingId,
-        siteId: site.id,
+        siteId: site.siteId,
         url,
         host,
       });
