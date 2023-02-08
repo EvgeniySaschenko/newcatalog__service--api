@@ -75,7 +75,7 @@ class RatingsItems {
   }
 
   // Редактировать елемент рейтинга
-  async editItem({ id, name, url, labelsIds, priority, isHiden }) {
+  async editItem({ ratingItemId, name, url, labelsIds, priority, isHiden }) {
     let page;
     let isTextName = false;
     for (let key in name) {
@@ -91,7 +91,13 @@ class RatingsItems {
     for (let key in name) {
       name[key] = striptags(name[key] || page.name);
     }
-    let result = await db['ratings-items'].editItem({ id, name, labelsIds, priority, isHiden });
+    let result = await db['ratings-items'].editItem({
+      ratingItemId,
+      name,
+      labelsIds,
+      priority,
+      isHiden,
+    });
     return result;
   }
 
@@ -141,8 +147,8 @@ class RatingsItems {
   }
 
   // Удалить елемент
-  async deleteItem({ id }) {
-    let result = await db['ratings-items'].deleteItem({ id });
+  async deleteItem({ ratingItemId }) {
+    let result = await db['ratings-items'].deleteItem({ ratingItemId });
     if (result) return true;
     throw Error('Такого id нет');
   }

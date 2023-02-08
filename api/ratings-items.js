@@ -38,7 +38,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // Редактировать елемент рейтинга
-router.put('/:id', async (req, res, next) => {
+router.put('/:ratingItemId', async (req, res, next) => {
   let result;
 
   try {
@@ -53,11 +53,11 @@ router.put('/:id', async (req, res, next) => {
 });
 
 // Удалить елемент рейтинга
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:ratingItemId', async (req, res, next) => {
   let result;
   try {
     let ratingsItems = new RatingsItems();
-    result = await ratingsItems.deleteItem(req.params);
+    result = await ratingsItems.deleteItem(req.body);
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);

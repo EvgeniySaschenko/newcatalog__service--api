@@ -19,7 +19,7 @@ module.exports = {
   },
 
   // Редактировать елемент рейтинга
-  async editItem({ id, name, labelsIds, priority, isHiden }) {
+  async editItem({ ratingItemId, name, labelsIds, priority, isHiden }) {
     let result = await M_RatingsItems.update(
       {
         name,
@@ -27,21 +27,21 @@ module.exports = {
         priority,
         isHiden,
       },
-      { where: { id } }
+      { where: { ratingItemId } }
     );
     return result;
   },
 
   // Удалить елемент
-  async deleteItem({ id }) {
-    let result = await M_RatingsItems.destroy({ where: { id } });
+  async deleteItem({ ratingItemId }) {
+    let result = await M_RatingsItems.destroy({ where: { ratingItemId } });
     return result;
   },
 
   // Получить сайт по url и ratingId (для проверки на уникальность)
   async getItemRatingByUrl({ ratingId, url }) {
     let result = await M_RatingsItems.findOne({
-      attributes: ['id'],
+      attributes: ['ratingItemId'],
       where: {
         ratingId,
         url,
@@ -53,7 +53,7 @@ module.exports = {
   // Получить все елементы рейтинга по labelId - (нужны для проверки label при удалении)
   async getItemsRatingByLabelId({ labelId }) {
     let result = await M_RatingsItems.findAll({
-      attributes: ['id', 'labelsIds'],
+      attributes: ['ratingItemId', 'labelsIds'],
       where: {
         labelsIds: { [labelId]: labelId },
       },
@@ -62,12 +62,12 @@ module.exports = {
   },
 
   // Обновляем ярлыки для элементов рейтнга (используется при удалении ярлыка)
-  async editItemsRatingLabel({ id, labelsIds }) {
+  async editItemsRatingLabel({ ratingItemId, labelsIds }) {
     await M_RatingsItems.update(
       { labelsIds },
       {
         where: {
-          id,
+          ratingItemId,
         },
       }
     );
@@ -80,18 +80,27 @@ module.exports = {
         [{ model: M_Sites, as: 'site' }, 'alexaRank', 'ASC'],
         ['priority', 'DESC'],
         ['click', 'DESC'],
-        ['id', 'ASC'],
+        ['ratingItemId', 'ASC'],
       ],
       click: [
         ['priority', 'DESC'],
         ['click', 'DESC'],
         [{ model: M_Sites, as: 'site' }, 'alexaRank', 'ASC'],
-        ['id', 'ASC'],
+        ['ratingItemId', 'ASC'],
       ],
     };
 
     let result = await M_RatingsItems.findAll({
-      attributes: ['id', 'ratingId', 'name', 'url', 'labelsIds', 'priority', 'click', 'isHiden'],
+      attributes: [
+        'ratingItemId',
+        'ratingId',
+        'name',
+        'url',
+        'labelsIds',
+        'priority',
+        'click',
+        'isHiden',
+      ],
       where: {
         ratingId: +ratingId,
       },

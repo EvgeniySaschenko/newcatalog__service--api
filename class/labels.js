@@ -53,7 +53,10 @@ class Labels {
   async editRatingItemsLabel({ ratingItems, labelId }) {
     for await (let item of ratingItems) {
       delete item.labelsIds[labelId];
-      await db['ratings-items'].editItemsRatingLabel({ id: item.id, labelsIds: item.labelsIds });
+      await db['ratings-items'].editItemsRatingLabel({
+        ratingItemId: item.ratingItemId,
+        labelsIds: item.labelsIds,
+      });
     }
   }
 

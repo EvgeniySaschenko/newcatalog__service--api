@@ -5,7 +5,7 @@ let { M_Sites } = require('./sites');
 // Отображает к каким разделам относится рейтинг
 let Scheme = function () {
   return {
-    id: {
+    ratingItemId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
