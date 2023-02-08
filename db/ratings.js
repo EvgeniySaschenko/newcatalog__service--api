@@ -33,7 +33,7 @@ module.exports = {
 
   // Редактировать рейтинг
   async editRating({
-    id,
+    ratingId,
     name,
     descr,
     isHiden,
@@ -60,17 +60,17 @@ module.exports = {
         visitorId,
       },
       {
-        where: { id },
+        where: { ratingId },
       }
     );
     return result;
   },
 
   // Получить рейтинг
-  async getRating({ id }) {
+  async getRating({ ratingId }) {
     let result = await M_Ratings.findOne({
       attributes: [
-        'id',
+        'ratingId',
         'name',
         'descr',
         'isHiden',
@@ -81,7 +81,7 @@ module.exports = {
         'dateCreate',
       ],
       where: {
-        id,
+        ratingId,
       },
     });
     return result;
@@ -103,7 +103,7 @@ module.exports = {
   async getRatingsUser({ userId }) {
     let result = await M_Ratings.findAll({
       attributes: [
-        'id',
+        'ratingId',
         'name',
         'descr',
         'isHiden',
@@ -128,7 +128,7 @@ module.exports = {
   async getRatingsNotHidden() {
     let result = await M_Ratings.findAll({
       attributes: [
-        'id',
+        'ratingId',
         'name',
         'descr',
         'typeRating',

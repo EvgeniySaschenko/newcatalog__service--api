@@ -8,8 +8,8 @@ class Sections {
   }
 
   // Удалить раздел
-  async deleteSection({ id }) {
-    return await db.sections.deleteSection({ id });
+  async deleteSection({ sectionId }) {
+    return await db.sections.deleteSection({ sectionId });
   }
 
   // Изменить раздел
@@ -27,7 +27,7 @@ class Sections {
     let sections = await this.getSections();
     sections = sections.filter((el) => !el.isHiden);
     for (let item of sections) {
-      item.ratingsCount = await db.ratings.getRatingCountBySectionId({ sectionId: item.id });
+      item.ratingsCount = await db.ratings.getRatingCountBySectionId({ sectionId: item.sectionId });
     }
     sections = sections.filter((el) => el.ratingsCount && !el.isHiden);
     fse.writeJson(global.ROOT_PATH + '/cashe/sections.json', sections);

@@ -4,7 +4,7 @@ let { db } = require('./_base.js');
 // Отображает к каким разделам относится рейтинг
 let Scheme = function () {
   return {
-    id: {
+    siteId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -24,7 +24,7 @@ let Scheme = function () {
     },
     alexaRank: {
       type: DataTypes.INTEGER,
-      defaultValue: 10000000,
+      defaultValue: 0,
     },
     dateDomainCreate: {
       type: DataTypes.DATE,

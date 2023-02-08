@@ -1,14 +1,14 @@
 let express = require('express');
 let router = express.Router();
-let RatingsLabels = require(global.ROOT_PATH + '/class/ratings-labels');
+let Labels = require(global.ROOT_PATH + '/class/labels');
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
 
 // Получить ярлыки рейтинга
 router.get('/rating/:ratingId', async (req, res, next) => {
   let result;
   try {
-    let ratingsLabels = new RatingsLabels();
-    result = await ratingsLabels.getLabels(req.params);
+    let labels = new Labels();
+    result = await labels.getLabels(req.params);
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
@@ -21,8 +21,8 @@ router.get('/rating/:ratingId', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   let result;
   try {
-    let ratingsLabels = new RatingsLabels();
-    result = await ratingsLabels.createLabel(req.body);
+    let labels = new Labels();
+    result = await labels.createLabel(req.body);
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
@@ -32,11 +32,11 @@ router.post('/', async (req, res, next) => {
 });
 
 // Удалить ярлык
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:labelId', async (req, res, next) => {
   let result;
   try {
-    let ratingsLabels = new RatingsLabels();
-    result = await ratingsLabels.deleteLabel(req.body);
+    let labels = new Labels();
+    result = await labels.deleteLabel(req.body);
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
@@ -46,11 +46,11 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 // Редактировать ярлык
-router.put('/:id', async (req, res, next) => {
+router.put('/:labelId', async (req, res, next) => {
   let result;
   try {
-    let ratingsLabels = new RatingsLabels();
-    result = await ratingsLabels.editLabel(req.body);
+    let labels = new Labels();
+    result = await labels.editLabel(req.body);
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);

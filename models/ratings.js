@@ -20,7 +20,7 @@ const typeSort = Object.freeze({
 // Рейтинги
 let Scheme = function () {
   return {
-    id: {
+    ratingId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,

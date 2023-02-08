@@ -8,7 +8,6 @@ let errorsMessage = new ErrorsMessage();
 
 // Получить разделы (админ)
 router.get('/', async (req, res, next) => {
-  // let data = await sections.getSectionsVisible(); - для простых пользователей
   let result;
   try {
     result = await sections.getSections(req.params);
@@ -32,10 +31,10 @@ router.post('/', async (req, res, next) => {
 });
 
 // Удалить раздел
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:sectionId', async (req, res, next) => {
   let result;
   try {
-    result = await sections.deleteSection(req.params);
+    result = await sections.deleteSection(req.body);
   } catch (error) {
     result = errorsMessage.createMessage(error);
     res.status(result.status);
@@ -44,7 +43,7 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 // Редактировать раздел
-router.put('/', async (req, res, next) => {
+router.put('/:sectionId', async (req, res, next) => {
   let result;
   try {
     result = await sections.editSection(req.body);

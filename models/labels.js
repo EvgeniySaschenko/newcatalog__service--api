@@ -5,7 +5,7 @@ let { colorHex } = require(global.ROOT_PATH + '/core/regexp');
 // Ярлыки
 let Scheme = function () {
   return {
-    id: {
+    labelId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -58,12 +58,12 @@ let Scheme = function () {
   };
 };
 
-const name = 'ratings_labels';
-class M_RatingsLabels extends Model {}
+const name = 'labels';
+class M_Labels extends Model {}
 
-M_RatingsLabels.init(new Scheme(), {
+M_Labels.init(new Scheme(), {
   sequelize: db,
   modelName: name,
 });
 
-module.exports = { M_RatingsLabels, Scheme, name };
+module.exports = { M_Labels, Scheme, name };

@@ -4,7 +4,7 @@ let { db } = require('./_base.js');
 // Разделы сайта
 let Scheme = function () {
   return {
-    id: {
+    sectionId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,

@@ -5,7 +5,7 @@ let { M_Sites } = require('./sites');
 // Отображает к каким разделам относится рейтинг
 let Scheme = function () {
   return {
-    id: {
+    ratingItemId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -99,7 +99,7 @@ M_RatingsItems.init(new Scheme(), {
 
 M_RatingsItems.belongsTo(M_Sites, {
   foreignKey: 'siteId',
-  targetKey: 'id',
+  targetKey: 'siteId',
   as: 'site',
 });
 

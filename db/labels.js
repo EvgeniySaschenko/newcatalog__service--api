@@ -1,4 +1,4 @@
-let { M_RatingsLabels } = require(global.ROOT_PATH + '/models/ratings-labels.js');
+let { M_Labels } = require(global.ROOT_PATH + '/models/labels.js');
 
 let striptags = require('striptags');
 const { Op } = require('sequelize');
@@ -9,7 +9,7 @@ module.exports = {
     for (let key in name) {
       name[key] = striptags(name[key]);
     }
-    let result = await M_RatingsLabels.create({
+    let result = await M_Labels.create({
       ratingId,
       name,
       color: striptags(color).toLocaleLowerCase(),
@@ -18,21 +18,21 @@ module.exports = {
   },
 
   // Изменить ярлык
-  async editLabel({ id, name, color }) {
+  async editLabel({ labelId, name, color }) {
     for (let key in name) {
       name[key] = striptags(name[key]);
     }
-    let result = await M_RatingsLabels.update(
+    let result = await M_Labels.update(
       { name, color: striptags(color).toLocaleLowerCase() },
-      { where: { id } }
+      { where: { labelId } }
     );
     return result;
   },
 
   // Изменить ярлык
   async getLabels({ ratingId }) {
-    let result = await M_RatingsLabels.findAll({
-      attributes: ['id', 'name', 'color'],
+    let result = await M_Labels.findAll({
+      attributes: ['labelId', 'name', 'color'],
       where: {
         ratingId,
       },
@@ -42,33 +42,22 @@ module.exports = {
   },
 
   // Получить ярлык по имени
-  async getLabelRatingByName({ id = null, name, ratingId, lang }) {
-    let result = await M_RatingsLabels.findOne({
-      attributes: ['id', 'name', 'color'],
+  async getLabelRatingByName({ labelId = null, name, ratingId, lang }) {
+    let result = await M_Labels.findOne({
+      attributes: ['labelId', 'name', 'color'],
       where: {
         ratingId,
         [`name.${lang}`]: name,
-        id: {
-          [Op.ne]: id,
+        labelId: {
+          [Op.ne]: labelId,
         },
       },
     });
     return result;
   },
 
-  // Получить ярлык по id
-  async getLabelRatingById({ id }) {
-    let result = await M_RatingsLabels.findOne({
-      attributes: ['id', 'name', 'color', 'ratingId'],
-      where: {
-        id,
-      },
-    });
-    return result;
-  },
-
   // Удалить ярлык
-  async deleteLabel({ id }) {
-    return await M_RatingsLabels.destroy({ where: { id } });
+  async deleteLabel({ labelId }) {
+    return await M_Labels.destroy({ where: { labelId } });
   },
 };

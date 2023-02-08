@@ -15,7 +15,7 @@ class RatingsItems {
     let { hostname, subdomain, domain } = tldts.parse(url);
     let isSubdomain = subdomain && subdomain !== 'www';
     let host = isSubdomain ? hostname : domain;
-    let site = await this.checkImageExist({ host, ratingId, url, isSubdomain });
+    let { siteId } = await this.checkImageExist({ host, ratingId, url, isSubdomain });
     let page = await this.getPage(url); // получить заголовок страницы
 
     for (let key in name) {
@@ -25,7 +25,7 @@ class RatingsItems {
     let result = await db['ratings-items'].createItem({
       ratingId,
       url,
-      siteId: site.id,
+      siteId,
       name,
       host,
       labelsIds,
@@ -65,7 +65,7 @@ class RatingsItems {
     if (isCreatedScreen && !isSubdomain) {
       await this.addItemToProcessing({
         ratingId,
-        siteId: site.id,
+        siteId: site.siteId,
         url,
         host,
       });
@@ -75,7 +75,7 @@ class RatingsItems {
   }
 
   // Редактировать елемент рейтинга
-  async editItem({ id, name, url, labelsIds, priority, isHiden }) {
+  async editItem({ ratingItemId, name, url, labelsIds, priority, isHiden }) {
     let page;
     let isTextName = false;
     for (let key in name) {
@@ -91,7 +91,13 @@ class RatingsItems {
     for (let key in name) {
       name[key] = striptags(name[key] || page.name);
     }
-    let result = await db['ratings-items'].editItem({ id, name, labelsIds, priority, isHiden });
+    let result = await db['ratings-items'].editItem({
+      ratingItemId,
+      name,
+      labelsIds,
+      priority,
+      isHiden,
+    });
     return result;
   }
 
@@ -141,8 +147,8 @@ class RatingsItems {
   }
 
   // Удалить елемент
-  async deleteItem({ id }) {
-    let result = await db['ratings-items'].deleteItem({ id });
+  async deleteItem({ ratingItemId }) {
+    let result = await db['ratings-items'].deleteItem({ ratingItemId });
     if (result) return true;
     throw Error('Такого id нет');
   }
@@ -150,8 +156,8 @@ class RatingsItems {
   // Создать кеш для прода
   async createCache() {
     let ratingsList = db.ratings.getRatingsNotHidden();
-    for (let item of ratingsList) {
-      let ratingsItems = await this.getItemsRating({ ratingId: item.id, typeSort: item.typeSort });
+    for (let { ratingId, typeSort } of ratingsList) {
+      let ratingsItems = await this.getItemsRating({ ratingId, typeSort });
 
       ratingsItems = ratingsItems.map((el) => {
         (
@@ -164,7 +170,7 @@ class RatingsItems {
         return el;
       });
 
-      await fse.writeJson(global.ROOT_PATH + `/cashe/ratings-items/${item.id}.json`, ratingsItems);
+      await fse.writeJson(global.ROOT_PATH + `/cashe/ratings-items/${ratingId}.json`, ratingsItems);
     }
   }
 }

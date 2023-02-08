@@ -4,7 +4,7 @@ let { db } = require('./_base.js');
 // Создание скриншотов сайта
 let Scheme = function () {
   return {
-    id: {
+    siteScreenshotId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,

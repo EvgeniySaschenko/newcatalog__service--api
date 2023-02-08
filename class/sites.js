@@ -6,17 +6,17 @@ let whois = require('whois-json');
 let axios = require('axios');
 
 class Sites {
-  async init({ id, logoScreenshotParams, color }) {
-    if (!color || !logoScreenshotParams.cutHeight || !id) {
+  async init({ siteScreenshotId, logoScreenshotParams, color }) {
+    if (!color || !logoScreenshotParams.cutHeight || !siteScreenshotId) {
       throw Error('Не хватает данных');
     }
 
-    let { siteId } = await db['sites-screenshots'].getScreenById({ id });
-    await this.createLogo({ id, logoScreenshotParams });
-    await db.sites.updateSite({ id: siteId, color, siteScreenshotId: id });
+    let { siteId } = await db['sites-screenshots'].getScreenById({ siteScreenshotId });
+    await this.createLogo({ siteScreenshotId, logoScreenshotParams });
+    await db.sites.updateSite({ siteId, color, siteScreenshotId });
     // Обновить информацию о том что лого создано и убрать из процесса
     await db['sites-screenshots'].editProcessing({
-      id,
+      siteScreenshotId,
       isProcessed: false,
       isCreatedLogo: true,
     });
@@ -24,7 +24,7 @@ class Sites {
   }
 
   // Создать логотип
-  async createLogo({ id, logoScreenshotParams }) {
+  async createLogo({ siteScreenshotId, logoScreenshotParams }) {
     let { cutHeight, cutWidth, imgHeight, imgWidth, left, top } = logoScreenshotParams;
     const maxHeight = 100;
     const maxWidth = 200;
@@ -51,7 +51,7 @@ class Sites {
       }
     }
 
-    let file = await sharp(config.setSiteScreenAssets(id))
+    let file = await sharp(config.setSiteScreenAssets(siteScreenshotId))
       .resize({
         width: imgWidth,
         height: imgHeight,
@@ -67,10 +67,10 @@ class Sites {
           width: Math.floor(newWidth),
           height: Math.floor(newHeight),
         })
-        .toFile(config.setSiteLogoAssets(id));
+        .toFile(config.setSiteLogoAssets(siteScreenshotId));
     } else {
       // Если норм
-      await sharp(file).toFile(config.setSiteLogoAssets(id));
+      await sharp(file).toFile(config.setSiteLogoAssets(siteScreenshotId));
     }
   }
 
