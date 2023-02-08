@@ -150,8 +150,8 @@ class RatingsItems {
   // Создать кеш для прода
   async createCache() {
     let ratingsList = db.ratings.getRatingsNotHidden();
-    for (let item of ratingsList) {
-      let ratingsItems = await this.getItemsRating({ ratingId: item.id, typeSort: item.typeSort });
+    for (let { ratingId, typeSort } of ratingsList) {
+      let ratingsItems = await this.getItemsRating({ ratingId, typeSort });
 
       ratingsItems = ratingsItems.map((el) => {
         (
@@ -164,7 +164,7 @@ class RatingsItems {
         return el;
       });
 
-      await fse.writeJson(global.ROOT_PATH + `/cashe/ratings-items/${item.id}.json`, ratingsItems);
+      await fse.writeJson(global.ROOT_PATH + `/cashe/ratings-items/${ratingId}.json`, ratingsItems);
     }
   }
 }

@@ -13,8 +13,8 @@ class Ratings {
   }
 
   // Получить рейтинг
-  async getRating({ id }) {
-    return await db.ratings.getRating({ id });
+  async getRating({ ratingId }) {
+    return await db.ratings.getRating({ ratingId });
   }
 
   // Получить все рейтинги пользователя

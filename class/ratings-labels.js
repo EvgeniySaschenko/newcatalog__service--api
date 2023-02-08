@@ -66,9 +66,9 @@ class RatingsLabels {
   // Создать кеш для ярлыков рейтинга
   async createCache() {
     let ratingsList = db.ratings.getRatingsNotHidden();
-    for (let item of ratingsList) {
-      let labels = await this.getLabels({ ratingId: item.id });
-      fse.writeJson(global.ROOT_PATH + `/cashe/labels/${item.id}.json`, labels);
+    for (let { ratingId } of ratingsList) {
+      let labels = await this.getLabels({ ratingId });
+      fse.writeJson(global.ROOT_PATH + `/cashe/labels/${ratingId}.json`, labels);
     }
   }
 }

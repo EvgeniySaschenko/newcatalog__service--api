@@ -1,7 +1,6 @@
 let express = require('express');
 let router = express.Router();
 let Ratings = require(global.ROOT_PATH + '/class/ratings');
-let RatingsItems = require(global.ROOT_PATH + '/class/ratings-items');
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
 
 // Получить все рейтинги пользователя
@@ -20,7 +19,7 @@ router.get('/user/:userId', async (req, res, next) => {
 });
 
 // Получить рейтинг
-router.get('/:id', async (req, res, next) => {
+router.get('/:ratingId', async (req, res, next) => {
   let result;
   let ratings = new Ratings();
   let errorsMessage = new ErrorsMessage();
@@ -49,7 +48,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // Редактировать рейтинг
-router.put('/', async (req, res, next) => {
+router.put('/:ratingId', async (req, res, next) => {
   let result;
   let ratings = new Ratings();
   let errorsMessage = new ErrorsMessage();
