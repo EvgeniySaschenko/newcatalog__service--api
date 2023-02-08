@@ -13,46 +13,31 @@ module.exports = {
   },
 
   // Удалить раздел
-  async deleteSection({ id }) {
-    let result = await M_Sections.destroy({ where: { id } });
+  async deleteSection({ sectionId }) {
+    let result = await M_Sections.destroy({ where: { sectionId } });
     if (result) return true;
     throw Error('Такого id нет');
   },
 
   // Изменить раздел
-  async editSection({ id, name, priority = 0, isHiden }) {
+  async editSection({ sectionId, name, priority = 0, isHiden }) {
     for (let key in name) {
       name[key] = striptags(name[key]);
     }
 
-    let result = await M_Sections.update({ name, priority, isHiden }, { where: { id } });
+    let result = await M_Sections.update({ name, priority, isHiden }, { where: { sectionId } });
     return result;
   },
 
   // Получить все разделы
   async getSections() {
     let result = await M_Sections.findAll({
-      attributes: ['id', 'name', 'priority', 'isHiden'],
+      attributes: ['sectionId', 'name', 'priority', 'isHiden'],
       order: [
         ['isHiden', 'ASC'],
         ['priority', 'DESC'],
       ],
     });
     return result;
-  },
-
-  // Получить раздел по id
-  async getSectionById({ id }) {
-    let result = await M_Sections.findAll({
-      attributes: ['id', 'name', 'priority', 'isHiden'],
-      where: { id },
-    });
-    return result[0];
-  },
-
-  // Получить все видимые разделы
-  async getSectionsVisible() {
-    let result = await this.getSections();
-    return result.filter((el) => el.isHiden === true);
   },
 };
