@@ -5,7 +5,7 @@ let { colorHex } = require(global.ROOT_PATH + '/core/regexp');
 // Ярлыки
 let Scheme = function () {
   return {
-    id: {
+    labelId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,

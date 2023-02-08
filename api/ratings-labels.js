@@ -32,7 +32,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // Удалить ярлык
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:labelId', async (req, res, next) => {
   let result;
   try {
     let ratingsLabels = new RatingsLabels();
@@ -46,7 +46,7 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 // Редактировать ярлык
-router.put('/:id', async (req, res, next) => {
+router.put('/:labelId', async (req, res, next) => {
   let result;
   try {
     let ratingsLabels = new RatingsLabels();

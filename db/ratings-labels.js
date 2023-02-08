@@ -18,13 +18,13 @@ module.exports = {
   },
 
   // Изменить ярлык
-  async editLabel({ id, name, color }) {
+  async editLabel({ labelId, name, color }) {
     for (let key in name) {
       name[key] = striptags(name[key]);
     }
     let result = await M_RatingsLabels.update(
       { name, color: striptags(color).toLocaleLowerCase() },
-      { where: { id } }
+      { where: { labelId } }
     );
     return result;
   },
@@ -32,7 +32,7 @@ module.exports = {
   // Изменить ярлык
   async getLabels({ ratingId }) {
     let result = await M_RatingsLabels.findAll({
-      attributes: ['id', 'name', 'color'],
+      attributes: ['labelId', 'name', 'color'],
       where: {
         ratingId,
       },
@@ -42,33 +42,22 @@ module.exports = {
   },
 
   // Получить ярлык по имени
-  async getLabelRatingByName({ id = null, name, ratingId, lang }) {
+  async getLabelRatingByName({ labelId = null, name, ratingId, lang }) {
     let result = await M_RatingsLabels.findOne({
-      attributes: ['id', 'name', 'color'],
+      attributes: ['labelId', 'name', 'color'],
       where: {
         ratingId,
         [`name.${lang}`]: name,
-        id: {
-          [Op.ne]: id,
+        labelId: {
+          [Op.ne]: labelId,
         },
       },
     });
     return result;
   },
 
-  // Получить ярлык по id
-  async getLabelRatingById({ id }) {
-    let result = await M_RatingsLabels.findOne({
-      attributes: ['id', 'name', 'color', 'ratingId'],
-      where: {
-        id,
-      },
-    });
-    return result;
-  },
-
   // Удалить ярлык
-  async deleteLabel({ id }) {
-    return await M_RatingsLabels.destroy({ where: { id } });
+  async deleteLabel({ labelId }) {
+    return await M_RatingsLabels.destroy({ where: { labelId } });
   },
 };

@@ -14,30 +14,30 @@ class RatingsLabels {
   }
 
   // Изменить ярлык
-  async editLabel({ id, name, color, ratingId }) {
+  async editLabel({ labelId, name, color, ratingId }) {
     for (let key in name) {
       name[key] = striptags(name[key]);
     }
-    await this.checkLabelExist({ id, name, ratingId });
-    let result = await db['ratings-labels'].editLabel({ id, name, color });
+    await this.checkLabelExist({ labelId, name, ratingId });
+    let result = await db['ratings-labels'].editLabel({ labelId, name, color });
     return result;
   }
 
   // Удалить ярлык + удаляется у элементов
-  async deleteLabel({ id: labelId }) {
+  async deleteLabel({ labelId }) {
     let ratingItems = await db['ratings-items'].getItemsRatingByLabelId({ labelId });
     await this.editRatingItemsLabel({ ratingItems, labelId });
-    let result = await db['ratings-labels'].deleteLabel({ id: labelId });
+    let result = await db['ratings-labels'].deleteLabel({ labelId });
     if (result) return true;
     throw Error('Такого id нет');
   }
 
   // Проверяем наличие ярлыка в рейтинге с таким же названием
-  async checkLabelExist({ id, name, ratingId }) {
+  async checkLabelExist({ labelId, name, ratingId }) {
     let isExist;
     for await (let lang of Object.keys(name)) {
       isExist = await db['ratings-labels'].getLabelRatingByName({
-        id,
+        labelId,
         name: name[lang],
         ratingId,
         lang,
