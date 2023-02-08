@@ -38,7 +38,7 @@ module.exports = {
       { ...queryParams },
       {
         where: {
-          id: params.id,
+          siteScreenshotId: params.siteScreenshotId,
         },
       }
     );
@@ -47,7 +47,7 @@ module.exports = {
   // Получить сайты которые необходимо обработать (isError - сайты у котрых появилась ошибка при обработке)
   async getProcessing() {
     let result = await M_SitesScreenshots.findAll({
-      attributes: ['id', 'url'],
+      attributes: ['siteScreenshotId', 'url'],
       where: {
         isCreatedScreen: false,
         isProcessed: true,
@@ -61,7 +61,7 @@ module.exports = {
   // Получить елемент в который находится в обработке
   async getScreenProcessingByHost({ host }) {
     let result = await M_SitesScreenshots.findOne({
-      attributes: ['id', 'siteId'],
+      attributes: ['siteScreenshotId', 'siteId'],
       where: {
         host,
         isProcessed: true,
@@ -72,10 +72,10 @@ module.exports = {
   },
 
   // Получить скриншот по id
-  async getScreenById({ id }) {
+  async getScreenById({ siteScreenshotId }) {
     let result = await M_SitesScreenshots.findOne({
       attributes: ['siteId'],
-      where: { id },
+      where: { siteScreenshotId },
     });
     return result;
   },
@@ -88,7 +88,7 @@ module.exports = {
     isError = false,
   }) {
     let result = await M_SitesScreenshots.findAll({
-      attributes: ['id'],
+      attributes: ['siteScreenshotId'],
       where: {
         isCreatedScreen,
         isProcessed,
@@ -99,7 +99,7 @@ module.exports = {
       order: [['dateCreate', 'ASC']],
     });
     return result.map((el) => {
-      el.img = config.setSiteScreenUrl(el.id);
+      el.img = config.setSiteScreenUrl(el.siteScreenshotId);
       return el;
     });
   },

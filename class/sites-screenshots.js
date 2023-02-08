@@ -17,8 +17,8 @@ class SitesScreenshots {
         this.sites = await db['sites-screenshots'].getProcessing();
       } else {
         if (!this.isProcessing) {
-          let { url, id } = this.sites[this.sites.length - 1];
-          await this.createScreenshot({ url, siteScreenshotId: id });
+          let { url, siteScreenshotId } = this.sites[this.sites.length - 1];
+          await this.createScreenshot({ url, siteScreenshotId });
         }
       }
     }, 2000);
@@ -57,14 +57,14 @@ class SitesScreenshots {
       });
       // Указывает на то что скриншот создан
       await db['sites-screenshots'].editProcessing({
-        id: siteScreenshotId,
+        siteScreenshotId,
         isProcessed: true,
         isCreatedScreen: true,
       });
     } catch (error) {
       // Указывает на то что при создании скрина произошла ошибка
       await db['sites-screenshots'].editProcessing({
-        id: siteScreenshotId,
+        siteScreenshotId,
         isError: true,
         isCreatedScreen: false,
         isProcessed: true,
