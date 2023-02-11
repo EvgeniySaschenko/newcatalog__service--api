@@ -1,5 +1,5 @@
 let puppeteer = require('puppeteer');
-let db = require(global.ROOT_PATH + '/db');
+let plugins = require(global.ROOT_PATH + '/plugins');
 let config = require(global.ROOT_PATH + '/env.config');
 
 class SitesScreenshots {
@@ -10,11 +10,11 @@ class SitesScreenshots {
   idInterval = null;
 
   async initProccessScreenshotsCreates() {
-    this.sites = await db['sites-screenshots'].getProcessing();
+    this.sites = await plugins['db-main']['sites-screenshots'].getProcessing();
     this.idInterval = setInterval(async () => {
       // Полчить сайты для обработки
       if (!this.sites.length) {
-        this.sites = await db['sites-screenshots'].getProcessing();
+        this.sites = await plugins['db-main']['sites-screenshots'].getProcessing();
       } else {
         if (!this.isProcessing) {
           let { url, siteScreenshotId } = this.sites[this.sites.length - 1];
@@ -56,14 +56,14 @@ class SitesScreenshots {
         type: 'png',
       });
       // Указывает на то что скриншот создан
-      await db['sites-screenshots'].editProcessing({
+      await plugins['db-main']['sites-screenshots'].editProcessing({
         siteScreenshotId,
         isProcessed: true,
         isCreatedScreen: true,
       });
     } catch (error) {
       // Указывает на то что при создании скрина произошла ошибка
-      await db['sites-screenshots'].editProcessing({
+      await plugins['db-main']['sites-screenshots'].editProcessing({
         siteScreenshotId,
         isError: true,
         isCreatedScreen: false,
@@ -82,7 +82,7 @@ class SitesScreenshots {
   }
 
   async getReadyScreenshotsForRating(params = {}) {
-    let result = await db['sites-screenshots'].getReadyScreenshotsForRating(params);
+    let result = await plugins['db-main']['sites-screenshots'].getReadyScreenshotsForRating(params);
     return result;
   }
 }

@@ -2,7 +2,6 @@ let express = require('express');
 let router = express.Router();
 let RatingsItems = require(global.ROOT_PATH + '/class/ratings-items');
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
-let db = require(global.ROOT_PATH + '/db');
 
 // Получить все елемнты рейтинга
 router.get('/rating/:ratingId', async (req, res, next) => {
