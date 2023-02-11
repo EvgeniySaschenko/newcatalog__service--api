@@ -1,6 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
 let { db } = require('./_base.js');
-let { colorHex } = require(global.ROOT_PATH + '/core/regexp');
 
 // Ярлыки
 let Scheme = function () {
@@ -35,7 +34,7 @@ let Scheme = function () {
       allowNull: false,
       validate: {
         is: {
-          args: colorHex,
+          args: /#([a-f0-9]{6})/,
           msg: 'Значение цвета должно быть в формате HEX (#******)',
         },
       },

@@ -1,25 +1,25 @@
-let db = require(global.ROOT_PATH + '/db');
+let plugins = require(global.ROOT_PATH + '/plugins');
 let fse = require('fs-extra');
 
 class Sections {
   // Создать раздел
   async createSection({ name }) {
-    return await db.sections.createSection({ name });
+    return await plugins['db-main'].sections.createSection({ name });
   }
 
   // Удалить раздел
   async deleteSection({ sectionId }) {
-    return await db.sections.deleteSection({ sectionId });
+    return await plugins['db-main'].sections.deleteSection({ sectionId });
   }
 
   // Изменить раздел
   async editSection(section = {}) {
-    return await db.sections.editSection(section);
+    return await plugins['db-main'].sections.editSection(section);
   }
 
   // Получить все разделы
   async getSections() {
-    return await db.sections.getSections();
+    return await plugins['db-main'].sections.getSections();
   }
 
   // Создать кеш списка разделов в которых есть рейтинги + они не скрыты
@@ -27,7 +27,9 @@ class Sections {
     let sections = await this.getSections();
     sections = sections.filter((el) => !el.isHiden);
     for (let item of sections) {
-      item.ratingsCount = await db.ratings.getRatingCountBySectionId({ sectionId: item.sectionId });
+      item.ratingsCount = await plugins['db-main'].ratings.getRatingCountBySectionId({
+        sectionId: item.sectionId,
+      });
     }
     sections = sections.filter((el) => el.ratingsCount && !el.isHiden);
     fse.writeJson(global.ROOT_PATH + '/cashe/sections.json', sections);

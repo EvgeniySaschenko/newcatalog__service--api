@@ -1,4 +1,3 @@
-let db = require(global.ROOT_PATH + '/db');
 let sharp = require('sharp');
 let config = require(global.ROOT_PATH + '/env.config');
 let whois = require('whois-json');
@@ -7,6 +6,7 @@ let util = require('util');
 let exec = util.promisify(require('child_process').exec);
 let parserWhois = require('parse-whois');
 let tldts = require('tldts');
+let plugins = require(global.ROOT_PATH + '/plugins');
 
 class Sites {
   sitesAlexaRankEmpty = [];
@@ -17,11 +17,13 @@ class Sites {
       throw Error('Не хватает данных');
     }
 
-    let { siteId } = await db['sites-screenshots'].getScreenById({ siteScreenshotId });
+    let { siteId } = await plugins['db-main']['sites-screenshots'].getScreenById({
+      siteScreenshotId,
+    });
     await this.createLogo({ siteScreenshotId, logoScreenshotParams });
-    await db.sites.updateLogoInfo({ siteId, color, siteScreenshotId });
+    await plugins['db-main'].sites.updateLogoInfo({ siteId, color, siteScreenshotId });
     // Обновить информацию о том что лого создано и убрать из процесса
-    await db['sites-screenshots'].editProcessing({
+    await plugins['db-main']['sites-screenshots'].editProcessing({
       siteScreenshotId,
       isProcessed: false,
       isCreatedLogo: true,
@@ -123,22 +125,17 @@ class Sites {
   }
 
   // Создать в памяти объект где ключём будет домен сайта, а значением Alexa Rank (Alexa Rank используется для сортировки сайтов)
-  initCreateAlexaRankList() {
-    global.ALEXA_RANK_LIST = {};
-    let fileContent = fse.readFileSync(global.ROOT_PATH + '/data/alexa-rank.csv', 'utf8');
-    for (let item of fileContent.split('\n')) {
-      let [rank, host] = item.split(',');
-      global.ALEXA_RANK_LIST[host] = +rank;
-    }
+  async initCreateAlexaRankList() {
+    await plugins['db-temporary'].createDataDaseCasheAlexaRank();
   }
 
   // Запустить процесс который будет обновлять alexaRank и dateDomainCreate для сайтов у которых alexaRank = 0
   async initProccessSitesInfoUpdate() {
-    // let items = await db['sites'].getSitesDateDomainCreateEmpty();
+    // let items = await plugins['db-main'].sites.getSitesDateDomainCreateEmpty();
     // for await (let { siteId, host } of items) {
-    //   await db['sites'].updateSitesDateDomainCreateEmpty({ siteId });
+    //   await plugins['db-main'].sites.updateSitesDateDomainCreateEmpty({ siteId });
     // }
-    // let items = await db['sites'].getSitesDateDomainCreateEmpty();
+    // let items = await plugins['db-main'].sites.getSitesDateDomainCreateEmpty();
     // console.log(items);
     // for await (let { siteId, host } of items) {
     //   let fileApi = fse.existsSync(global.ROOT_PATH + `/data/whois-api/${siteId}.json`);
@@ -153,24 +150,28 @@ class Sites {
     //     let dateDomainCreate = this.getDomainDateCreate({ whoisConsole: who, whoisApi: {} });
     //     console.log({ siteId, dateDomainCreate, host });
     //     if (dateDomainCreate) {
-    //       await db['sites'].updateSitesDateDomainCreateEmpty({ dateDomainCreate, siteId });
+    //       await plugins['db-main'].sites.updateSitesDateDomainCreateEmpty({ dateDomainCreate, siteId });
     //     }
     //   }
     // }
     setInterval(async () => {
       // Полчить сайты для обработки
       if (!this.sitesAlexaRankEmpty.length) {
-        this.sitesAlexaRankEmpty = await db['sites'].getSitesAlexaRankEmpty();
+        this.sitesAlexaRankEmpty = await plugins['db-main'].sites.getSitesAlexaRankEmpty();
       }
       if (!this.isSitesAlexaRankProcessing && this.sitesAlexaRankEmpty.length) {
         this.isSitesAlexaRankProcessing = true;
         let { host, siteId } = this.sitesAlexaRankEmpty[this.sitesAlexaRankEmpty.length - 1];
-        let alexaRank = this.getAlexaRank(host);
+        let alexaRank = await this.getAlexaRank(host);
         let { whoisConsole, whoisApi } = await this.getWhois(host);
         let dateDomainCreate = this.getDomainDateCreate({ whoisConsole, whoisApi });
         await this.createWhoisFile({ whois: whoisConsole, siteId, type: 'whois-console' });
         await this.createWhoisFile({ whois: whoisApi, siteId, type: 'whois-api' });
-        await db['sites'].updateDomainAndAlexaInfo({ siteId, alexaRank, dateDomainCreate });
+        await plugins['db-main'].sites.updateDomainAndAlexaInfo({
+          siteId,
+          alexaRank,
+          dateDomainCreate,
+        });
         console.log({ siteId, dateDomainCreate, host });
         this.sitesAlexaRankEmpty.pop();
         this.isSitesAlexaRankProcessing = false;
@@ -179,9 +180,10 @@ class Sites {
   }
 
   // Получить Alexa Rank
-  getAlexaRank(host) {
+  async getAlexaRank(host) {
     let { domain } = tldts.parse(host);
-    return global.ALEXA_RANK_LIST[domain] || 10000000;
+    let alexaRank = await plugins['db-temporary'].getAlexaRank(domain);
+    return alexaRank || 10000000;
   }
 
   // Получить дату создания домена

@@ -1,4 +1,4 @@
-let db = require(global.ROOT_PATH + '/db');
+let plugins = require(global.ROOT_PATH + '/plugins');
 let fse = require('fs-extra');
 let striptags = require('striptags');
 let axios = require('axios');
@@ -22,7 +22,7 @@ class RatingsItems {
       name[key] = striptags(name[key] || page.name);
     }
 
-    let result = await db['ratings-items'].createItem({
+    let result = await plugins['db-main']['ratings-items'].createItem({
       ratingId,
       url,
       siteId,
@@ -38,7 +38,7 @@ class RatingsItems {
 
   // Ппроверяем существует ли такой url в рейтинге
   async checkRatingUrlExist({ ratingId, url }) {
-    let itemRatingByUrl = await db['ratings-items'].getItemRatingByUrl({
+    let itemRatingByUrl = await plugins['db-main']['ratings-items'].getItemRatingByUrl({
       ratingId,
       url: striptags(url),
     });
@@ -53,12 +53,12 @@ class RatingsItems {
   async checkSiteExist({ host, ratingId, url, isSubdomain }) {
     let isCreatedScreen = false;
 
-    let site = await db.sites.getSiteByHost({ host });
+    let site = await plugins['db-main'].sites.getSiteByHost({ host });
 
     // если сайта нет то создаём запись
     if (!site) {
       isCreatedScreen = true;
-      site = await db.sites.createSite({ host });
+      site = await plugins['db-main'].sites.createSite({ host });
     }
 
     // Добавить url в очередь на создание скрина - если это субдомен скрин автоматически не создаётся, потому что может быть одинаковый логотип с доменом
@@ -91,7 +91,7 @@ class RatingsItems {
     for (let key in name) {
       name[key] = striptags(name[key] || page.name);
     }
-    let result = await db['ratings-items'].editItem({
+    let result = await plugins['db-main']['ratings-items'].editItem({
       ratingItemId,
       name,
       labelsIds,
@@ -126,11 +126,13 @@ class RatingsItems {
 
   // Добавить елемент в очередь на создание скрина
   async addItemToProcessing({ ratingId, url, siteId, host }) {
-    let itemProcessingByUrl = await db['sites-screenshots'].getScreenProcessingByHost({ host });
+    let itemProcessingByUrl = await plugins['db-main'][
+      'sites-screenshots'
+    ].getScreenProcessingByHost({ host });
     let result;
 
     if (!itemProcessingByUrl) {
-      result = await db['sites-screenshots'].addScreenProcessing({
+      result = await plugins['db-main']['sites-screenshots'].addScreenProcessing({
         ratingId,
         url,
         siteId,
@@ -143,19 +145,19 @@ class RatingsItems {
 
   // Получить все елементы рейтинга
   async getItemsRating({ ratingId, typeSort }) {
-    return await db['ratings-items'].getItemsRating({ ratingId, typeSort });
+    return await plugins['db-main']['ratings-items'].getItemsRating({ ratingId, typeSort });
   }
 
   // Удалить елемент
   async deleteItem({ ratingItemId }) {
-    let result = await db['ratings-items'].deleteItem({ ratingItemId });
+    let result = await plugins['db-main']['ratings-items'].deleteItem({ ratingItemId });
     if (result) return true;
     throw Error('Такого id нет');
   }
 
   // Создать кеш для прода
   async createCache() {
-    let ratingsList = db.ratings.getRatingsNotHidden();
+    let ratingsList = plugins['db-main'].ratings.getRatingsNotHidden();
     for (let { ratingId, typeSort } of ratingsList) {
       let ratingsItems = await this.getItemsRating({ ratingId, typeSort });
 

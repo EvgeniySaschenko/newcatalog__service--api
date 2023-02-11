@@ -4,7 +4,7 @@ let express = require('express');
 let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
-let api = require('./api');
+let routes = require('./routes');
 
 let app = express();
 let config = require('./env.config');
@@ -24,7 +24,7 @@ app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, config.assets)));
 
-app.use('/api', api);
+app.use('/api', routes);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
