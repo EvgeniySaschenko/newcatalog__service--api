@@ -9,7 +9,7 @@ class SitesScreenshots {
   sites = [];
   idInterval = null;
 
-  async init() {
+  async initProccessScreenshotsCreates() {
     this.sites = await db['sites-screenshots'].getProcessing();
     this.idInterval = setInterval(async () => {
       // Полчить сайты для обработки

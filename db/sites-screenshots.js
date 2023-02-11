@@ -53,7 +53,7 @@ module.exports = {
         isProcessed: true,
         isError: false,
       },
-      order: [['dateCreate', 'ASC']],
+      order: [['dateCreate', 'DESC']],
     });
     return result || [];
   },

@@ -25,7 +25,7 @@ router.put('/logo', async (req, res, next) => {
   let result;
   try {
     let sites = new Sites();
-    result = await sites.init(req.body);
+    result = await sites.runLogoCreate(req.body);
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);

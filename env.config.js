@@ -22,6 +22,9 @@ let config = {
     setSiteLogoAssets(nameImg) {
       return `${this.assets}/images/sites-logos/${nameImg}.png`;
     },
+    setWhoisJSONpath({ type, siteId }) {
+      return `data/${type}/${siteId}.json`;
+    },
   },
   production: {
     host: `http://localhost:${process.env.API__PORT}/`,

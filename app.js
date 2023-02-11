@@ -4,15 +4,13 @@ let express = require('express');
 let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
-// require("dotenv").config();
 let api = require('./api');
-let processScripts = require('./process/index');
+
 let app = express();
 let config = require('./env.config');
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+let { fork } = require('child_process');
+fork('./init-app', [global.ROOT_PATH]);
 
 app.use('/images', (req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -27,13 +25,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, config.assets)));
 
 app.use('/api', api);
-
-if (!global.isRunProcessScripts) {
-  global.isRunProcessScripts = true;
-  for (let key in processScripts) {
-    processScripts[key].init();
-  }
-}
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
