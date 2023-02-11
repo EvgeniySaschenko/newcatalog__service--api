@@ -10,8 +10,8 @@ public/**/*.jpg
 
 /tests/e2e/videos/
 /tests/e2e/screenshots/
-cashe/**/*.json
-cashe/**/*.json
+data/whois-api/**/*.json
+data/whois-console/**/*.json
 
 # local env files
 .env.local

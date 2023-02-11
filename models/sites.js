@@ -24,7 +24,7 @@ let Scheme = function () {
     },
     alexaRank: {
       type: DataTypes.INTEGER,
-      defaultValue: 0,
+      defaultValue: null,
     },
     dateDomainCreate: {
       type: DataTypes.DATE,

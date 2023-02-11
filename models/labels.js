@@ -16,7 +16,6 @@ let Scheme = function () {
         checkJSON: (obj) => {
           if (typeof obj !== 'object') throw Error('Неправильный формат данных');
           for (let key in obj) {
-            console.log(obj[key].length);
             if (obj[key].length < 1 || obj[key].length > 35) {
               throw Error('Название должно быть от 1 до 35 символов');
             }

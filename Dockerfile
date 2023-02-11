@@ -1,5 +1,7 @@
 FROM itisfoundation/puppeteer:14-3
 
+RUN apt install whois
+
 ARG WORKDIR_BASE
 ARG SERVICE
 

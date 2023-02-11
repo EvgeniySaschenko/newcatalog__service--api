@@ -1,19 +1,25 @@
 let db = require(global.ROOT_PATH + '/db');
 let sharp = require('sharp');
 let config = require(global.ROOT_PATH + '/env.config');
-let xml2js = require('xml2js');
 let whois = require('whois-json');
-let axios = require('axios');
+let fse = require('fs-extra');
+let util = require('util');
+let exec = util.promisify(require('child_process').exec);
+let parserWhois = require('parse-whois');
+let tldts = require('tldts');
 
 class Sites {
-  async init({ siteScreenshotId, logoScreenshotParams, color }) {
+  sitesAlexaRankEmpty = [];
+  isSitesAlexaRankProcessing = false;
+
+  async runLogoCreate({ siteScreenshotId, logoScreenshotParams, color }) {
     if (!color || !logoScreenshotParams.cutHeight || !siteScreenshotId) {
       throw Error('Не хватает данных');
     }
 
     let { siteId } = await db['sites-screenshots'].getScreenById({ siteScreenshotId });
     await this.createLogo({ siteScreenshotId, logoScreenshotParams });
-    await db.sites.updateSite({ siteId, color, siteScreenshotId });
+    await db.sites.updateLogoInfo({ siteId, color, siteScreenshotId });
     // Обновить информацию о том что лого создано и убрать из процесса
     await db['sites-screenshots'].editProcessing({
       siteScreenshotId,
@@ -76,33 +82,142 @@ class Sites {
 
   // Получить whois
   async getWhois(host) {
+    let { domain } = tldts.parse(host);
+    let whoisConsole = {};
+    let whoisApi = {};
+
+    // whois из API
     try {
-      let results = await whois(host);
-      return Object.keys(results).length ? results : {};
+      whoisApi = await whois(domain);
     } catch (error) {
-      console.warn(error);
-      return {};
+      console.error(`whois API ${error}`);
+    }
+
+    // whois из пакета ОС
+    try {
+      let { error, stdout } = await exec(`whois ${domain}`, { encoding: 'utf8' });
+      if (stdout) {
+        let whois = parserWhois.parseWhoIsData(stdout.toString());
+        if (whois && Object.keys(whois).length) {
+          for (let { attribute, value } of whois) {
+            whoisConsole[attribute.trim()] = value.trim();
+          }
+        }
+      }
+      if (error) throw error;
+    } catch (error) {
+      console.error(`whois OS ${error}`);
+    }
+    return { whoisConsole, whoisApi };
+  }
+
+  // Записать данные whois в файл
+  async createWhoisFile({ whois, siteId, type }) {
+    try {
+      if (Object.keys(whois).length) {
+        await fse.writeJson(config.setWhoisJSONpath({ type, siteId }), whois);
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 
-  // Получить Alexa
-  async getAlexa(host) {
-    const defaultAlexa = 10000000;
-    try {
-      let { data } = await axios.get(`http://data.alexa.com/data?code=ua&cli=10&dat=s&url=${host}`);
-      let parser = new xml2js.Parser();
-      let result = await parser.parseStringPromise(data);
-      return {
-        json: JSON.stringify(result),
-        rank: result.ALEXA.SD[1].REACH[0].$.RANK || defaultAlexa,
-      };
-    } catch (error) {
-      console.warn(error);
-      return {
-        json: {},
-        rank: defaultAlexa,
-      };
+  // Создать в памяти объект где ключём будет домен сайта, а значением Alexa Rank (Alexa Rank используется для сортировки сайтов)
+  initCreateAlexaRankList() {
+    global.ALEXA_RANK_LIST = {};
+    let fileContent = fse.readFileSync(global.ROOT_PATH + '/data/alexa-rank.csv', 'utf8');
+    for (let item of fileContent.split('\n')) {
+      let [rank, host] = item.split(',');
+      global.ALEXA_RANK_LIST[host] = +rank;
     }
+  }
+
+  // Запустить процесс который будет обновлять alexaRank и dateDomainCreate для сайтов у которых alexaRank = 0
+  async initProccessSitesInfoUpdate() {
+    // let items = await db['sites'].getSitesDateDomainCreateEmpty();
+    // for await (let { siteId, host } of items) {
+    //   await db['sites'].updateSitesDateDomainCreateEmpty({ siteId });
+    // }
+    // let items = await db['sites'].getSitesDateDomainCreateEmpty();
+    // console.log(items);
+    // for await (let { siteId, host } of items) {
+    //   let fileApi = fse.existsSync(global.ROOT_PATH + `/data/whois-api/${siteId}.json`);
+    //   let fileConsole = fse.existsSync(global.ROOT_PATH + `/data/whois-console/${siteId}.json`);
+    //   if (fileConsole) {
+    //     // let who = JSON.parse(
+    //     //   fse.readFileSync(global.ROOT_PATH + `/data/whois-api/${siteId}.json`, 'utf8')
+    //     // );
+    //     let who = JSON.parse(
+    //       fse.readFileSync(global.ROOT_PATH + `/data/whois-console/${siteId}.json`, 'utf8')
+    //     );
+    //     let dateDomainCreate = this.getDomainDateCreate({ whoisConsole: who, whoisApi: {} });
+    //     console.log({ siteId, dateDomainCreate, host });
+    //     if (dateDomainCreate) {
+    //       await db['sites'].updateSitesDateDomainCreateEmpty({ dateDomainCreate, siteId });
+    //     }
+    //   }
+    // }
+    setInterval(async () => {
+      // Полчить сайты для обработки
+      if (!this.sitesAlexaRankEmpty.length) {
+        this.sitesAlexaRankEmpty = await db['sites'].getSitesAlexaRankEmpty();
+      }
+      if (!this.isSitesAlexaRankProcessing && this.sitesAlexaRankEmpty.length) {
+        this.isSitesAlexaRankProcessing = true;
+        let { host, siteId } = this.sitesAlexaRankEmpty[this.sitesAlexaRankEmpty.length - 1];
+        let alexaRank = this.getAlexaRank(host);
+        let { whoisConsole, whoisApi } = await this.getWhois(host);
+        let dateDomainCreate = this.getDomainDateCreate({ whoisConsole, whoisApi });
+        await this.createWhoisFile({ whois: whoisConsole, siteId, type: 'whois-console' });
+        await this.createWhoisFile({ whois: whoisApi, siteId, type: 'whois-api' });
+        await db['sites'].updateDomainAndAlexaInfo({ siteId, alexaRank, dateDomainCreate });
+        console.log({ siteId, dateDomainCreate, host });
+        this.sitesAlexaRankEmpty.pop();
+        this.isSitesAlexaRankProcessing = false;
+      }
+    }, 2000);
+  }
+
+  // Получить Alexa Rank
+  getAlexaRank(host) {
+    let { domain } = tldts.parse(host);
+    return global.ALEXA_RANK_LIST[domain] || 10000000;
+  }
+
+  // Получить дату создания домена
+  getDomainDateCreate({ whoisConsole, whoisApi }) {
+    try {
+      let dateRaw = whoisConsole['Creation Date'] || whoisApi['created'] || whoisConsole['created'];
+      let isNotDate = isNaN(new Date(dateRaw).getFullYear());
+      /*
+        обработка таких строк - '2012-04-02 15:49:24+03 2014-04-03 06:15:53+03 2014-04-03 06:15:53+03 2014-04-03 06:15:55+03'
+      */
+      if (dateRaw && dateRaw.length > 10 && isNotDate) {
+        dateRaw = dateRaw.slice(0, 10);
+        isNotDate = isNaN(new Date(dateRaw).getFullYear());
+      }
+      /*
+        dateRaw.length < 10 - нужно убедится что передана строка не короче такой "2014-10-10"
+        !isNaN(dateRaw) - нужно убедится что это не число, потому что new Date() создаст дату из числа
+        isNaN(new Date(dateRaw).getFullYear()) - дата не содержыт год
+      */
+      if (!dateRaw || dateRaw.length < 10 || !isNaN(dateRaw) || isNotDate) {
+        return null;
+      }
+
+      let [day, month, year] = new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        day: '2-digit',
+        month: '2-digit',
+      })
+        .format(new Date(dateRaw))
+        .split('/');
+
+      return new Date(`${day}-${month}-${year}`);
+    } catch (error) {
+      console.error(error);
+    }
+    return null;
   }
 }
 

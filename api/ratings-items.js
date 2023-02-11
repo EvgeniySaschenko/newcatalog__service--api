@@ -3,7 +3,6 @@ let router = express.Router();
 let RatingsItems = require(global.ROOT_PATH + '/class/ratings-items');
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
 let db = require(global.ROOT_PATH + '/db');
-let fse = require('fs-extra');
 
 // Получить все елемнты рейтинга
 router.get('/rating/:ratingId', async (req, res, next) => {
@@ -13,7 +12,6 @@ router.get('/rating/:ratingId', async (req, res, next) => {
     let { typeSort } = req.query;
     let { ratingId } = req.params;
     let ratingsItems = new RatingsItems();
-
     result = await ratingsItems.getItemsRating({ typeSort, ratingId });
   } catch (error) {
     let errorsMessage = new ErrorsMessage();

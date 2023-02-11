@@ -1,3 +1,4 @@
+let { Op } = require('sequelize');
 let { M_Sites } = require(global.ROOT_PATH + '/models/sites.js');
 
 module.exports = {
@@ -8,7 +9,7 @@ module.exports = {
   },
 
   // Обновить информацию о картинке
-  async updateSite({ siteId, color, siteScreenshotId }) {
+  async updateLogoInfo({ siteId, color, siteScreenshotId }) {
     let result = await M_Sites.update(
       {
         siteScreenshotId,
@@ -27,5 +28,49 @@ module.exports = {
         host,
       },
     });
+  },
+
+  // Получить сайты где нет Alexa Rank (используется для добавления Alexa Rank / даты регистрации домена)
+  async getSitesAlexaRankEmpty() {
+    return await M_Sites.findAll({
+      attributes: ['siteId', 'host'],
+      where: {
+        alexaRank: {
+          [Op.is]: null,
+        },
+      },
+      order: [['dateCreate', 'DESC']],
+    });
+  },
+
+  // Обновить информацию о картинке
+  async updateDomainAndAlexaInfo({ siteId, alexaRank, dateDomainCreate }) {
+    let result = await M_Sites.update(
+      {
+        alexaRank,
+        dateDomainCreate,
+      },
+      { where: { siteId } }
+    );
+    return result[0];
+  },
+
+  async getSitesDateDomainCreateEmpty() {
+    return await M_Sites.findAll({
+      attributes: ['siteId', 'host'],
+      where: {
+        dateDomainCreate: null,
+      },
+      order: [['dateCreate', 'DESC']],
+    });
+  },
+
+  async updateSitesDateDomainCreateEmpty({ dateDomainCreate, siteId }) {
+    await M_Sites.update(
+      {
+        dateDomainCreate,
+      },
+      { where: { siteId } }
+    );
   },
 };

@@ -9,13 +9,13 @@ class RatingsItems {
   async createItem({ ratingId, url, name, labelsIds, priority, isHidden }) {
     url = striptags(url);
 
-    // Проверяем существует ли такой url
     await this.checkRatingUrlExist({ ratingId, url });
 
     let { hostname, subdomain, domain } = tldts.parse(url);
     let isSubdomain = subdomain && subdomain !== 'www';
     let host = isSubdomain ? hostname : domain;
-    let { siteId } = await this.checkImageExist({ host, ratingId, url, isSubdomain });
+
+    let { siteId } = await this.checkSiteExist({ host, ratingId, url, isSubdomain });
     let page = await this.getPage(url); // получить заголовок страницы
 
     for (let key in name) {
@@ -49,13 +49,13 @@ class RatingsItems {
     return false;
   }
 
-  // Проверяем наличие картинки для "host"
-  async checkImageExist({ host, ratingId, url, isSubdomain }) {
+  // Проверяем наличие наличие сайта в таблице сайтов
+  async checkSiteExist({ host, ratingId, url, isSubdomain }) {
     let isCreatedScreen = false;
 
     let site = await db.sites.getSiteByHost({ host });
 
-    // если картинки нет то создаём запись
+    // если сайта нет то создаём запись
     if (!site) {
       isCreatedScreen = true;
       site = await db.sites.createSite({ host });
