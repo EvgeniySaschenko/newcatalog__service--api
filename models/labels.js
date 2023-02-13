@@ -1,5 +1,8 @@
 let { Model, DataTypes } = require('sequelize');
 let { db } = require('./_base.js');
+let { $config } = require(global.ROOT_PATH + '/plugins/config');
+let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
+let { $errors, $errorsUtils } = require(global.ROOT_PATH + '/plugins/errors');
 
 // Ярлыки
 let Scheme = function () {
@@ -12,30 +15,23 @@ let Scheme = function () {
     name: {
       type: DataTypes.JSONB,
       validate: {
-        checkJSON: (obj) => {
-          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
-          for (let key in obj) {
-            if (obj[key].length < 1 || obj[key].length > 35) {
-              throw Error('Название должно быть от 1 до 35 символов');
-            }
-          }
-
-          let isValidLang = 'ua' in obj && 'ru' in obj;
-
-          if (Object.keys(obj).length != 2 || !isValidLang) {
-            throw Error(`Неправильный формат данных`);
-          }
+        checkJSON: (langs) => {
+          $errorsUtils.validateLans({
+            langs,
+            lengthMin: $config.label.nameLengthMin,
+            lengthMax: $config.label.nameLengthMax,
+          });
         },
       },
-      defaultValue: {},
+      defaultValue: $config['lang'].localesObject,
     },
     color: {
       type: DataTypes.STRING(7),
       allowNull: false,
       validate: {
         is: {
-          args: /#([a-f0-9]{6})/,
-          msg: 'Значение цвета должно быть в формате HEX (#******)',
+          args: $regexp.colorHex,
+          msg: $errors['Color value must be in HEX format'],
         },
       },
     },

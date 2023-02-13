@@ -1,6 +1,7 @@
-let plugins = require(global.ROOT_PATH + '/plugins');
+let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let fse = require('fs-extra');
 let striptags = require('striptags');
+let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 
 class Labels {
   // Создать ярлык
@@ -9,7 +10,7 @@ class Labels {
       name[key] = striptags(name[key]);
     }
     await this.checkLabelExist({ name, ratingId });
-    let result = await plugins['db-main'].labels.createLabel({ ratingId, name, color });
+    let result = await $dbMain.labels.createLabel({ ratingId, name, color });
     return result;
   }
 
@@ -19,26 +20,26 @@ class Labels {
       name[key] = striptags(name[key]);
     }
     await this.checkLabelExist({ labelId, name, ratingId });
-    let result = await plugins['db-main'].labels.editLabel({ labelId, name, color });
+    let result = await $dbMain.labels.editLabel({ labelId, name, color });
     return result;
   }
 
   // Удалить ярлык + удаляется у элементов
   async deleteLabel({ labelId }) {
-    let ratingItems = await plugins['db-main']['ratings-items'].getItemsRatingByLabelId({
+    let ratingItems = await $dbMain['ratings-items'].getItemsRatingByLabelId({
       labelId,
     });
     await this.editRatingItemsLabel({ ratingItems, labelId });
-    let result = await plugins['db-main'].labels.deleteLabel({ labelId });
+    let result = await $dbMain.labels.deleteLabel({ labelId });
     if (result) return true;
-    throw Error('Такого id нет');
+    throw Error($errors['There is no such id']);
   }
 
   // Проверяем наличие ярлыка в рейтинге с таким же названием
   async checkLabelExist({ labelId, name, ratingId }) {
     let isExist;
     for await (let lang of Object.keys(name)) {
-      isExist = await plugins['db-main'].labels.getLabelRatingByName({
+      isExist = await $dbMain.labels.getLabelRatingByName({
         labelId,
         name: name[lang],
         ratingId,
@@ -48,14 +49,16 @@ class Labels {
     }
 
     if (isExist)
-      throw { errors: [{ path: 'name', message: 'Ярлык с таким именем уже существует' }] };
+      throw {
+        errors: [{ path: 'name', message: $errors['A label with the same name already exists'] }],
+      };
   }
 
   // Обновляем ярлыки для элементов рейтнга (удаляем ярлык)
   async editRatingItemsLabel({ ratingItems, labelId }) {
     for await (let item of ratingItems) {
       delete item.labelsIds[labelId];
-      await plugins['db-main']['ratings-items'].editItemsRatingLabel({
+      await $dbMain['ratings-items'].editItemsRatingLabel({
         ratingItemId: item.ratingItemId,
         labelsIds: item.labelsIds,
       });
@@ -64,13 +67,13 @@ class Labels {
 
   // Получить все ярлыки ярлыки
   async getLabels({ ratingId }) {
-    let result = await plugins['db-main'].labels.getLabels({ ratingId });
+    let result = await $dbMain.labels.getLabels({ ratingId });
     return result;
   }
 
   // Создать кеш для ярлыков рейтинга
   async createCache() {
-    let ratingsList = plugins['db-main'].ratings.getRatingsNotHidden();
+    let ratingsList = $dbMain.ratings.getRatingsNotHidden();
     for (let { ratingId } of ratingsList) {
       let labels = await this.getLabels({ ratingId });
       fse.writeJson(global.ROOT_PATH + `/cashe/labels/${ratingId}.json`, labels);

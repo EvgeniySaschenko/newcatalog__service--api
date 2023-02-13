@@ -1,25 +1,25 @@
-let plugins = require(global.ROOT_PATH + '/plugins');
+let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let fse = require('fs-extra');
 
 class Sections {
   // Создать раздел
   async createSection({ name }) {
-    return await plugins['db-main'].sections.createSection({ name });
+    return await $dbMain.sections.createSection({ name });
   }
 
   // Удалить раздел
   async deleteSection({ sectionId }) {
-    return await plugins['db-main'].sections.deleteSection({ sectionId });
+    return await $dbMain.sections.deleteSection({ sectionId });
   }
 
   // Изменить раздел
   async editSection(section = {}) {
-    return await plugins['db-main'].sections.editSection(section);
+    return await $dbMain.sections.editSection(section);
   }
 
   // Получить все разделы
   async getSections() {
-    return await plugins['db-main'].sections.getSections();
+    return await $dbMain.sections.getSections();
   }
 
   // Создать кеш списка разделов в которых есть рейтинги + они не скрыты
@@ -27,7 +27,7 @@ class Sections {
     let sections = await this.getSections();
     sections = sections.filter((el) => !el.isHiden);
     for (let item of sections) {
-      item.ratingsCount = await plugins['db-main'].ratings.getRatingCountBySectionId({
+      item.ratingsCount = await $dbMain.ratings.getRatingCountBySectionId({
         sectionId: item.sectionId,
       });
     }

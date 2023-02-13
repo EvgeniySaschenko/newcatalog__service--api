@@ -1,3 +1,5 @@
 module.exports = {
-  colorHex: /#([a-f0-9]{6})/,
+  $regexp: {
+    colorHex: /#([a-f0-9]{6})/,
+  },
 };
