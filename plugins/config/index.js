@@ -39,7 +39,6 @@ let $config = {
     typeSort: {
       alexa: 1,
       click: 2,
-      custom: 3,
     },
     sectionsIdsMin: 1,
     sectionsIdsMax: 2,
@@ -52,6 +51,11 @@ let $config = {
   sections: {
     nameLengthMin: 2,
     nameLengthMax: 50,
+  },
+  // sites
+  sites: {
+    screenshotFileExtension: 'webp',
+    logoFileExtension: 'jpg',
   },
 };
 

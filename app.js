@@ -1,4 +1,5 @@
 global.ROOT_PATH = require('app-root-path');
+let { $resourcesPath } = require('./plugins/resources-path');
 let createError = require('http-errors');
 let express = require('express');
 let path = require('path');
@@ -7,7 +8,6 @@ let logger = require('morgan');
 let routes = require('./routes');
 
 let app = express();
-let config = require('./env.config');
 
 let { fork } = require('child_process');
 fork('./init-app', [global.ROOT_PATH]);
@@ -21,14 +21,13 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-
-app.use(express.static(path.join(__dirname, config.assets)));
+app.use(express.static(path.join(__dirname, $resourcesPath.dataFilesPublicPath)));
 
 app.use('/api', routes);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  next(createError(404));
+  res.sendStatus(404);
 });
 
 // error handler
@@ -38,8 +37,7 @@ app.use(function (err, req, res, next) {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  res.sendStatus(err.status || 500);
 });
 
 module.exports = app;

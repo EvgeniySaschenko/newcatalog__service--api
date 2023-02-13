@@ -1,5 +1,5 @@
 let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots.js');
-let config = require(global.ROOT_PATH + '/env.config');
+let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
 
 module.exports = {
   // Добавить елемент в очередь на создание скрина
@@ -99,7 +99,8 @@ module.exports = {
       order: [['dateCreate', 'ASC']],
     });
     return result.map((el) => {
-      el.img = config.setSiteScreenUrl(el.siteScreenshotId);
+      let { siteScreenshotId } = el;
+      el.img = $resourcesPath.fileUrlScreenshot({ siteScreenshotId });
       return el;
     });
   },
