@@ -1,5 +1,7 @@
 let { Model, DataTypes } = require('sequelize');
 let { db } = require('./_base.js');
+let { $config } = require(global.ROOT_PATH + '/plugins/config');
+let { $errorsUtils } = require(global.ROOT_PATH + '/plugins/errors');
 
 // Разделы сайта
 let Scheme = function () {
@@ -15,22 +17,15 @@ let Scheme = function () {
     name: {
       type: DataTypes.JSONB,
       validate: {
-        checkJSON: (obj) => {
-          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
-          for (let key in obj) {
-            if (obj[key].length < 3 || obj[key].length > 50) {
-              throw Error('Название может быть от 3 до 50 символов');
-            }
-          }
-
-          let isValidLang = 'ua' in obj && 'ru' in obj;
-
-          if (Object.keys(obj).length != 2 || !isValidLang) {
-            throw Error(`Неправильный формат данных`);
-          }
+        checkJSON: (langs) => {
+          $errorsUtils.validateLans({
+            langs,
+            lengthMin: $config.sections.nameLengthMin,
+            lengthMax: $config.sections.nameLengthMax,
+          });
         },
       },
-      defaultValue: {},
+      defaultValue: $config['lang'].localesObject,
     },
     priority: {
       type: DataTypes.INTEGER,

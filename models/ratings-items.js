@@ -1,6 +1,8 @@
 let { Model, DataTypes } = require('sequelize');
 let { db } = require('./_base.js');
 let { M_Sites } = require('./sites');
+let { $config } = require(global.ROOT_PATH + '/plugins/config');
+let { $errors, $errorsUtils } = require(global.ROOT_PATH + '/plugins/errors');
 
 // Отображает к каким разделам относится рейтинг
 let Scheme = function () {
@@ -26,7 +28,7 @@ let Scheme = function () {
           try {
             new URL(url);
           } catch (error) {
-            throw Error('Ссылка должна начинатся с http или https');
+            throw Error($errors['The link must start with "http" or "https"']);
           }
         },
       },
@@ -35,37 +37,28 @@ let Scheme = function () {
     name: {
       type: DataTypes.JSONB,
       validate: {
-        checkJSON: (obj) => {
-          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
-          for (let key in obj) {
-            if (obj[key].length > 255) {
-              throw Error('Длина названия может быть от 0 до 255 символов');
-            }
-          }
-
-          let isValidLang = 'ua' in obj && 'ru' in obj;
-
-          if (Object.keys(obj).length != 2 || !isValidLang) {
-            throw Error(`Неправильный формат данных`);
-          }
+        checkJSON: (langs) => {
+          $errorsUtils.validateLans({
+            langs,
+            lengthMin: $config['ratings-items'].nameLengthMin,
+            lengthMax: $config['ratings-items'].nameLengthMax,
+          });
         },
       },
-      defaultValue: {},
+      defaultValue: $config['lang'].localesObject,
     },
     labelsIds: {
       type: DataTypes.JSONB,
       validate: {
-        checkJSON: (obj) => {
-          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
-          for (let key in obj) {
-            if (!Number.isInteger(obj[key]) || key != obj[key]) {
-              throw Error('Неправильный формат данных');
-            }
-          }
+        // example { 1: 1 }
+        checkJSON: (labelsIds) => {
+          let { labelsIdsMin, labelsIdsMax } = $config['ratings-items'];
 
-          if (Object.keys(obj).length > 5) {
-            throw Error(`Количество ярлыков может быть от 0 до 5`);
-          }
+          $errorsUtils.validateDependencyIds({
+            ids: labelsIds,
+            numberMin: labelsIdsMin,
+            numberMax: labelsIdsMax,
+          });
         },
       },
       defaultValue: {},

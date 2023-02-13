@@ -6,7 +6,9 @@ let util = require('util');
 let exec = util.promisify(require('child_process').exec);
 let parserWhois = require('parse-whois');
 let tldts = require('tldts');
-let plugins = require(global.ROOT_PATH + '/plugins');
+let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
+let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
+let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 
 class Sites {
   sitesAlexaRankEmpty = [];
@@ -14,16 +16,16 @@ class Sites {
 
   async runLogoCreate({ siteScreenshotId, logoScreenshotParams, color }) {
     if (!color || !logoScreenshotParams.cutHeight || !siteScreenshotId) {
-      throw Error('Не хватает данных');
+      throw Error($errors['Not enough data']);
     }
 
-    let { siteId } = await plugins['db-main']['sites-screenshots'].getScreenById({
+    let { siteId } = await $dbMain['sites-screenshots'].getScreenById({
       siteScreenshotId,
     });
     await this.createLogo({ siteScreenshotId, logoScreenshotParams });
-    await plugins['db-main'].sites.updateLogoInfo({ siteId, color, siteScreenshotId });
+    await $dbMain.sites.updateLogoInfo({ siteId, color, siteScreenshotId });
     // Обновить информацию о том что лого создано и убрать из процесса
-    await plugins['db-main']['sites-screenshots'].editProcessing({
+    await $dbMain['sites-screenshots'].editProcessing({
       siteScreenshotId,
       isProcessed: false,
       isCreatedLogo: true,
@@ -126,16 +128,16 @@ class Sites {
 
   // Создать в памяти объект где ключём будет домен сайта, а значением Alexa Rank (Alexa Rank используется для сортировки сайтов)
   async initCreateAlexaRankList() {
-    await plugins['db-temporary'].createDataDaseCasheAlexaRank();
+    await $dbTemporary.createDataDaseCasheAlexaRank();
   }
 
   // Запустить процесс который будет обновлять alexaRank и dateDomainCreate для сайтов у которых alexaRank = 0
   async initProccessSitesInfoUpdate() {
-    // let items = await plugins['db-main'].sites.getSitesDateDomainCreateEmpty();
+    // let items = await $dbMain.sites.getSitesDateDomainCreateEmpty();
     // for await (let { siteId, host } of items) {
-    //   await plugins['db-main'].sites.updateSitesDateDomainCreateEmpty({ siteId });
+    //   await $dbMain.sites.updateSitesDateDomainCreateEmpty({ siteId });
     // }
-    // let items = await plugins['db-main'].sites.getSitesDateDomainCreateEmpty();
+    // let items = await $dbMain.sites.getSitesDateDomainCreateEmpty();
     // console.log(items);
     // for await (let { siteId, host } of items) {
     //   let fileApi = fse.existsSync(global.ROOT_PATH + `/data/whois-api/${siteId}.json`);
@@ -150,14 +152,14 @@ class Sites {
     //     let dateDomainCreate = this.getDomainDateCreate({ whoisConsole: who, whoisApi: {} });
     //     console.log({ siteId, dateDomainCreate, host });
     //     if (dateDomainCreate) {
-    //       await plugins['db-main'].sites.updateSitesDateDomainCreateEmpty({ dateDomainCreate, siteId });
+    //       await $dbMain.sites.updateSitesDateDomainCreateEmpty({ dateDomainCreate, siteId });
     //     }
     //   }
     // }
     setInterval(async () => {
       // Полчить сайты для обработки
       if (!this.sitesAlexaRankEmpty.length) {
-        this.sitesAlexaRankEmpty = await plugins['db-main'].sites.getSitesAlexaRankEmpty();
+        this.sitesAlexaRankEmpty = await $dbMain.sites.getSitesAlexaRankEmpty();
       }
       if (!this.isSitesAlexaRankProcessing && this.sitesAlexaRankEmpty.length) {
         this.isSitesAlexaRankProcessing = true;
@@ -167,7 +169,7 @@ class Sites {
         let dateDomainCreate = this.getDomainDateCreate({ whoisConsole, whoisApi });
         await this.createWhoisFile({ whois: whoisConsole, siteId, type: 'whois-console' });
         await this.createWhoisFile({ whois: whoisApi, siteId, type: 'whois-api' });
-        await plugins['db-main'].sites.updateDomainAndAlexaInfo({
+        await $dbMain.sites.updateDomainAndAlexaInfo({
           siteId,
           alexaRank,
           dateDomainCreate,
@@ -182,7 +184,7 @@ class Sites {
   // Получить Alexa Rank
   async getAlexaRank(host) {
     let { domain } = tldts.parse(host);
-    let alexaRank = await plugins['db-temporary'].getAlexaRank(domain);
+    let alexaRank = await $dbTemporary.getAlexaRank(domain);
     return alexaRank || 10000000;
   }
 

@@ -1,21 +1,7 @@
 let { Model, DataTypes } = require('sequelize');
 let { db } = require('./_base.js');
-
-// Тип контента
-const typeRating = Object.freeze({
-  site: true,
-});
-// Тип отображения
-const typeDisplay = Object.freeze({
-  tile: true,
-  line: true,
-});
-// Тип сортировки
-const typeSort = Object.freeze({
-  alexa: true,
-  click: true,
-  custom: true,
-});
+let { $config } = require(global.ROOT_PATH + '/plugins/config');
+let { $errors, $errorsUtils } = require(global.ROOT_PATH + '/plugins/errors');
 
 // Рейтинги
 let Scheme = function () {
@@ -34,43 +20,29 @@ let Scheme = function () {
     name: {
       type: DataTypes.JSONB,
       validate: {
-        checkJSON: (obj) => {
-          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
-          for (let key in obj) {
-            if (obj[key].length < 10 || obj[key].length > 120) {
-              throw Error('Длина может быть от 10 до 120 символов');
-            }
-          }
-
-          let isValidLang = 'ua' in obj && 'ru' in obj;
-
-          if (Object.keys(obj).length != 2 || !isValidLang) {
-            throw Error(`Неправильный формат данных`);
-          }
+        checkJSON: (langs) => {
+          $errorsUtils.validateLans({
+            langs,
+            lengthMin: $config['ratings'].nameLengthMin,
+            lengthMax: $config['ratings'].nameLengthMax,
+          });
         },
       },
-      defaultValue: {},
+      defaultValue: $config['lang'].localesObject,
     },
     // Описание
     descr: {
       type: DataTypes.JSONB,
       validate: {
-        checkJSON: (obj) => {
-          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
-          for (let key in obj) {
-            if (obj[key].length > 1000) {
-              throw Error('Длина может быть от 0 до 1000 символов');
-            }
-          }
-
-          let isValidLang = 'ua' in obj && 'ru' in obj;
-
-          if (Object.keys(obj).length != 2 || !isValidLang) {
-            throw Error(`Неправильный формат данных`);
-          }
+        checkJSON: (langs) => {
+          $errorsUtils.validateLans({
+            langs,
+            lengthMin: $config['ratings'].descrLengthMin,
+            lengthMax: $config['ratings'].descrLengthMax,
+          });
         },
       },
-      defaultValue: {},
+      defaultValue: $config['lang'].localesObject,
     },
     // Указывает на то что рейтинг скрыт
     isHiden: {
@@ -79,49 +51,54 @@ let Scheme = function () {
     },
     // Сайты / ютуб...
     typeRating: {
-      type: DataTypes.STRING(20),
-      checkType: (str) => {
-        if (!typeRating[str]) {
-          throw Error('Неправильный тип');
-        }
+      type: DataTypes.INTEGER,
+      validate: {
+        isType: (type) => {
+          if (!Object.values($config['ratings'].typeRating).includes(+type)) {
+            throw new Error($errors['Wrong data format']);
+          }
+        },
       },
+      defaultValue: 0,
     },
-    // Сортировко
+    // Сортировка
     typeSort: {
-      type: DataTypes.STRING(20),
-      checkType: (str) => {
-        if (!typeSort[str]) {
-          throw Error('Неправильный тип');
-        }
+      type: DataTypes.INTEGER,
+      validate: {
+        isType: (type) => {
+          if (!Object.values($config['ratings'].typeSort).includes(+type)) {
+            throw new Error($errors['Wrong data format']);
+          }
+        },
       },
+      defaultValue: 0,
     },
     // Плитка, линия
     typeDisplay: {
-      type: DataTypes.STRING(20),
-      checkType: (str) => {
-        if (!typeDisplay[str]) {
-          throw Error('Неправильный тип');
-        }
+      type: DataTypes.INTEGER,
+      validate: {
+        isType: (type) => {
+          if (!Object.values($config['ratings'].typeDisplay).includes(+type)) {
+            throw new Error($errors['Wrong data format']);
+          }
+        },
       },
+      defaultValue: 0,
     },
     // id разделов к которым привязан рейтинг
     sectionsIds: {
       type: DataTypes.JSONB,
       validate: {
-        checkJSON: (obj) => {
-          let count = Object.keys(obj).length;
-          if (typeof obj !== 'object') throw Error('Неправильный формат данных');
-          for (let key in obj) {
-            if (!Number.isInteger(obj[key]) || key != obj[key]) {
-              throw Error('Неправильный формат данных');
-            }
-          }
-
-          if (count < 1 || count > 3) {
-            throw Error(`Количество разделов может быть от 1 до 3`);
-          }
+        checkJSON: (sectionsIds) => {
+          let { sectionsIdsMin, sectionsIdsMax } = $config['ratings'];
+          $errorsUtils.validateDependencyIds({
+            ids: sectionsIds,
+            numberMin: sectionsIdsMin,
+            numberMax: sectionsIdsMax,
+          });
         },
       },
+      defaultValue: {},
     },
     visitorId: {
       type: DataTypes.INTEGER,
@@ -142,4 +119,4 @@ M_Ratings.init(new Scheme(), {
   modelName: name,
 });
 
-module.exports = { M_Ratings, Scheme, name, typeRating, typeDisplay, typeSort };
+module.exports = { M_Ratings, Scheme, name };

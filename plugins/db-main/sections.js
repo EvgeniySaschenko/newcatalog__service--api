@@ -1,5 +1,6 @@
 let { M_Sections } = require(global.ROOT_PATH + '/models/sections.js');
 let striptags = require('striptags');
+let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 
 module.exports = {
   // Создать раздел
@@ -16,7 +17,7 @@ module.exports = {
   async deleteSection({ sectionId }) {
     let result = await M_Sections.destroy({ where: { sectionId } });
     if (result) return true;
-    throw Error('Такого id нет');
+    throw Error($errors['There is no such id']);
   },
 
   // Изменить раздел

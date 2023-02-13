@@ -1,3 +1,5 @@
+let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+
 class ErrorsMessage {
   // Создать сообщение об ошибке
   createMessage(data) {
@@ -21,7 +23,7 @@ class ErrorsMessage {
     // Дефолтное сообщение об ошибке
     if (!isMessage) {
       status = 500;
-      result = { server: 'Ошибка сервера' };
+      result = { server: $errors['Server error'] };
     }
     return { status, errors: result };
   }
