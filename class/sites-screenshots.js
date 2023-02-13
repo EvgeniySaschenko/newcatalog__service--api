@@ -1,6 +1,8 @@
 let puppeteer = require('puppeteer');
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
-let config = require(global.ROOT_PATH + '/env.config');
+let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
+let { $config } = require(global.ROOT_PATH + '/plugins/config');
+const { screenshotFileExtension } = $config['sites'];
 
 class SitesScreenshots {
   userAgent =
@@ -52,8 +54,8 @@ class SitesScreenshots {
       await page.setUserAgent(this.userAgent);
       await page.goto(url);
       await page.screenshot({
-        path: config.setSiteScreenAssets(siteScreenshotId),
-        type: 'png',
+        path: $resourcesPath.filePathScreenshot({ siteScreenshotId }),
+        type: screenshotFileExtension,
       });
       // Указывает на то что скриншот создан
       await $dbMain['sites-screenshots'].editProcessing({

@@ -1,5 +1,4 @@
 let sharp = require('sharp');
-let config = require(global.ROOT_PATH + '/env.config');
 let whois = require('whois-json');
 let fse = require('fs-extra');
 let util = require('util');
@@ -9,7 +8,7 @@ let tldts = require('tldts');
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
 let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
-
+let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
 class Sites {
   sitesAlexaRankEmpty = [];
   isSitesAlexaRankProcessing = false;
@@ -61,7 +60,7 @@ class Sites {
       }
     }
 
-    let file = await sharp(config.setSiteScreenAssets(siteScreenshotId))
+    let file = await sharp($resourcesPath.filePathScreenshot({ siteScreenshotId }))
       .resize({
         width: imgWidth,
         height: imgHeight,
@@ -77,10 +76,13 @@ class Sites {
           width: Math.floor(newWidth),
           height: Math.floor(newHeight),
         })
-        .toFile(config.setSiteLogoAssets(siteScreenshotId));
+        .jpeg({ mozjpeg: true })
+        .toFile($resourcesPath.filePathSiteLogo({ siteScreenshotId }));
     } else {
       // Если норм
-      await sharp(file).toFile(config.setSiteLogoAssets(siteScreenshotId));
+      await sharp(file)
+        .jpeg({ mozjpeg: true })
+        .toFile($resourcesPath.filePathSiteLogo({ siteScreenshotId }));
     }
   }
 
@@ -119,7 +121,7 @@ class Sites {
   async createWhoisFile({ whois, siteId, type }) {
     try {
       if (Object.keys(whois).length) {
-        await fse.writeJson(config.setWhoisJSONpath({ type, siteId }), whois);
+        await fse.writeJson($resourcesPath.filePathWhoisSiteInfo({ type, siteId }), whois);
       }
     } catch (error) {
       console.error(error);
@@ -167,8 +169,8 @@ class Sites {
         let alexaRank = await this.getAlexaRank(host);
         let { whoisConsole, whoisApi } = await this.getWhois(host);
         let dateDomainCreate = this.getDomainDateCreate({ whoisConsole, whoisApi });
-        await this.createWhoisFile({ whois: whoisConsole, siteId, type: 'whois-console' });
-        await this.createWhoisFile({ whois: whoisApi, siteId, type: 'whois-api' });
+        await this.createWhoisFile({ whois: whoisConsole, siteId, type: 'console' });
+        await this.createWhoisFile({ whois: whoisApi, siteId, type: 'api' });
         await $dbMain.sites.updateDomainAndAlexaInfo({
           siteId,
           alexaRank,

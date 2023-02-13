@@ -1,12 +1,12 @@
 .DS_Store
 node_modules
-public/**/*.png
-public/**/*.png
-public/**/*.jpg
-public/**/*.jpg
-!public/dev/default.jpg
-!public/prod/default.jpg
-
+data/**/*.json
+data/**/*.png
+data/**/*.jpg
+data/**/*.webp
+!data/dev/images/site-logo-default.jpg
+!data/prod/images/site-logo-default.jpg
+public
 
 /tests/e2e/videos/
 /tests/e2e/screenshots/

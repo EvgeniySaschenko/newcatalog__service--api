@@ -1,6 +1,7 @@
 let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items.js');
 let { M_Sites } = require(global.ROOT_PATH + '/models/sites.js');
-let config = require(global.ROOT_PATH + '/env.config');
+let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
+let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
 module.exports = {
   // Создать елемент рейтинга
@@ -75,6 +76,10 @@ module.exports = {
 
   // Получить все елементы рейтинга
   async getItemsRating({ ratingId, typeSort }) {
+    let [sortKey, sortValue] = Object.entries($config.ratings.typeSort).find(
+      (item) => item[1] === +typeSort
+    );
+
     let order = {
       alexa: [
         [{ model: M_Sites, as: 'site' }, 'alexaRank', 'ASC'],
@@ -104,7 +109,7 @@ module.exports = {
       where: {
         ratingId: +ratingId,
       },
-      order: order[typeSort],
+      order: order[sortKey],
       include: [
         {
           model: M_Sites,
@@ -117,7 +122,8 @@ module.exports = {
     });
 
     result = result.map((el) => {
-      el.site.img = config.setSiteLogoUrl(el.site.siteScreenshotId);
+      let { siteScreenshotId } = el.site;
+      el.site.img = $resourcesPath.fileUrlSiteLogo({ siteScreenshotId });
       return el;
     });
     return result;
