@@ -127,19 +127,18 @@ class RatingsItems {
     };
   }
 
-  // Добавить елемент в очередь на создание скрина
-  async addItemToProcessing({ ratingId, url, siteId, host }) {
-    let itemProcessingByUrl = await $dbMain['sites-screenshots'].getScreenProcessingByHost({
-      host,
+  // Добавить сайт в очередь на создание скрина
+  async addItemToProcessing({ ratingId, url, siteId }) {
+    let itemProcessingByUrl = await $dbMain['sites-screenshots'].checkSiteProcessingBySiteId({
+      siteId,
     });
     let result;
 
     if (!itemProcessingByUrl) {
-      result = await $dbMain['sites-screenshots'].addScreenProcessing({
+      result = await $dbMain['sites-screenshots'].addSiteToProcessing({
         ratingId,
         url,
         siteId,
-        host,
       });
     }
 

@@ -54,8 +54,31 @@ let $config = {
   },
   // sites
   sites: {
+    // Using in puppeteer and when creating a logo
     screenshotFileExtension: 'webp',
     logoFileExtension: 'jpg',
+    logoMaxHeight: 100,
+    logoMaxWidth: 200,
+    // Sets the interval for checking for new entries in the database or and minimum whois check interval, etc.
+    timeIntervalProcessSitesInfoUpdate: 1500,
+    // If the site is not assigned Alexa Rank
+    defaultAlexaRank: 10000000,
+  },
+  // puppeteer
+  puppeteer: {
+    viewportWidth: 1600,
+    viewportHeight: 900,
+    userAgent:
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36',
+    extraHTTPHeaders: {
+      'Accept-Language': 'ua',
+    },
+    launch: {
+      args: ['--lang=uk-UA,uk', '--no-sandbox'],
+    },
+    defaultNavigationTimeout: 60000,
+    // Sets the interval for checking for new entries in the database or the minimum interval between screenshots.
+    timeIntervalScreenshotCreate: 1000,
   },
 };
 

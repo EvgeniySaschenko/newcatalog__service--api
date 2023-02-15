@@ -15,48 +15,43 @@ let Scheme = function () {
     siteId: {
       type: DataTypes.INTEGER,
     },
-    typeRating: {
-      type: DataTypes.INTEGER(3),
-    },
-    host: {
-      type: DataTypes.STRING,
-    },
     url: {
       type: DataTypes.TEXT,
       defaultValue: '',
-    },
-    // Указывает на то что скриншот отменён
-    isСanceled: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-    // Указывает на то что скриншот создан
-    isCreatedScreen: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-    // Указывает на то что скришот находится в оработке
-    isProcessed: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
-    },
-    // Указывает на то что создан логотип
-    isCreatedLogo: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-    isError: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
     },
     errorMessage: {
       type: DataTypes.JSONB,
       defaultValue: '',
     },
-    dateUpdate: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+    // If you want to use a custom image as the basis for creating a logo (instead of a "puppeteer")
+    isUploadCustomScreenshot: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
+    // Date screenshot created
+    dateScreenshotCreated: {
+      type: DataTypes.DATE,
+      defaultValue: null,
+    },
+    // If an error occurs while taking a screenshot
+    dateScreenshotError: {
+      type: DataTypes.DATE,
+      defaultValue: null,
+    },
+    // Date logo created
+    dateLogoCreated: {
+      type: DataTypes.DATE,
+      defaultValue: null,
+    },
+    /*
+      If you need to cancel at some point in the process
+      But if the logo has already been created, it makes no sense to cancel it. the whole process has been completed.
+    */
+    dateCanceled: {
+      type: DataTypes.DATE,
+      defaultValue: null,
+    },
+    // Record creation date
     dateCreate: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
