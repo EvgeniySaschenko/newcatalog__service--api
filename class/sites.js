@@ -9,34 +9,34 @@ let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
 let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
+let { $config } = require(global.ROOT_PATH + '/plugins/config');
 class Sites {
   sitesAlexaRankEmpty = [];
   isSitesAlexaRankProcessing = false;
 
+  // Run process logo create
   async runLogoCreate({ siteScreenshotId, logoScreenshotParams, color }) {
     if (!color || !logoScreenshotParams.cutHeight || !siteScreenshotId) {
       throw Error($errors['Not enough data']);
     }
 
-    let { siteId } = await $dbMain['sites-screenshots'].getScreenById({
+    let { siteId } = await $dbMain['sites-screenshots'].getSiteScreenshotById({
       siteScreenshotId,
     });
     await this.createLogo({ siteScreenshotId, logoScreenshotParams });
     await $dbMain.sites.updateLogoInfo({ siteId, color, siteScreenshotId });
-    // Обновить информацию о том что лого создано и убрать из процесса
-    await $dbMain['sites-screenshots'].editProcessing({
+    // Remove site from unprocessed
+    await $dbMain['sites-screenshots'].editLogoCreated({
       siteScreenshotId,
-      isProcessed: false,
-      isCreatedLogo: true,
     });
     return true;
   }
 
-  // Создать логотип
+  // Create file logo
   async createLogo({ siteScreenshotId, logoScreenshotParams }) {
     let { cutHeight, cutWidth, imgHeight, imgWidth, left, top } = logoScreenshotParams;
-    const maxHeight = 100;
-    const maxWidth = 200;
+    const maxHeight = $config['sites'].logoMaxHeight;
+    const maxWidth = $config['sites'].logoMaxWidth;
     let coefH = cutHeight / maxHeight;
     let coefW = cutWidth / maxWidth;
     let newWidth;
@@ -86,20 +86,20 @@ class Sites {
     }
   }
 
-  // Получить whois
+  // Get site whois info
   async getWhois(host) {
     let { domain } = tldts.parse(host);
     let whoisConsole = {};
     let whoisApi = {};
 
-    // whois из API
+    // whois from API
     try {
       whoisApi = await whois(domain);
     } catch (error) {
       console.error(`whois API ${error}`);
     }
 
-    // whois из пакета ОС
+    // whois from package OS
     try {
       let { error, stdout } = await exec(`whois ${domain}`, { encoding: 'utf8' });
       if (stdout) {
@@ -117,7 +117,7 @@ class Sites {
     return { whoisConsole, whoisApi };
   }
 
-  // Записать данные whois в файл
+  // Write data whois in file
   async createWhoisFile({ whois, siteId, type }) {
     try {
       if (Object.keys(whois).length) {
@@ -128,7 +128,7 @@ class Sites {
     }
   }
 
-  // Создать в памяти объект где ключём будет домен сайта, а значением Alexa Rank (Alexa Rank используется для сортировки сайтов)
+  // Create list Alexa Rank  sites in Redis
   async initCreateAlexaRankList() {
     await $dbTemporary.createDataDaseCasheAlexaRank();
   }
@@ -159,7 +159,7 @@ class Sites {
     //   }
     // }
     setInterval(async () => {
-      // Полчить сайты для обработки
+      // Get sites
       if (!this.sitesAlexaRankEmpty.length) {
         this.sitesAlexaRankEmpty = await $dbMain.sites.getSitesAlexaRankEmpty();
       }
@@ -180,32 +180,32 @@ class Sites {
         this.sitesAlexaRankEmpty.pop();
         this.isSitesAlexaRankProcessing = false;
       }
-    }, 2000);
+    }, $config['sites'].timeIntervalProcessSitesInfoUpdate);
   }
 
-  // Получить Alexa Rank
+  // Get Alexa Rank
   async getAlexaRank(host) {
     let { domain } = tldts.parse(host);
     let alexaRank = await $dbTemporary.getAlexaRank(domain);
-    return alexaRank || 10000000;
+    return alexaRank || $config['sites'].defaultAlexaRank;
   }
 
-  // Получить дату создания домена
+  // Get domain date create (return "date" or "null")
   getDomainDateCreate({ whoisConsole, whoisApi }) {
     try {
       let dateRaw = whoisConsole['Creation Date'] || whoisApi['created'] || whoisConsole['created'];
       let isNotDate = isNaN(new Date(dateRaw).getFullYear());
       /*
-        обработка таких строк - '2012-04-02 15:49:24+03 2014-04-03 06:15:53+03 2014-04-03 06:15:53+03 2014-04-03 06:15:55+03'
+        handling such strings - '2012-04-02 15:49:24+03 2014-04-03 06:15:53+03 2014-04-03 06:15:53+03 2014-04-03 06:15:55+03'
       */
       if (dateRaw && dateRaw.length > 10 && isNotDate) {
         dateRaw = dateRaw.slice(0, 10);
         isNotDate = isNaN(new Date(dateRaw).getFullYear());
       }
       /*
-        dateRaw.length < 10 - нужно убедится что передана строка не короче такой "2014-10-10"
-        !isNaN(dateRaw) - нужно убедится что это не число, потому что new Date() создаст дату из числа
-        isNaN(new Date(dateRaw).getFullYear()) - дата не содержыт год
+        dateRaw.length < 10 - you need to make sure that the passed string is not shorter than this "2014-10-10"
+        !isNaN(dateRaw) - you need to make sure it's not a number, because new Date() will create a date from a number
+        isNaN(new Date(dateRaw).getFullYear()) - date does not contain year
       */
       if (!dateRaw || dateRaw.length < 10 || !isNaN(dateRaw) || isNotDate) {
         return null;

@@ -1,6 +1,8 @@
 let { Model, DataTypes } = require('sequelize');
 let { db } = require('./_base.js');
 let { M_Sites } = require('./sites');
+let { M_SitesScreenshots } = require('./sites-screenshots');
+
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $errors, $errorsUtils } = require(global.ROOT_PATH + '/plugins/errors');
 
@@ -94,6 +96,12 @@ M_RatingsItems.belongsTo(M_Sites, {
   foreignKey: 'siteId',
   targetKey: 'siteId',
   as: 'site',
+});
+
+M_RatingsItems.belongsTo(M_SitesScreenshots, {
+  foreignKey: 'siteId',
+  targetKey: 'siteId',
+  as: 'site_screenshot',
 });
 
 module.exports = { M_RatingsItems, Scheme, name };

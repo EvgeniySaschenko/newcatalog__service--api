@@ -1,107 +1,86 @@
-let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots.js');
-let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
+let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots');
+let { Op } = require('sequelize');
 
 module.exports = {
-  // Добавить елемент в очередь на создание скрина
-  async addScreenProcessing({ ratingId, url, siteId, host }) {
+  // Add an item to the screen creation queue
+  async addSiteToProcessing({ ratingId, url, siteId }) {
     let result = await M_SitesScreenshots.create({
       ratingId,
       url,
       siteId,
-      host,
     });
     return result.get({ plain: true });
   },
 
-  // Записать данные о состоянии процесса
-  /* 
-    isCreatedScreen - параметр нужен при редактировании сайтой - чтобы не поставить в обработку пока не готово лого 
-  */
-  async editProcessing(params = {}) {
-    let validFields = {
-      isProcessed: true,
-      isCreatedScreen: true,
-      isError: true,
-      isCreatedLogo: true,
-      errorMessage: true,
-    };
-
-    let queryParams = {};
-
-    for (let key in params) {
-      if (key in validFields) {
-        queryParams[key] = params[key];
-      }
-    }
-
+  // Logo created
+  async editLogoCreated({ siteScreenshotId }) {
     await M_SitesScreenshots.update(
-      { ...queryParams },
+      { dateLogoCreated: new Date() },
       {
         where: {
-          siteScreenshotId: params.siteScreenshotId,
+          siteScreenshotId,
+        },
+      }
+    );
+  },
+  // Screenshot created
+  async editScreenshotCreatedSuccess({ siteScreenshotId }) {
+    await M_SitesScreenshots.update(
+      { dateScreenshotCreated: new Date() },
+      {
+        where: {
+          siteScreenshotId,
         },
       }
     );
   },
 
-  // Получить сайты которые необходимо обработать (isError - сайты у котрых появилась ошибка при обработке)
-  async getProcessing() {
+  // Error entry when taking a screenshot
+  async editErrorScreenshotCreate({ siteScreenshotId, errorMessage }) {
+    await M_SitesScreenshots.update(
+      { dateScreenshotError: new Date(), errorMessage },
+      {
+        where: {
+          siteScreenshotId,
+        },
+      }
+    );
+  },
+
+  // Sites in processing without a screenshot
+  async getSitesProcessingWithoutScreenshot() {
     let result = await M_SitesScreenshots.findAll({
       attributes: ['siteScreenshotId', 'url'],
       where: {
-        isCreatedScreen: false,
-        isProcessed: true,
-        isError: false,
+        dateScreenshotCreated: null,
+        dateCanceled: null,
+        dateScreenshotError: null,
       },
       order: [['dateCreate', 'DESC']],
     });
     return result || [];
   },
 
-  // Получить елемент в который находится в обработке
-  async getScreenProcessingByHost({ host }) {
+  // Get the element that is being processed (check)
+  async checkSiteProcessingBySiteId({ siteId }) {
     let result = await M_SitesScreenshots.findOne({
       attributes: ['siteScreenshotId', 'siteId'],
       where: {
-        host,
-        isProcessed: true,
+        siteId,
+        dateCanceled: null,
+        dateScreenshotError: null,
+        dateLogoCreated: null,
       },
     });
-
     return result;
   },
 
-  // Получить скриншот по id
-  async getScreenById({ siteScreenshotId }) {
+  // Get screenshot by id
+  async getSiteScreenshotById({ siteScreenshotId }) {
     let result = await M_SitesScreenshots.findOne({
       attributes: ['siteId'],
       where: { siteScreenshotId },
     });
     return result;
-  },
-
-  async getReadyScreenshotsForRating({
-    ratingId,
-    isCreatedScreen = true,
-    isProcessed = true,
-    isСanceled = false,
-    isError = false,
-  }) {
-    let result = await M_SitesScreenshots.findAll({
-      attributes: ['siteScreenshotId'],
-      where: {
-        isCreatedScreen,
-        isProcessed,
-        isСanceled,
-        isError,
-        ratingId,
-      },
-      order: [['dateCreate', 'ASC']],
-    });
-    return result.map((el) => {
-      let { siteScreenshotId } = el;
-      el.img = $resourcesPath.fileUrlScreenshot({ siteScreenshotId });
-      return el;
-    });
   },
 };

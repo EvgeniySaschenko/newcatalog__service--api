@@ -6,11 +6,80 @@ let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 let routes = require('./routes');
+let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots');
 
 let app = express();
 
 let { fork } = require('child_process');
 fork('./init-app', [global.ROOT_PATH]);
+
+// let fs = require('fs');
+// let logos = fs.readdirSync('./images/sites-logos');
+// let screens = fs.readdirSync('./images/sites-screens');
+(async () => {
+  // let errs = await M_SitesScreenshots.findAll({
+  //   attributes: ['siteScreenshotId', 'dateCreate'],
+  //   where: {
+  //     dateScreenshotError: null,
+  //   },
+  //   order: [['dateCreate', 'DESC']],
+  // });
+  // for await (let item of errs) {
+  //   await M_SitesScreenshots.update(
+  //     { errorMessage: null },
+  //     {
+  //       where: {
+  //         siteScreenshotId: item.siteScreenshotId,
+  //       },
+  //     }
+  //   );
+  // }
+  //   for await (let item of logos) {
+  //     fs.stat(`./images/sites-logos/${item}`, async function (err, stat) {
+  //       let siteScreenshotId = item.replace('.png', '');
+  //       console.log(stat.mtime);
+  //       await M_SitesScreenshots.update(
+  //         { dateLogoCreated: stat.mtime },
+  //         {
+  //           where: {
+  //             siteScreenshotId,
+  //           },
+  //         }
+  //       );
+  //     });
+  //   }
+  //   for await (let item of screens) {
+  //     fs.stat(`./images/sites-screens/${item}`, async function (err, stat) {
+  //       let siteScreenshotId = item.replace('.png', '');
+  //       console.log(stat.mtime);
+  //       await M_SitesScreenshots.update(
+  //         { dateScreenshotCreated: stat.mtime },
+  //         {
+  //           where: {
+  //             siteScreenshotId,
+  //           },
+  //         }
+  //       );
+  //     });
+  //   }
+  //   let err = await M_SitesScreenshots.findAll({
+  //     attributes: ['siteScreenshotId', 'dateCreate'],
+  //     where: {
+  //       isError: true,
+  //     },
+  //     order: [['dateCreate', 'DESC']],
+  //   });
+  //   for await (let item of err) {
+  //     await M_SitesScreenshots.update(
+  //       { dateScreenshotError: item.dateCreate },
+  //       {
+  //         where: {
+  //           siteScreenshotId: item.siteScreenshotId,
+  //         },
+  //       }
+  //     );
+  //   }
+})();
 
 app.use('/images', (req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

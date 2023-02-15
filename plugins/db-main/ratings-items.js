@@ -1,7 +1,9 @@
-let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items.js');
-let { M_Sites } = require(global.ROOT_PATH + '/models/sites.js');
+let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items');
+let { M_Sites } = require(global.ROOT_PATH + '/models/sites');
+let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots');
 let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
+let { Op } = require('sequelize');
 
 module.exports = {
   // Создать елемент рейтинга
@@ -127,6 +129,45 @@ module.exports = {
       return el;
     });
     return result;
+  },
+
+  // Get items for which there are screenshots but no logos
+  async getItemsReadyScrenshotNotLogo({ ratingId }) {
+    let result = await M_RatingsItems.findAll({
+      where: {
+        ratingId: +ratingId,
+      },
+      include: [
+        {
+          model: M_SitesScreenshots,
+          where: {
+            dateScreenshotCreated: {
+              [Op.not]: null,
+            },
+            dateLogoCreated: null,
+            dateCanceled: null,
+          },
+          as: 'site_screenshot',
+        },
+      ],
+      order: [['dateCreate', 'ASC']],
+      raw: true,
+      nest: true,
+    });
+
+    let unic = {};
+    return result.reduce((total, item) => {
+      let { siteScreenshotId, url } = item.site_screenshot;
+      if (!unic[siteScreenshotId]) {
+        unic[siteScreenshotId] = siteScreenshotId;
+        total.push({
+          siteScreenshotId,
+          url,
+          img: $resourcesPath.fileUrlScreenshot({ siteScreenshotId }),
+        });
+      }
+      return total;
+    }, []);
   },
 
   // async getItemByImgId({ imgId }) {
