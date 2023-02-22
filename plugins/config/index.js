@@ -63,6 +63,7 @@ let $config = {
     timeIntervalProcessSitesInfoUpdate: 1500,
     // If the site is not assigned Alexa Rank
     defaultAlexaRank: 10000000,
+    screenshotMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
   },
   // puppeteer
   puppeteer: {

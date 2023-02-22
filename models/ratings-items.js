@@ -21,6 +21,7 @@ let Scheme = function () {
     siteId: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
+      allowNull: false,
     },
     url: {
       type: DataTypes.TEXT,

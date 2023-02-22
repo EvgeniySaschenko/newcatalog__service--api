@@ -1,28 +1,16 @@
 let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots');
-let { Op } = require('sequelize');
 
 module.exports = {
   // Add an item to the screen creation queue
-  async addSiteToProcessing({ ratingId, url, siteId }) {
+  async addSiteToProcessing({ url, siteId, isUploadCustomScreenshot = false }) {
     let result = await M_SitesScreenshots.create({
-      ratingId,
       url,
       siteId,
+      isUploadCustomScreenshot,
     });
     return result.get({ plain: true });
   },
 
-  // Logo created
-  async editLogoCreated({ siteScreenshotId }) {
-    await M_SitesScreenshots.update(
-      { dateLogoCreated: new Date() },
-      {
-        where: {
-          siteScreenshotId,
-        },
-      }
-    );
-  },
   // Screenshot created
   async editScreenshotCreatedSuccess({ siteScreenshotId }) {
     await M_SitesScreenshots.update(
@@ -47,14 +35,17 @@ module.exports = {
     );
   },
 
-  // Sites in processing without a screenshot
+  /*
+    Sites in processing without a screenshot
+    isUploadCustomScreenshot - if the value is true, then the screenshot was uploaded manually
+  */
   async getSitesProcessingWithoutScreenshot() {
     let result = await M_SitesScreenshots.findAll({
-      attributes: ['siteScreenshotId', 'url'],
+      attributes: ['siteScreenshotId', 'url', 'siteId'],
       where: {
         dateScreenshotCreated: null,
-        dateCanceled: null,
         dateScreenshotError: null,
+        isUploadCustomScreenshot: false,
       },
       order: [['dateCreate', 'DESC']],
     });
@@ -64,21 +55,19 @@ module.exports = {
   // Get the element that is being processed (check)
   async checkSiteProcessingBySiteId({ siteId }) {
     let result = await M_SitesScreenshots.findOne({
-      attributes: ['siteScreenshotId', 'siteId'],
       where: {
         siteId,
-        dateCanceled: null,
         dateScreenshotError: null,
-        dateLogoCreated: null,
+        dateScreenshotCreated: null,
       },
     });
+
     return result;
   },
 
   // Get screenshot by id
   async getSiteScreenshotById({ siteScreenshotId }) {
     let result = await M_SitesScreenshots.findOne({
-      attributes: ['siteId'],
       where: { siteScreenshotId },
     });
     return result;

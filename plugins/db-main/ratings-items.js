@@ -3,6 +3,7 @@ let { M_Sites } = require(global.ROOT_PATH + '/models/sites');
 let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots');
 let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { Op } = require('sequelize');
 
 module.exports = {
@@ -115,8 +116,25 @@ module.exports = {
       include: [
         {
           model: M_Sites,
-          attributes: ['siteId', 'color', 'siteScreenshotId', 'alexaRank', 'dateDomainCreate'],
+          attributes: [
+            'siteId',
+            'color',
+            'siteScreenshotId',
+            'siteLogoId',
+            'alexaRank',
+            'dateDomainCreate',
+          ],
           as: 'site',
+        },
+        {
+          model: M_SitesScreenshots,
+          attributes: ['siteScreenshotId', 'dateScreenshotCreated'],
+          where: {
+            dateScreenshotError: null,
+            dateScreenshotCreated: null,
+          },
+          required: false,
+          as: 'site_screenshot',
         },
       ],
       raw: true,
@@ -124,15 +142,65 @@ module.exports = {
     });
 
     result = result.map((el) => {
-      let { siteScreenshotId } = el.site;
-      el.site.img = $resourcesPath.fileUrlSiteLogo({ siteScreenshotId });
-      return el;
+      let site = el.site;
+      let { siteScreenshotId, siteLogoId } = el.site;
+      let { domain, hostname, isSubdomain } = $utils.urlInfo(el.url);
+      el.logoImg = $resourcesPath.fileUrlSiteLogo({ siteLogoId });
+      el.screenshotImg = $resourcesPath.fileUrlScreenshot({ siteScreenshotId });
+      el.isSubdomain = isSubdomain;
+      el.domain = domain;
+      el.hostname = hostname;
+      // Indicates that the screenshot is in the creation queue.
+      el.isScreenshotProcessCreate =
+        el.site_screenshot.siteScreenshotId && !el.site_screenshot.dateScreenshotCreated
+          ? true
+          : false;
+      delete el.site;
+      return { ...el, ...site };
     });
     return result;
   },
 
   // Get items for which there are screenshots but no logos
-  async getItemsReadyScrenshotNotLogo({ ratingId }) {
+  async getItemsReadyScrenshotsNotLogo({ ratingId }) {
+    let result = await M_RatingsItems.findAll({
+      where: {
+        ratingId: +ratingId,
+      },
+      include: [
+        {
+          model: M_Sites,
+          where: {
+            siteScreenshotId: {
+              [Op.not]: null,
+            },
+            siteLogoId: null,
+          },
+          as: 'site',
+        },
+      ],
+      order: [['dateCreate', 'ASC']],
+      raw: true,
+      nest: true,
+    });
+
+    let unic = {};
+    return result.reduce((total, item) => {
+      let { siteScreenshotId, host } = item.site;
+      if (!unic[siteScreenshotId]) {
+        unic[siteScreenshotId] = siteScreenshotId;
+        total.push({
+          siteScreenshotId,
+          host,
+          screenshotImg: $resourcesPath.fileUrlScreenshot({ siteScreenshotId }),
+        });
+      }
+      return total;
+    }, []);
+  },
+
+  // Get items for which there are screenshots but no logos
+  async getItemsScrenshotsErrors({ ratingId }) {
     let result = await M_RatingsItems.findAll({
       where: {
         ratingId: +ratingId,
@@ -141,11 +209,9 @@ module.exports = {
         {
           model: M_SitesScreenshots,
           where: {
-            dateScreenshotCreated: {
+            dateScreenshotError: {
               [Op.not]: null,
             },
-            dateLogoCreated: null,
-            dateCanceled: null,
           },
           as: 'site_screenshot',
         },
@@ -157,13 +223,14 @@ module.exports = {
 
     let unic = {};
     return result.reduce((total, item) => {
-      let { siteScreenshotId, url } = item.site_screenshot;
+      let { siteScreenshotId, url, dateScreenshotError, errorMessage } = item.site_screenshot;
       if (!unic[siteScreenshotId]) {
         unic[siteScreenshotId] = siteScreenshotId;
         total.push({
           siteScreenshotId,
           url,
-          img: $resourcesPath.fileUrlScreenshot({ siteScreenshotId }),
+          dateScreenshotError,
+          errorMessage,
         });
       }
       return total;

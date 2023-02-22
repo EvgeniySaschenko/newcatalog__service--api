@@ -2,8 +2,8 @@ let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let fse = require('fs-extra');
 let striptags = require('striptags');
 let axios = require('axios');
-let tldts = require('tldts');
 let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 class RatingsItems {
   // Создать елемент рейтинга
@@ -12,11 +12,10 @@ class RatingsItems {
 
     await this.checkRatingUrlExist({ ratingId, url });
 
-    let { hostname, subdomain, domain } = tldts.parse(url);
-    let isSubdomain = subdomain && subdomain !== 'www';
+    let { isSubdomain, hostname, domain } = $utils.urlInfo(url);
     let host = isSubdomain ? hostname : domain;
 
-    let { siteId } = await this.checkSiteExist({ host, ratingId, url, isSubdomain });
+    let { siteId } = await this.checkSiteExist({ host, url, isSubdomain });
     let page = await this.getPage(url); // получить заголовок страницы
 
     for (let key in name) {
@@ -53,7 +52,7 @@ class RatingsItems {
   }
 
   // Проверяем наличие наличие сайта в таблице сайтов
-  async checkSiteExist({ host, ratingId, url, isSubdomain }) {
+  async checkSiteExist({ host, url, isSubdomain }) {
     let isCreatedScreen = false;
 
     let site = await $dbMain.sites.getSiteByHost({ host });
@@ -66,11 +65,9 @@ class RatingsItems {
 
     // Добавить url в очередь на создание скрина - если это субдомен скрин автоматически не создаётся, потому что может быть одинаковый логотип с доменом
     if (isCreatedScreen && !isSubdomain) {
-      await this.addItemToProcessing({
-        ratingId,
-        siteId: site.siteId,
+      await $dbMain['sites-screenshots'].addSiteToProcessing({
         url,
-        host,
+        siteId: site.siteId,
       });
     }
 
@@ -125,24 +122,6 @@ class RatingsItems {
       name: titleResult ? striptags(titleResult[0]).slice(0, 254) : '',
       html,
     };
-  }
-
-  // Добавить сайт в очередь на создание скрина
-  async addItemToProcessing({ ratingId, url, siteId }) {
-    let itemProcessingByUrl = await $dbMain['sites-screenshots'].checkSiteProcessingBySiteId({
-      siteId,
-    });
-    let result;
-
-    if (!itemProcessingByUrl) {
-      result = await $dbMain['sites-screenshots'].addSiteToProcessing({
-        ratingId,
-        url,
-        siteId,
-      });
-    }
-
-    return result;
   }
 
   // Получить все елементы рейтинга

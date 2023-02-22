@@ -116,10 +116,7 @@ module.exports = {
       where: {
         userId,
       },
-      order: [
-        ['isHiden', 'ASC'],
-        ['dateCreate', 'DESC'],
-      ],
+      order: [['dateCreate', 'DESC']],
     });
     return result;
   },
