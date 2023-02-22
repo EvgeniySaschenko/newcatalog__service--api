@@ -1,4 +1,6 @@
 let { Model, DataTypes } = require('sequelize');
+let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
+let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 let { db } = require('./_base.js');
 
 // Отображает к каким разделам относится рейтинг
@@ -11,16 +13,26 @@ let Scheme = function () {
     },
     siteScreenshotId: {
       type: DataTypes.NUMBER,
-      defaultValue: 0,
+      defaultValue: null,
+    },
+    siteLogoId: {
+      type: DataTypes.NUMBER,
+      defaultValue: null,
     },
     color: {
-      type: DataTypes.STRING,
-      defaultValue: '',
+      type: DataTypes.STRING(7),
+      validate: {
+        is: {
+          args: $regexp.colorHex,
+          msg: $errors['Color value must be in HEX format'],
+        },
+      },
+      defaultValue: null,
     },
     host: {
       type: DataTypes.STRING,
-      defaultValue: '',
       unique: true,
+      allowNull: false,
     },
     alexaRank: {
       type: DataTypes.INTEGER,

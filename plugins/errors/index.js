@@ -28,6 +28,12 @@ let $errors = {
   'Server error': $t('Server error'),
   //
   'Not enough data': $t('Not enough data'),
+  //
+  'This site is currently in the screenshot queue': $t(
+    'This site is currently in the screenshot queue'
+  ),
+  //
+  'Invalid file': $t('Invalid file'),
 };
 
 let $errorsUtils = {

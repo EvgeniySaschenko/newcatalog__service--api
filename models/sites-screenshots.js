@@ -9,19 +9,17 @@ let Scheme = function () {
       primaryKey: true,
       autoIncrement: true,
     },
-    ratingId: {
-      type: DataTypes.INTEGER,
-    },
     siteId: {
       type: DataTypes.INTEGER,
+      allowNull: false,
     },
     url: {
       type: DataTypes.TEXT,
-      defaultValue: '',
+      defaultValue: null,
     },
     errorMessage: {
       type: DataTypes.JSONB,
-      defaultValue: '',
+      defaultValue: null,
     },
     // If you want to use a custom image as the basis for creating a logo (instead of a "puppeteer")
     isUploadCustomScreenshot: {
@@ -35,19 +33,6 @@ let Scheme = function () {
     },
     // If an error occurs while taking a screenshot
     dateScreenshotError: {
-      type: DataTypes.DATE,
-      defaultValue: null,
-    },
-    // Date logo created
-    dateLogoCreated: {
-      type: DataTypes.DATE,
-      defaultValue: null,
-    },
-    /*
-      If you need to cancel at some point in the process
-      But if the logo has already been created, it makes no sense to cancel it. the whole process has been completed.
-    */
-    dateCanceled: {
       type: DataTypes.DATE,
       defaultValue: null,
     },

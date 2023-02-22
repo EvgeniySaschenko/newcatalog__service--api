@@ -13,6 +13,7 @@ let Scheme = function () {
     },
     parentId: {
       type: DataTypes.INTEGER,
+      defaultValue: null,
     },
     name: {
       type: DataTypes.JSONB,

@@ -4,7 +4,7 @@ let fse = require('fs-extra');
 let util = require('util');
 let exec = util.promisify(require('child_process').exec);
 let parserWhois = require('parse-whois');
-let tldts = require('tldts');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
 let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
@@ -14,22 +14,39 @@ class Sites {
   sitesAlexaRankEmpty = [];
   isSitesAlexaRankProcessing = false;
 
+  // Get site by id
+  async getSiteBySiteId({ siteId }) {
+    let result = await $dbMain['sites'].getSiteBySiteId({ siteId });
+    return result;
+  }
+
   // Run process logo create
   async runLogoCreate({ siteScreenshotId, logoScreenshotParams, color }) {
     if (!color || !logoScreenshotParams.cutHeight || !siteScreenshotId) {
       throw Error($errors['Not enough data']);
     }
 
-    let { siteId } = await $dbMain['sites-screenshots'].getSiteScreenshotById({
+    let screenshot = await $dbMain['sites-screenshots'].getSiteScreenshotById({
       siteScreenshotId,
     });
+
+    if (!screenshot || !screenshot.dateScreenshotCreated) throw Error($errors['Server error']);
+
     await this.createLogo({ siteScreenshotId, logoScreenshotParams });
-    await $dbMain.sites.updateLogoInfo({ siteId, color, siteScreenshotId });
-    // Remove site from unprocessed
-    await $dbMain['sites-screenshots'].editLogoCreated({
-      siteScreenshotId,
-    });
+    await $dbMain['sites'].updateLogoInfo({ color, siteScreenshotId });
     return true;
+  }
+
+  // Run process logo recreate
+  async runRecreateLogo({ siteId }) {
+    let result = await $dbMain['sites'].removeLogoInfo({ siteId });
+    return result ? true : false;
+  }
+
+  // Update sites color
+  async editSitesColor({ siteScreenshotId, color }) {
+    let result = await $dbMain['sites'].editSitesColor({ siteScreenshotId, color });
+    return result ? true : false;
   }
 
   // Create file logo
@@ -37,29 +54,8 @@ class Sites {
     let { cutHeight, cutWidth, imgHeight, imgWidth, left, top } = logoScreenshotParams;
     const maxHeight = $config['sites'].logoMaxHeight;
     const maxWidth = $config['sites'].logoMaxWidth;
-    let coefH = cutHeight / maxHeight;
-    let coefW = cutWidth / maxWidth;
-    let newWidth;
-    let newHeight;
 
-    if (coefW > 1) {
-      newWidth = cutWidth / coefW;
-      newHeight = cutHeight / coefW;
-      coefH = newHeight / maxHeight;
-      if (coefH > 1) {
-        newWidth = newWidth / coefH;
-        newHeight = newHeight / coefH;
-      }
-    } else if (coefH > 1) {
-      newHeight = cutHeight / coefH;
-      newWidth = cutWidth / coefH;
-      coefW = newWidth / maxWidth;
-      if (coefW > 1) {
-        newWidth = newWidth / coefW;
-        newHeight = newHeight / coefW;
-      }
-    }
-
+    // Make screenshot the same size as frontend (ZOOM)
     let file = await sharp($resourcesPath.filePathScreenshot({ siteScreenshotId }))
       .resize({
         width: imgWidth,
@@ -67,28 +63,30 @@ class Sites {
       })
       .toBuffer();
 
+    // Cut logo from screenshot
     file = await sharp(file).extract({ left, top, width: cutWidth, height: cutHeight }).toBuffer();
 
-    if (newHeight || newHeight) {
-      // Если картинка больше чем надо
-      await sharp(file)
-        .resize({
-          width: Math.floor(newWidth),
-          height: Math.floor(newHeight),
-        })
-        .jpeg({ mozjpeg: true })
-        .toFile($resourcesPath.filePathSiteLogo({ siteScreenshotId }));
-    } else {
-      // Если норм
-      await sharp(file)
-        .jpeg({ mozjpeg: true })
-        .toFile($resourcesPath.filePathSiteLogo({ siteScreenshotId }));
-    }
+    // Calculate maximum logo dimensions
+    let logo = $utils.сalcmMaxDimensionsImage({
+      height: cutHeight,
+      width: cutWidth,
+      maxHeight,
+      maxWidth,
+    });
+
+    // Save logo
+    await sharp(file)
+      .resize({
+        width: Math.floor(logo.width),
+        height: Math.floor(logo.height),
+      })
+      .jpeg({ mozjpeg: true })
+      .toFile($resourcesPath.filePathSiteLogo({ siteLogoId: siteScreenshotId }));
   }
 
   // Get site whois info
   async getWhois(host) {
-    let { domain } = tldts.parse(host);
+    let { domain } = $utils.urlInfo(host);
     let whoisConsole = {};
     let whoisApi = {};
 
@@ -131,6 +129,59 @@ class Sites {
   // Create list Alexa Rank  sites in Redis
   async initCreateAlexaRankList() {
     await $dbTemporary.createDataDaseCasheAlexaRank();
+  }
+
+  // Check for images for the site
+  async checkImagesForSite({ host }) {
+    let result = await $dbMain['sites'].getSiteByHost({
+      host,
+    });
+
+    // If images from site not exist
+    if (!result) {
+      return { isNotExistImages: true };
+    }
+
+    let { siteId, siteScreenshotId, siteLogoId, color } = result;
+
+    // If screenshot from site is processed
+    if (!siteScreenshotId) {
+      let result = await $dbMain['sites-screenshots'].checkSiteProcessingBySiteId({
+        siteId,
+      });
+      if (!result) return { isNotExistImages: true };
+      return {
+        isScreenshotProcessCreate: true,
+      };
+    }
+
+    let logoImg = siteLogoId ? $resourcesPath.fileUrlSiteLogo({ siteLogoId }) : null;
+    let screenshotImg = $resourcesPath.fileUrlScreenshot({ siteScreenshotId });
+
+    // If exist logo or screenshot
+    return {
+      siteId,
+      logoImg,
+      color,
+      screenshotImg,
+    };
+  }
+
+  // Link domain images to subdomain
+  async linkDomainImagesToSubdomain({ domainSiteId, subdomainSiteId }) {
+    let result = await $dbMain['sites'].getSiteBySiteId({ siteId: domainSiteId });
+
+    if (!result) throw Error($errors['Server error']);
+
+    let { color, siteScreenshotId, siteLogoId } = result;
+
+    await $dbMain['sites'].updateImageInfo({
+      siteId: subdomainSiteId,
+      color,
+      siteScreenshotId,
+      siteLogoId,
+    });
+    return true;
   }
 
   // Запустить процесс который будет обновлять alexaRank и dateDomainCreate для сайтов у которых alexaRank = 0
@@ -185,7 +236,7 @@ class Sites {
 
   // Get Alexa Rank
   async getAlexaRank(host) {
-    let { domain } = tldts.parse(host);
+    let { domain } = $utils.urlInfo(host);
     let alexaRank = await $dbTemporary.getAlexaRank(domain);
     return alexaRank || $config['sites'].defaultAlexaRank;
   }

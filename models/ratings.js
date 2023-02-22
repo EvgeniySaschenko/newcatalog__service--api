@@ -52,6 +52,7 @@ let Scheme = function () {
     // Сайты / ютуб...
     typeRating: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       validate: {
         isType: (type) => {
           if (!Object.values($config['ratings'].typeRating).includes(+type)) {
@@ -59,11 +60,11 @@ let Scheme = function () {
           }
         },
       },
-      defaultValue: 0,
     },
     // Сортировка
     typeSort: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       validate: {
         isType: (type) => {
           if (!Object.values($config['ratings'].typeSort).includes(+type)) {
@@ -71,11 +72,11 @@ let Scheme = function () {
           }
         },
       },
-      defaultValue: 0,
     },
     // Плитка, линия
     typeDisplay: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       validate: {
         isType: (type) => {
           if (!Object.values($config['ratings'].typeDisplay).includes(+type)) {
@@ -83,7 +84,6 @@ let Scheme = function () {
           }
         },
       },
-      defaultValue: 0,
     },
     // id разделов к которым привязан рейтинг
     sectionsIds: {
