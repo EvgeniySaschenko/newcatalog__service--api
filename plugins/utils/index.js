@@ -15,6 +15,10 @@ let $utils = {
     } = tldts.parse(url);
     let isSubdomain = subdomain && subdomain !== 'www';
 
+    if (subdomain === 'www') {
+      hostname = domain;
+    }
+
     return {
       hostname,
       subdomain,

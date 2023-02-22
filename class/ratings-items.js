@@ -13,9 +13,8 @@ class RatingsItems {
     await this.checkRatingUrlExist({ ratingId, url });
 
     let { isSubdomain, hostname, domain } = $utils.urlInfo(url);
-    let host = isSubdomain ? hostname : domain;
 
-    let { siteId } = await this.checkSiteExist({ host, url, isSubdomain });
+    let { siteId } = await this.checkSiteExist({ hostname, url, isSubdomain, domain });
     let page = await this.getPage(url); // получить заголовок страницы
 
     for (let key in name) {
@@ -27,7 +26,7 @@ class RatingsItems {
       url,
       siteId,
       name,
-      host,
+      host: hostname,
       labelsIds,
       priority,
       isHidden,
@@ -51,27 +50,57 @@ class RatingsItems {
     return false;
   }
 
-  // Проверяем наличие наличие сайта в таблице сайтов
-  async checkSiteExist({ host, url, isSubdomain }) {
-    let isCreatedScreen = false;
+  /*
+    Добавляет сайт если его нет в таблице сайтов + ставит в очередб на создание скриншота
+    Субдомены в очередь не довляются
+  */
+  async checkSiteExist({ hostname, url, isSubdomain, domain }) {
+    let { siteId, isCreateSite } = await this.createSite({ hostname });
 
-    let site = await $dbMain.sites.getSiteByHost({ host });
-
-    // если сайта нет то создаём запись
-    if (!site) {
-      isCreatedScreen = true;
-      site = await $dbMain.sites.createSite({ host });
-    }
-
-    // Добавить url в очередь на создание скрина - если это субдомен скрин автоматически не создаётся, потому что может быть одинаковый логотип с доменом
-    if (isCreatedScreen && !isSubdomain) {
+    // Для доменов
+    if (!isSubdomain && isCreateSite) {
       await $dbMain['sites-screenshots'].addSiteToProcessing({
         url,
-        siteId: site.siteId,
+        siteId,
       });
     }
 
-    return site;
+    // Если это "субдомен" создаём запись для "домена" - если записи не существует
+    if (isSubdomain) {
+      let { siteId, isCreateSite } = await this.createSite({ hostname: domain });
+
+      // Проверяем доступность добмена по https или http - если удалось получить страницу делаем скриншот
+      if (isCreateSite) {
+        let url = `https://${domain}`;
+        let result = this.getPage(url);
+
+        if (!result.html) {
+          url = `http://${domain}`;
+          result = this.getPage(url);
+        }
+
+        if (result.html) {
+          await $dbMain['sites-screenshots'].addSiteToProcessing({
+            url,
+            siteId,
+          });
+        }
+      }
+    }
+
+    return { siteId };
+  }
+
+  // Создать сайт в таблице сайтов если его нет, или вернуть существующий
+  async createSite({ hostname }) {
+    let isCreateSite = false;
+    let site = await $dbMain.sites.getSiteByHost({ host: hostname });
+    if (!site) {
+      isCreateSite = true;
+      site = await $dbMain.sites.createSite({ host: hostname });
+    }
+
+    return { siteId: site.siteId, isCreateSite };
   }
 
   // Редактировать елемент рейтинга
@@ -110,7 +139,7 @@ class RatingsItems {
       console.warn(error);
       return {
         name: '',
-        pageHtml: '',
+        html: '',
       };
     }
   }
