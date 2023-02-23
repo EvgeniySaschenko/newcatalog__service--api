@@ -11,7 +11,7 @@ let fileUpload = require('express-fileupload');
 
 let { M_Sites } = require(global.ROOT_PATH + '/models/sites');
 let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots');
-// let { M_SitesLogos, Scheme, name } = require(global.ROOT_PATH + '/models/sites-logos');
+let { M_RecordsDeleted, Scheme, name } = require(global.ROOT_PATH + '/models/records-deleted');
 let { db } = require('./models/_base');
 let app = express();
 let { Op } = require('sequelize');

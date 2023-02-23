@@ -34,6 +34,14 @@ let $errors = {
   ),
   //
   'Invalid file': $t('Invalid file'),
+  //
+  'You can not delete a section that has ratings': $t(
+    'You can not delete a section that has ratings'
+  ),
+  //
+  'You can not remove a rating that has sites or labels': $t(
+    'You can not remove a rating that has sites or labels'
+  ),
 };
 
 let $errorsUtils = {

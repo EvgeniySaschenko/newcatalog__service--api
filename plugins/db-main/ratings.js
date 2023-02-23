@@ -1,7 +1,8 @@
-let { M_Ratings } = require(global.ROOT_PATH + '/models/ratings.js');
+let { M_Ratings, name: tableName } = require(global.ROOT_PATH + '/models/ratings.js');
 let striptags = require('striptags');
 
 module.exports = {
+  tableName,
   // Создать рейтинг
   async createRating({
     userId,
@@ -69,17 +70,6 @@ module.exports = {
   // Получить рейтинг
   async getRating({ ratingId }) {
     let result = await M_Ratings.findOne({
-      attributes: [
-        'ratingId',
-        'name',
-        'descr',
-        'isHiden',
-        'typeRating',
-        'typeSort',
-        'typeDisplay',
-        'sectionsIds',
-        'dateCreate',
-      ],
       where: {
         ratingId,
       },
@@ -140,5 +130,10 @@ module.exports = {
       order: [['dateCreate', 'DESC']],
     });
     return result;
+  },
+
+  // Удалить рейтинг
+  async deleteRating({ ratingId }) {
+    return await M_Ratings.destroy({ where: { ratingId } });
   },
 };
