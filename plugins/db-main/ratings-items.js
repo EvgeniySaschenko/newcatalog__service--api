@@ -123,6 +123,7 @@ module.exports = {
             'siteLogoId',
             'alexaRank',
             'dateDomainCreate',
+            'dateLogoCreate',
           ],
           as: 'site',
         },
@@ -143,9 +144,13 @@ module.exports = {
 
     result = result.map((el) => {
       let site = el.site;
-      let { siteScreenshotId, siteLogoId } = el.site;
+      let { siteScreenshotId, siteLogoId, dateLogoCreate } = site;
       let { domain, hostname, isSubdomain } = $utils.urlInfo(el.url);
-      el.logoImg = $resourcesPath.fileUrlSiteLogo({ siteLogoId });
+      let resetCashe = dateLogoCreate ? new Date(dateLogoCreate).getTime() : '';
+      el.logoImg = $resourcesPath.fileUrlSiteLogo({
+        siteLogoId,
+        resetCashe,
+      });
       el.screenshotImg = $resourcesPath.fileUrlScreenshot({ siteScreenshotId });
       el.isSubdomain = isSubdomain;
       el.domain = domain;

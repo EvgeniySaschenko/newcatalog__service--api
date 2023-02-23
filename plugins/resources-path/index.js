@@ -23,9 +23,10 @@ let $resourcesPath = {
     return `${dataFilesPath}/${folderEnv}/images/screenshots/${siteScreenshotId}.${screenshotFileExtension}`;
   },
   // URL site logo
-  fileUrlSiteLogo: ({ siteLogoId }) => {
+  fileUrlSiteLogo: ({ siteLogoId, resetCashe }) => {
+    let sufix = resetCashe ? `?=${resetCashe}` : '';
     return siteLogoId
-      ? `${host}/images/sites-logos/${siteLogoId}.${logoFileExtension}`
+      ? `${host}/images/sites-logos/${siteLogoId}.${logoFileExtension}${sufix}`
       : siteLogoUrlDefault;
   },
   // Path site logo

@@ -10,11 +10,12 @@ module.exports = {
   },
 
   // Обновить информацию о логотипе
-  async updateLogoInfo({ color, siteScreenshotId }) {
+  async updateLogoInfo({ color, siteScreenshotId, dateLogoCreate }) {
     let result = await M_Sites.update(
       {
         siteLogoId: siteScreenshotId,
         color: color ? striptags(color).toLocaleLowerCase() : null,
+        dateLogoCreate,
       },
       { where: { siteScreenshotId } }
     );
@@ -44,12 +45,13 @@ module.exports = {
   },
 
   // Обновить информацию об изображении полностью
-  async updateImageInfo({ siteId, color, siteScreenshotId, siteLogoId }) {
+  async updateImageInfo({ siteId, color, siteScreenshotId, siteLogoId, dateLogoCreate }) {
     let result = await M_Sites.update(
       {
         color: color ? striptags(color).toLocaleLowerCase() : null,
         siteScreenshotId,
         siteLogoId,
+        dateLogoCreate,
       },
       { where: { siteId } }
     );
@@ -61,6 +63,7 @@ module.exports = {
     let result = await M_Sites.update(
       {
         siteScreenshotId: null,
+        dateLogoCreate: null,
         siteLogoId: null,
         color: null,
       },
@@ -73,6 +76,7 @@ module.exports = {
   async removeLogoInfo({ siteId }) {
     let result = await M_Sites.update(
       {
+        dateLogoCreate: null,
         siteLogoId: null,
         color: null,
       },
@@ -84,7 +88,7 @@ module.exports = {
   // Получить запись о картинке по "siteId"
   async getSiteBySiteId({ siteId }) {
     return await M_Sites.findOne({
-      attributes: ['siteId', 'siteScreenshotId', 'siteLogoId', 'color'],
+      attributes: ['siteId', 'siteScreenshotId', 'siteLogoId', 'color', 'dateLogoCreate'],
       where: {
         siteId,
       },

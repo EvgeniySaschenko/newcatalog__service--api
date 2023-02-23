@@ -72,11 +72,11 @@ class RatingsItems {
       // Проверяем доступность добмена по https или http - если удалось получить страницу делаем скриншот
       if (isCreateSite) {
         let url = `https://${domain}`;
-        let result = this.getPage(url);
+        let result = await this.getPage(url);
 
         if (!result.html) {
           url = `http://${domain}`;
-          result = this.getPage(url);
+          result = await this.getPage(url);
         }
 
         if (result.html) {
