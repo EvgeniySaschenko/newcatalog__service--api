@@ -108,6 +108,10 @@ let Scheme = function () {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
+    dateUpdate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
   };
 };
 

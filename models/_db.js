@@ -5,8 +5,8 @@ let sequelize = new Sequelize(DB_MAIN__NAME, DB_MAIN__USER, DB_MAIN__PASSWORD, {
   dialect: 'postgres',
   host: DB_MAIN__HOST,
   define: {
-    // sequelize не добалял автомтически дату создания/обновления
-    timestamps: false,
+    createdAt: 'dateCreate',
+    updatedAt: 'dateUpdate',
     // Чтобы sequelize не делал имя таблицы во множественом числе
     freezeTableName: true,
   },
