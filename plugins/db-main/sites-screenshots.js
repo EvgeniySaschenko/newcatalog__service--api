@@ -1,6 +1,8 @@
-let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots');
+let { M_SitesScreenshots, name: tableName } = require(global.ROOT_PATH +
+  '/models/sites-screenshots');
 
 module.exports = {
+  tableName,
   // Add an item to the screen creation queue
   async addSiteToProcessing({ url, siteId, isUploadCustomScreenshot = false }) {
     let result = await M_SitesScreenshots.create({

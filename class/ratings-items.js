@@ -94,10 +94,10 @@ class RatingsItems {
   // Создать сайт в таблице сайтов если его нет, или вернуть существующий
   async createSite({ hostname }) {
     let isCreateSite = false;
-    let site = await $dbMain.sites.getSiteByHost({ host: hostname });
+    let site = await $dbMain['sites'].getSiteByHost({ host: hostname });
     if (!site) {
       isCreateSite = true;
-      site = await $dbMain.sites.createSite({ host: hostname });
+      site = await $dbMain['sites'].createSite({ host: hostname });
     }
 
     return { siteId: site.siteId, isCreateSite };
@@ -160,6 +160,13 @@ class RatingsItems {
 
   // Удалить елемент
   async deleteItem({ ratingItemId }) {
+    let tableRecord = await $dbMain['ratings-items'].getItemByRatingItemId({ ratingItemId });
+    await $dbMain['records-deleted'].createRecords({
+      tableName: $dbMain['ratings-items'].tableName,
+      tableId: ratingItemId,
+      tableRecord,
+    });
+
     let result = await $dbMain['ratings-items'].deleteItem({ ratingItemId });
     if (result) return true;
     throw Error($errors['There is no such id']);
@@ -167,7 +174,7 @@ class RatingsItems {
 
   // Создать кеш для прода
   async createCache() {
-    let ratingsList = $dbMain.ratings.getRatingsNotHidden();
+    let ratingsList = $dbMain['ratings'].getRatingsNotHidden();
     for (let { ratingId, typeSort } of ratingsList) {
       let ratingsItems = await this.getItemsRating({ ratingId, typeSort });
 

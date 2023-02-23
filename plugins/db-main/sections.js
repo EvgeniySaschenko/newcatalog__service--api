@@ -1,8 +1,9 @@
-let { M_Sections } = require(global.ROOT_PATH + '/models/sections.js');
+let { M_Sections, name: tableName } = require(global.ROOT_PATH + '/models/sections.js');
 let striptags = require('striptags');
 let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 
 module.exports = {
+  tableName,
   // Создать раздел
   async createSection({ name }) {
     for (let key in name) {
@@ -33,11 +34,21 @@ module.exports = {
   // Получить все разделы
   async getSections() {
     let result = await M_Sections.findAll({
-      attributes: ['sectionId', 'name', 'priority', 'isHiden'],
+      attributes: ['sectionId', 'name', 'priority', 'isHiden', 'dateCreate'],
       order: [
-        ['isHiden', 'ASC'],
         ['priority', 'DESC'],
+        ['dateCreate', 'DESC'],
       ],
+    });
+    return result;
+  },
+
+  // Получить раздел по id
+  async getSectionBySectionId({ sectionId }) {
+    let result = await M_Sections.findOne({
+      where: {
+        sectionId,
+      },
     });
     return result;
   },

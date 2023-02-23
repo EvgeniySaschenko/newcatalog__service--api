@@ -1,8 +1,9 @@
 let { Op } = require('sequelize');
-let { M_Sites } = require(global.ROOT_PATH + '/models/sites.js');
+let { M_Sites, name: tableName } = require(global.ROOT_PATH + '/models/sites.js');
 let striptags = require('striptags');
 
 module.exports = {
+  tableName,
   // Создать запись для новой картинки (если такого домена никогда еще небыло)
   async createSite({ host }) {
     let result = await M_Sites.create({ host });

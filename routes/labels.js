@@ -8,7 +8,7 @@ router.get('/rating/:ratingId', async (req, res, next) => {
   let result;
   try {
     let labels = new Labels();
-    result = await labels.getLabels(req.params);
+    result = await labels.getLabelsRating(req.params);
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);

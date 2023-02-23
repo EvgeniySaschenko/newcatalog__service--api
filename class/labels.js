@@ -10,7 +10,7 @@ class Labels {
       name[key] = striptags(name[key]);
     }
     await this.checkLabelExist({ name, ratingId });
-    let result = await $dbMain.labels.createLabel({ ratingId, name, color });
+    let result = await $dbMain['labels'].createLabel({ ratingId, name, color });
     return result;
   }
 
@@ -20,7 +20,7 @@ class Labels {
       name[key] = striptags(name[key]);
     }
     await this.checkLabelExist({ labelId, name, ratingId });
-    let result = await $dbMain.labels.editLabel({ labelId, name, color });
+    let result = await $dbMain['labels'].editLabel({ labelId, name, color });
     return result;
   }
 
@@ -30,7 +30,13 @@ class Labels {
       labelId,
     });
     await this.editRatingItemsLabel({ ratingItems, labelId });
-    let result = await $dbMain.labels.deleteLabel({ labelId });
+    let tableRecord = await $dbMain['labels'].getLabelByLabelId({ labelId });
+    await $dbMain['records-deleted'].createRecords({
+      tableName: $dbMain['labels'].tableName,
+      tableId: labelId,
+      tableRecord,
+    });
+    let result = await $dbMain['labels'].deleteLabel({ labelId });
     if (result) return true;
     throw Error($errors['There is no such id']);
   }
@@ -39,7 +45,7 @@ class Labels {
   async checkLabelExist({ labelId, name, ratingId }) {
     let isExist;
     for await (let lang of Object.keys(name)) {
-      isExist = await $dbMain.labels.getLabelRatingByName({
+      isExist = await $dbMain['labels'].getLabelRatingByName({
         labelId,
         name: name[lang],
         ratingId,
@@ -66,16 +72,16 @@ class Labels {
   }
 
   // Получить все ярлыки ярлыки
-  async getLabels({ ratingId }) {
-    let result = await $dbMain.labels.getLabels({ ratingId });
+  async getLabelsRating({ ratingId }) {
+    let result = await $dbMain['labels'].getLabelsRating({ ratingId });
     return result;
   }
 
   // Создать кеш для ярлыков рейтинга
   async createCache() {
-    let ratingsList = $dbMain.ratings.getRatingsNotHidden();
+    let ratingsList = $dbMain['ratings'].getRatingsNotHidden();
     for (let { ratingId } of ratingsList) {
-      let labels = await this.getLabels({ ratingId });
+      let labels = await this.getLabelsRating({ ratingId });
       fse.writeJson(global.ROOT_PATH + `/cashe/labels/${ratingId}.json`, labels);
     }
   }

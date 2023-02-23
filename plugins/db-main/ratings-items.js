@@ -1,4 +1,4 @@
-let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items');
+let { M_RatingsItems, name: tableName } = require(global.ROOT_PATH + '/models/ratings-items');
 let { M_Sites } = require(global.ROOT_PATH + '/models/sites');
 let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots');
 let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
@@ -7,6 +7,7 @@ let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { Op } = require('sequelize');
 
 module.exports = {
+  tableName,
   // Создать елемент рейтинга
   async createItem({ ratingId, url, siteId, name, host, labelsIds, priority, isHidden }) {
     let result = await M_RatingsItems.create({
@@ -65,6 +66,16 @@ module.exports = {
     return result;
   },
 
+  // Получить елемент по id
+  async getItemByRatingItemId({ ratingItemId }) {
+    let result = await M_RatingsItems.findOne({
+      where: {
+        ratingItemId,
+      },
+    });
+    return result;
+  },
+
   // Обновляем ярлыки для элементов рейтнга (используется при удалении ярлыка)
   async editItemsRatingLabel({ ratingItemId, labelsIds }) {
     await M_RatingsItems.update(
@@ -78,7 +89,7 @@ module.exports = {
   },
 
   // Получить все елементы рейтинга
-  async getItemsRating({ ratingId, typeSort }) {
+  async getItemsRating({ ratingId, typeSort = $config.ratings.typeSort['alexa'] }) {
     let [sortKey, sortValue] = Object.entries($config.ratings.typeSort).find(
       (item) => item[1] === +typeSort
     );

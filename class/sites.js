@@ -187,11 +187,11 @@ class Sites {
 
   // Запустить процесс который будет обновлять alexaRank и dateDomainCreate для сайтов у которых alexaRank = 0
   async initProccessSitesInfoUpdate() {
-    // let items = await $dbMain.sites.getSitesDateDomainCreateEmpty();
+    // let items = await $dbMain['sites'].getSitesDateDomainCreateEmpty();
     // for await (let { siteId, host } of items) {
-    //   await $dbMain.sites.updateSitesDateDomainCreateEmpty({ siteId });
+    //   await $dbMain['sites'].updateSitesDateDomainCreateEmpty({ siteId });
     // }
-    // let items = await $dbMain.sites.getSitesDateDomainCreateEmpty();
+    // let items = await $dbMain['sites'].getSitesDateDomainCreateEmpty();
     // console.log(items);
     // for await (let { siteId, host } of items) {
     //   let fileApi = fse.existsSync(global.ROOT_PATH + `/data/whois-api/${siteId}.json`);
@@ -206,14 +206,14 @@ class Sites {
     //     let dateDomainCreate = this.getDomainDateCreate({ whoisConsole: who, whoisApi: {} });
     //     console.log({ siteId, dateDomainCreate, host });
     //     if (dateDomainCreate) {
-    //       await $dbMain.sites.updateSitesDateDomainCreateEmpty({ dateDomainCreate, siteId });
+    //       await $dbMain['sites'].updateSitesDateDomainCreateEmpty({ dateDomainCreate, siteId });
     //     }
     //   }
     // }
     setInterval(async () => {
       // Get sites
       if (!this.sitesAlexaRankEmpty.length) {
-        this.sitesAlexaRankEmpty = await $dbMain.sites.getSitesAlexaRankEmpty();
+        this.sitesAlexaRankEmpty = await $dbMain['sites'].getSitesAlexaRankEmpty();
       }
       if (!this.isSitesAlexaRankProcessing && this.sitesAlexaRankEmpty.length) {
         this.isSitesAlexaRankProcessing = true;
@@ -223,7 +223,7 @@ class Sites {
         let dateDomainCreate = this.getDomainDateCreate({ whoisConsole, whoisApi });
         await this.createWhoisFile({ whois: whoisConsole, siteId, type: 'console' });
         await this.createWhoisFile({ whois: whoisApi, siteId, type: 'api' });
-        await $dbMain.sites.updateDomainAndAlexaInfo({
+        await $dbMain['sites'].updateDomainAndAlexaInfo({
           siteId,
           alexaRank,
           dateDomainCreate,

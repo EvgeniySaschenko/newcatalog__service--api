@@ -1,10 +1,11 @@
 let $dbMain = {
-  sections: require('./sections.js'),
-  ratings: require('./ratings.js'),
-  labels: require('./labels.js'),
-  'sites-screenshots': require('./sites-screenshots.js'),
-  sites: require('./sites.js'),
-  'ratings-items': require('./ratings-items.js'),
+  sections: require('./sections'),
+  ratings: require('./ratings'),
+  labels: require('./labels'),
+  'sites-screenshots': require('./sites-screenshots'),
+  sites: require('./sites'),
+  'ratings-items': require('./ratings-items'),
+  'records-deleted': require('./records-deleted'),
 };
 
 module.exports = {

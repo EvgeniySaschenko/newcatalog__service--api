@@ -1,9 +1,10 @@
-let { M_Labels } = require(global.ROOT_PATH + '/models/labels.js');
+let { M_Labels, name: tableName } = require(global.ROOT_PATH + '/models/labels.js');
 
 let striptags = require('striptags');
 const { Op } = require('sequelize');
 
 module.exports = {
+  tableName,
   // Создать ярлык
   async createLabel({ ratingId, name, color }) {
     for (let key in name) {
@@ -30,13 +31,23 @@ module.exports = {
   },
 
   // Изменить ярлык
-  async getLabels({ ratingId }) {
+  async getLabelsRating({ ratingId }) {
     let result = await M_Labels.findAll({
       attributes: ['labelId', 'name', 'color'],
       where: {
         ratingId,
       },
       order: [['name', 'ASC']],
+    });
+    return result;
+  },
+
+  // Получить ярлык по id
+  async getLabelByLabelId({ labelId }) {
+    let result = await M_Labels.findOne({
+      where: {
+        labelId,
+      },
     });
     return result;
   },
