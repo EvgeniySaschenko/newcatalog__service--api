@@ -23,9 +23,11 @@ let { fork } = require('child_process');
 fork('./init-app', [global.ROOT_PATH]);
 
 // let fs = require('fs');
-// let logos = fs.readdirSync('./images/sites-logos');
+// let logos = fs.readdirSync('./data/dev/images/sites-logos');
+
 // let screens = fs.readdirSync('./images/sites-screens');
 (async () => {
+  // console.log(logos);
   // let scrSites = await M_Sites.findAll({
   //   attributes: ['siteId', 'color'],
   //   where: {
@@ -103,20 +105,20 @@ fork('./init-app', [global.ROOT_PATH]);
   //     }
   //   );
   // }
-  //   for await (let item of logos) {
-  //     fs.stat(`./images/sites-logos/${item}`, async function (err, stat) {
-  //       let siteScreenshotId = item.replace('.png', '');
-  //       console.log(stat.mtime);
-  //       await M_SitesScreenshots.update(
-  //         { dateLogoCreated: stat.mtime },
-  //         {
-  //           where: {
-  //             siteScreenshotId,
-  //           },
-  //         }
-  //       );
-  //     });
-  //   }
+  // for await (let item of logos) {
+  //   fs.stat(`./data/dev/images/sites-logos/${item}`, async function (err, stat) {
+  //     let siteLogoId = item.replace('.jpg', '');
+  //     console.log(stat.mtime);
+  //     await M_Sites.update(
+  //       { dateLogoCreate: stat.mtime },
+  //       {
+  //         where: {
+  //           siteLogoId,
+  //         },
+  //       }
+  //     );
+  //   });
+  // }
   //   for await (let item of screens) {
   //     fs.stat(`./images/sites-screens/${item}`, async function (err, stat) {
   //       let siteScreenshotId = item.replace('.png', '');

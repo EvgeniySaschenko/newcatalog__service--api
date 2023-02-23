@@ -33,7 +33,7 @@ class Sites {
     if (!screenshot || !screenshot.dateScreenshotCreated) throw Error($errors['Server error']);
 
     await this.createLogo({ siteScreenshotId, logoScreenshotParams });
-    await $dbMain['sites'].updateLogoInfo({ color, siteScreenshotId });
+    await $dbMain['sites'].updateLogoInfo({ color, siteScreenshotId, dateLogoCreate: new Date() });
     return true;
   }
 
@@ -173,13 +173,14 @@ class Sites {
 
     if (!result) throw Error($errors['Server error']);
 
-    let { color, siteScreenshotId, siteLogoId } = result;
+    let { color, siteScreenshotId, siteLogoId, dateLogoCreate } = result;
 
     await $dbMain['sites'].updateImageInfo({
       siteId: subdomainSiteId,
       color,
       siteScreenshotId,
       siteLogoId,
+      dateLogoCreate,
     });
     return true;
   }

@@ -169,10 +169,11 @@ class SitesScreenshots {
       await $dbMain['sites'].updateScreenshotInfo({ siteId, siteScreenshotId });
     } catch (error) {
       // Restore
-      await $dbMain['sites-screenshots'].updateLogoInfo({
+      await $dbMain['sites'].updateLogoInfo({
         siteId,
-        color: siteInfoPrev.color || null,
-        siteLogoId: siteInfoPrev.siteLogoId || null,
+        color: siteInfoPrev.color,
+        siteLogoId: siteInfoPrev.siteLogoId,
+        dateLogoCreate: siteInfoPrev.dateLogoCreate,
       });
       await $dbMain['sites-screenshots'].updateScreenshotInfo({
         siteId,

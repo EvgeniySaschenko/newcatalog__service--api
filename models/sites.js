@@ -42,6 +42,10 @@ let Scheme = function () {
       type: DataTypes.DATE,
       defaultValue: null,
     },
+    dateLogoCreate: {
+      type: DataTypes.DATE,
+      defaultValue: null,
+    },
     dateCreate: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
