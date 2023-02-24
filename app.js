@@ -11,7 +11,8 @@ let fileUpload = require('express-fileupload');
 
 let { M_Sites } = require(global.ROOT_PATH + '/models/sites');
 let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots');
-let { M_RecordsDeleted, Scheme, name } = require(global.ROOT_PATH + '/models/records-deleted');
+let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items');
+let { M_CacheInfo, Scheme, name } = require(global.ROOT_PATH + '/models/cache-info');
 let { db } = require('./models/_base');
 let app = express();
 let { Op } = require('sequelize');
@@ -27,6 +28,19 @@ fork('./init-app', [global.ROOT_PATH]);
 
 // let screens = fs.readdirSync('./images/sites-screens');
 (async () => {
+  // let result = await M_Sites.findAll();
+  // console.log(225);
+  // for await (let { siteId, dateCreate } of result) {
+  //   console.log({ siteId, dateCreate });
+  //   await M_Sites.update(
+  //     {
+  //       visitorId: 1,
+  //     },
+  //     {
+  //       where: { siteId },
+  //     }
+  //   );
+  // }
   // console.log(logos);
   // let scrSites = await M_Sites.findAll({
   //   attributes: ['siteId', 'color'],

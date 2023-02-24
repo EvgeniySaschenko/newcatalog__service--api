@@ -19,6 +19,10 @@ let Scheme = function () {
       type: DataTypes.NUMBER,
       defaultValue: null,
     },
+    visitorId: {
+      type: DataTypes.NUMBER,
+      defaultValue: 0,
+    },
     color: {
       type: DataTypes.STRING(7),
       validate: {

@@ -253,6 +253,22 @@ module.exports = {
     }, []);
   },
 
+  // Получить элементы которые обнослялись после "date" (для создания кеша)
+  async getRatingIdsAfterDateUpdate({ date }) {
+    let result = await M_RatingsItems.findAll({
+      attributes: ['ratingId'],
+      where: {
+        dateUpdate: {
+          [Op.gte]: date,
+        },
+        isHiden: false,
+      },
+      group: ['ratingId'],
+      order: [['ratingId', 'ASC']],
+    });
+    return result;
+  },
+
   // async getItemByImgId({ imgId }) {
   //   let result = await M_RatingsItems.findOne({
   //     attributes: ['whois'],

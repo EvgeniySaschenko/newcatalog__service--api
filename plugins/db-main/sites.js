@@ -1,5 +1,6 @@
 let { Op } = require('sequelize');
 let { M_Sites, name: tableName } = require(global.ROOT_PATH + '/models/sites.js');
+let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items');
 let striptags = require('striptags');
 
 module.exports = {
@@ -148,5 +149,25 @@ module.exports = {
       },
       { where: { siteId } }
     );
+  },
+
+  // Получить элементы которые обнослялись после "date" (для создания кеша)
+  async getRatingIdsAfterDateUpdate({ date }) {
+    let result = await M_Sites.findAll({
+      where: {
+        dateUpdate: {
+          [Op.gte]: date,
+        },
+      },
+      include: [
+        {
+          model: M_RatingsItems,
+          attributes: ['ratingId'],
+          as: 'rating_item',
+        },
+      ],
+      //order: [['rating_item.ratingId', 'ASC']],
+    });
+    return result;
   },
 };

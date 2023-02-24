@@ -1,20 +1,22 @@
 let { Model, DataTypes } = require('sequelize');
 let { db } = require('./_base.js');
 
-// Счётчик посещений
+// Ярлыки
 let Scheme = function () {
   return {
-    id: {
+    cacheInfoId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    visitorId: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
+    // table ids changes
+    tablesIds: {
+      type: DataTypes.JSONB,
+      defaultValue: null,
     },
-    ratingId: {
-      type: DataTypes.INTEGER,
+    dateStartCreate: {
+      type: DataTypes.DATE,
+      allowNull: false,
     },
     dateCreate: {
       type: DataTypes.DATE,
@@ -27,12 +29,12 @@ let Scheme = function () {
   };
 };
 
-const name = 'visitors_counter';
-class M_VisitorsCounter extends Model {}
+const name = 'cache_info';
+class M_CacheInfo extends Model {}
 
-M_VisitorsCounter.init(new Scheme(), {
+M_CacheInfo.init(new Scheme(), {
   sequelize: db,
   modelName: name,
 });
 
-module.exports = { M_VisitorsCounter, Scheme, name };
+module.exports = { M_CacheInfo, Scheme, name };

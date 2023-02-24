@@ -15,7 +15,7 @@ let Scheme = function () {
     },
     visitorId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      defaultValue: 0,
     },
     dateCreate: {
       type: DataTypes.DATE,

@@ -41,9 +41,7 @@ let Scheme = function () {
     },
     visitorId: {
       type: DataTypes.INTEGER,
-      validate: {
-        isInt: true,
-      },
+      defaultValue: 0,
     },
     dateCreate: {
       type: DataTypes.DATE,

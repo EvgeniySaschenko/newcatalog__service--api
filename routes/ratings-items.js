@@ -2,10 +2,14 @@ let express = require('express');
 let router = express.Router();
 let RatingsItems = require(global.ROOT_PATH + '/class/ratings-items');
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
+let CacheInfo = require(global.ROOT_PATH + '/class/cache-info');
 
 // Получить все елемнты рейтинга
 router.get('/rating/:ratingId', async (req, res, next) => {
   let result;
+
+  let cacheInfo = new CacheInfo();
+  result = await cacheInfo.runCacheCreate();
 
   try {
     let { typeSort } = req.query;

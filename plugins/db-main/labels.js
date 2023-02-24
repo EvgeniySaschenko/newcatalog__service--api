@@ -30,7 +30,7 @@ module.exports = {
     return result;
   },
 
-  // Изменить ярлык
+  // Получить ярлыки рейтинга
   async getLabelsRating({ ratingId }) {
     let result = await M_Labels.findAll({
       attributes: ['labelId', 'name', 'color'],
@@ -38,6 +38,21 @@ module.exports = {
         ratingId,
       },
       order: [['name', 'ASC']],
+    });
+    return result;
+  },
+
+  // Получить элементы которые обнослялись после "date" (для создания кеша)
+  async getRatingIdsAfterDateUpdate({ date }) {
+    let result = await M_Labels.findAll({
+      attributes: ['ratingId'],
+      where: {
+        dateUpdate: {
+          [Op.gte]: date,
+        },
+      },
+      group: ['ratingId'],
+      order: [['ratingId', 'ASC']],
     });
     return result;
   },

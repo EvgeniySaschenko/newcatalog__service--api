@@ -38,6 +38,7 @@ let Scheme = function () {
     },
     visitorId: {
       type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
     dateCreate: {
       type: DataTypes.DATE,
