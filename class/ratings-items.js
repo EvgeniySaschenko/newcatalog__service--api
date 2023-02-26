@@ -1,5 +1,4 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
-let fse = require('fs-extra');
 let striptags = require('striptags');
 let axios = require('axios');
 let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
@@ -170,27 +169,6 @@ class RatingsItems {
     let result = await $dbMain['ratings-items'].deleteItem({ ratingItemId });
     if (result) return true;
     throw Error($errors['There is no such id']);
-  }
-
-  // Создать кеш для прода
-  async createCache() {
-    let ratingsList = $dbMain['ratings'].getRatingsNotHidden();
-    for (let { ratingId, typeSort } of ratingsList) {
-      let ratingsItems = await this.getItemsRating({ ratingId, typeSort });
-
-      ratingsItems = ratingsItems.map((el) => {
-        (
-          el.whois.creationDate ||
-          el.whois.created ||
-          (el.whois.createdOn || '').slice(7, 11) ||
-          ''
-        ).slice(0, 4);
-        delete el.whois;
-        return el;
-      });
-
-      await fse.writeJson(global.ROOT_PATH + `/cashe/ratings-items/${ratingId}.json`, ratingsItems);
-    }
   }
 }
 

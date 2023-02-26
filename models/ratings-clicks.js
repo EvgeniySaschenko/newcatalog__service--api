@@ -1,5 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
-let { db } = require('./_base.js');
+let { $db, $tables } = require('./_db');
 
 // Отображает к каким разделам относится рейтинг
 let Scheme = function () {
@@ -15,9 +15,13 @@ let Scheme = function () {
     },
     visitorId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      defaultValue: 0,
     },
     dateCreate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    dateUpdate: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
@@ -28,7 +32,7 @@ const name = 'ratings_clicks';
 class M_RatingsClicks extends Model {}
 
 M_RatingsClicks.init(new Scheme(), {
-  sequelize: db,
+  sequelize: $db,
   modelName: name,
 });
 

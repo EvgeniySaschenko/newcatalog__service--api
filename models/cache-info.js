@@ -4,22 +4,18 @@ let { $db, $tables } = require('./_db');
 // Ярлыки
 let Scheme = function () {
   return {
-    recordDeletedId: {
+    cacheInfoId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    tableName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      notEmpty: true,
-    },
-    tableId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    tableRecord: {
+    // table ids changes
+    info: {
       type: DataTypes.JSONB,
+      defaultValue: null,
+    },
+    dateStartCreate: {
+      type: DataTypes.DATE,
       allowNull: false,
     },
     dateCreate: {
@@ -33,12 +29,12 @@ let Scheme = function () {
   };
 };
 
-const name = 'records_deleted';
-class M_Records_deleted extends Model {}
+const name = 'cache_info';
+class M_CacheInfo extends Model {}
 
-M_Records_deleted.init(new Scheme(), {
+M_CacheInfo.init(new Scheme(), {
   sequelize: $db,
   modelName: name,
 });
 
-module.exports = { M_Records_deleted, Scheme, name };
+module.exports = { M_CacheInfo, Scheme, name };

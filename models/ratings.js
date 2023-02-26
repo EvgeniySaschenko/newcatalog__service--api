@@ -1,5 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
-let { db } = require('./_base.js');
+let { $db, $tables } = require('./_db');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $errors, $errorsUtils } = require(global.ROOT_PATH + '/plugins/errors');
 
@@ -108,6 +108,10 @@ let Scheme = function () {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
+    dateUpdate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
   };
 };
 
@@ -115,7 +119,7 @@ const name = 'ratings';
 class M_Ratings extends Model {}
 
 M_Ratings.init(new Scheme(), {
-  sequelize: db,
+  sequelize: $db,
   modelName: name,
 });
 

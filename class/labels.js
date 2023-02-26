@@ -1,5 +1,4 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
-let fse = require('fs-extra');
 let striptags = require('striptags');
 let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 
@@ -76,15 +75,7 @@ class Labels {
     let result = await $dbMain['labels'].getLabelsRating({ ratingId });
     return result;
   }
-
-  // Создать кеш для ярлыков рейтинга
-  async createCache() {
-    let ratingsList = $dbMain['ratings'].getRatingsNotHidden();
-    for (let { ratingId } of ratingsList) {
-      let labels = await this.getLabelsRating({ ratingId });
-      fse.writeJson(global.ROOT_PATH + `/cashe/labels/${ratingId}.json`, labels);
-    }
-  }
+  s;
 }
 
 module.exports = Labels;

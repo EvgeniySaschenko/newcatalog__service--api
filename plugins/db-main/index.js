@@ -6,6 +6,7 @@ let $dbMain = {
   sites: require('./sites'),
   'ratings-items': require('./ratings-items'),
   'records-deleted': require('./records-deleted'),
+  'cache-info': require('./cache-info'),
 };
 
 module.exports = {

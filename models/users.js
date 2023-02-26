@@ -1,5 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
-let { db } = require('./_base.js');
+let { $db, $tables } = require('./_db');
 
 // Пользователи
 let Scheme = function () {
@@ -51,11 +51,13 @@ let Scheme = function () {
     },
     visitorId: {
       type: DataTypes.INTEGER,
-      validate: {
-        isInt: true,
-      },
+      defaultValue: 0,
     },
     dateCreate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    dateUpdate: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
@@ -66,7 +68,7 @@ const name = 'users';
 class M_Users extends Model {}
 
 M_Users.init(new Scheme(), {
-  sequelize: db,
+  sequelize: $db,
   modelName: name,
 });
 

@@ -1,5 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
-let { db } = require('./_base.js');
+let { $db, $tables } = require('./_db');
 
 // Создание скриншотов сайта
 let Scheme = function () {
@@ -41,6 +41,10 @@ let Scheme = function () {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
+    dateUpdate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
   };
 };
 
@@ -48,7 +52,7 @@ const name = 'sites_screenshots';
 class M_SitesScreenshots extends Model {}
 
 M_SitesScreenshots.init(new Scheme(), {
-  sequelize: db,
+  sequelize: $db,
   modelName: name,
 });
 

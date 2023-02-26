@@ -1,5 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
-let { db } = require('./_base.js');
+let { $db, $tables } = require('./_db');
 
 // Счётчик посещений
 let Scheme = function () {
@@ -11,11 +11,16 @@ let Scheme = function () {
     },
     visitorId: {
       type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
     ratingId: {
       type: DataTypes.INTEGER,
     },
     dateCreate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    dateUpdate: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
@@ -26,7 +31,7 @@ const name = 'visitors_counter';
 class M_VisitorsCounter extends Model {}
 
 M_VisitorsCounter.init(new Scheme(), {
-  sequelize: db,
+  sequelize: $db,
   modelName: name,
 });
 

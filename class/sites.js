@@ -128,7 +128,7 @@ class Sites {
 
   // Create list Alexa Rank  sites in Redis
   async initCreateAlexaRankList() {
-    await $dbTemporary.createDataDaseCasheAlexaRank();
+    await $dbTemporary['alexa'].createDataDaseCasheAlexaRank();
   }
 
   // Check for images for the site
@@ -238,7 +238,7 @@ class Sites {
   // Get Alexa Rank
   async getAlexaRank(host) {
     let { domain } = $utils.urlInfo(host);
-    let alexaRank = await $dbTemporary.getAlexaRank(domain);
+    let alexaRank = await $dbTemporary['alexa'].getAlexaRank(domain);
     return alexaRank || $config['sites'].defaultAlexaRank;
   }
 

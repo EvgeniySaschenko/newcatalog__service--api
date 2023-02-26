@@ -1,5 +1,6 @@
 let { M_Ratings, name: tableName } = require(global.ROOT_PATH + '/models/ratings.js');
 let striptags = require('striptags');
+let { Op } = require('sequelize');
 
 module.exports = {
   tableName,
@@ -111,23 +112,18 @@ module.exports = {
     return result;
   },
 
-  // Получить все видимые рейтинги
-  async getRatingsNotHidden() {
+  // Получить элементы которые обнослялись во время и после "dateInclAndAfter" (для создания / удаления кеша)
+  async getItemsForRatingsCache({ dateInclAndAfter, isHiden }) {
     let result = await M_Ratings.findAll({
-      attributes: [
-        'ratingId',
-        'name',
-        'descr',
-        'typeRating',
-        'typeSort',
-        'typeDisplay',
-        'sectionsIds',
-        'dateCreate',
-      ],
+      attributes: ['ratingId'],
       where: {
-        isHiden: false,
+        dateUpdate: {
+          [Op.gte]: dateInclAndAfter,
+        },
+        isHiden,
       },
-      order: [['dateCreate', 'DESC']],
+      group: ['ratingId'],
+      order: [['ratingId', 'ASC']],
     });
     return result;
   },
