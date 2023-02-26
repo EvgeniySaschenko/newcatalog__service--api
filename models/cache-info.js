@@ -1,5 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
-let { db } = require('./_base.js');
+let { $db, $tables } = require('./_db');
 
 // Ярлыки
 let Scheme = function () {
@@ -10,7 +10,7 @@ let Scheme = function () {
       autoIncrement: true,
     },
     // table ids changes
-    tablesIds: {
+    info: {
       type: DataTypes.JSONB,
       defaultValue: null,
     },
@@ -33,7 +33,7 @@ const name = 'cache_info';
 class M_CacheInfo extends Model {}
 
 M_CacheInfo.init(new Scheme(), {
-  sequelize: db,
+  sequelize: $db,
   modelName: name,
 });
 

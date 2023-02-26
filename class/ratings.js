@@ -1,6 +1,5 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
-let fse = require('fs-extra');
 
 class Ratings {
   // Создать рейтинг
@@ -47,12 +46,6 @@ class Ratings {
     });
     let result = await $dbMain['ratings'].deleteRating({ ratingId });
     if (result) return true;
-  }
-
-  // Создать кеш для прода
-  async createCache() {
-    let ratings = await $dbMain['ratings'].getRatingsNotHidden();
-    fse.writeJson(global.ROOT_PATH + '/cashe/ratings.json', ratings);
   }
 }
 

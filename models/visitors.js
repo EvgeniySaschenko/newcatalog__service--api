@@ -1,5 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
-let { db } = require('./_base.js');
+let { $db, $tables } = require('./_db');
 
 // Посетители
 let Scheme = function () {
@@ -43,7 +43,7 @@ const name = 'visitors';
 class M_Visitors extends Model {}
 
 M_Visitors.init(new Scheme(), {
-  sequelize: db,
+  sequelize: $db,
   modelName: name,
 });
 

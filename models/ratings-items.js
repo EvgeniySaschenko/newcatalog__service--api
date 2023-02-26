@@ -1,5 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
-let { db } = require('./_base.js');
+let { $db, $tables } = require('./_db');
 let { M_Sites } = require('./sites');
 let { M_SitesScreenshots } = require('./sites-screenshots');
 
@@ -97,7 +97,7 @@ const name = 'ratings_items';
 class M_RatingsItems extends Model {}
 
 M_RatingsItems.init(new Scheme(), {
-  sequelize: db,
+  sequelize: $db,
   modelName: name,
 });
 
@@ -111,6 +111,12 @@ M_RatingsItems.belongsTo(M_SitesScreenshots, {
   foreignKey: 'siteId',
   targetKey: 'siteId',
   as: 'site_screenshot',
+});
+
+M_Sites.belongsTo(M_RatingsItems, {
+  foreignKey: 'siteId',
+  targetKey: 'siteId',
+  as: 'rating_item',
 });
 
 module.exports = { M_RatingsItems, Scheme, name };

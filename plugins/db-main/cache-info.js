@@ -11,9 +11,9 @@ module.exports = {
   },
 
   // Save info about created cashes
-  async createItem({ tablesIds, dateStartCreate }) {
+  async createItem({ info, dateStartCreate }) {
     let result = await M_CacheInfo.create({
-      tablesIds,
+      info,
       dateStartCreate,
     });
     return result.get({ plain: true });

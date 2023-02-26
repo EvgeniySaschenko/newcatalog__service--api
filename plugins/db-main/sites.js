@@ -2,6 +2,7 @@ let { Op } = require('sequelize');
 let { M_Sites, name: tableName } = require(global.ROOT_PATH + '/models/sites.js');
 let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items');
 let striptags = require('striptags');
+let lodash = require('lodash');
 
 module.exports = {
   tableName,
@@ -151,12 +152,12 @@ module.exports = {
     );
   },
 
-  // Получить элементы которые обнослялись после "date" (для создания кеша)
-  async getRatingIdsAfterDateUpdate({ date }) {
+  // Получить элементы которые обнослялись во время и после "dateInclAndAfter" (для создания / удаления кеша)
+  async getItemsForRatingsCache({ dateInclAndAfter, isHiden }) {
     let result = await M_Sites.findAll({
       where: {
         dateUpdate: {
-          [Op.gte]: date,
+          [Op.gte]: dateInclAndAfter,
         },
       },
       include: [
@@ -164,10 +165,21 @@ module.exports = {
           model: M_RatingsItems,
           attributes: ['ratingId'],
           as: 'rating_item',
+          where: {
+            isHiden,
+          },
         },
       ],
-      //order: [['rating_item.ratingId', 'ASC']],
+      raw: true,
+      nest: true,
+      order: [[{ model: M_RatingsItems, as: 'rating_item' }, 'ratingId', 'ASC']],
     });
-    return result;
+
+    let unicRatingId = lodash.unionBy(result, 'rating_item.ratingId').map((el) => {
+      let { ratingId } = el.rating_item;
+      return { ratingId };
+    });
+
+    return unicRatingId;
   },
 };

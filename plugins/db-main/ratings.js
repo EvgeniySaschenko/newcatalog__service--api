@@ -112,36 +112,15 @@ module.exports = {
     return result;
   },
 
-  // Получить все видимые рейтинги
-  async getRatingsNotHidden() {
-    let result = await M_Ratings.findAll({
-      attributes: [
-        'ratingId',
-        'name',
-        'descr',
-        'typeRating',
-        'typeSort',
-        'typeDisplay',
-        'sectionsIds',
-        'dateCreate',
-      ],
-      where: {
-        isHiden: false,
-      },
-      order: [['dateCreate', 'DESC']],
-    });
-    return result;
-  },
-
-  // Получить элементы которые обнослялись после "date" (для создания кеша)
-  async getRatingIdsAfterDateUpdate({ date }) {
+  // Получить элементы которые обнослялись во время и после "dateInclAndAfter" (для создания / удаления кеша)
+  async getItemsForRatingsCache({ dateInclAndAfter, isHiden }) {
     let result = await M_Ratings.findAll({
       attributes: ['ratingId'],
       where: {
         dateUpdate: {
-          [Op.gte]: date,
+          [Op.gte]: dateInclAndAfter,
         },
-        isHiden: false,
+        isHiden,
       },
       group: ['ratingId'],
       order: [['ratingId', 'ASC']],

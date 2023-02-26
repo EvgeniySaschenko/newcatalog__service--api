@@ -39,19 +39,6 @@ class Sections {
   async getSections() {
     return await $dbMain['sections'].getSections();
   }
-
-  // Создать кеш списка разделов в которых есть рейтинги + они не скрыты
-  async createCache() {
-    let sections = await this.getSections();
-    sections = sections.filter((el) => !el.isHiden);
-    for (let item of sections) {
-      item.ratingsCount = await $dbMain['ratings'].getRatingCountBySectionId({
-        sectionId: item.sectionId,
-      });
-    }
-    sections = sections.filter((el) => el.ratingsCount && !el.isHiden);
-    fse.writeJson(global.ROOT_PATH + '/cashe/sections.json', sections);
-  }
 }
 
 module.exports = Sections;

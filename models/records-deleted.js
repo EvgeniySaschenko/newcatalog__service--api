@@ -1,5 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
-let { db } = require('./_base.js');
+let { $db, $tables } = require('./_db');
 
 // Ярлыки
 let Scheme = function () {
@@ -37,7 +37,7 @@ const name = 'records_deleted';
 class M_Records_deleted extends Model {}
 
 M_Records_deleted.init(new Scheme(), {
-  sequelize: db,
+  sequelize: $db,
   modelName: name,
 });
 

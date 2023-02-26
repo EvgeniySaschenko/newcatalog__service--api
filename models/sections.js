@@ -1,5 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
-let { db } = require('./_base.js');
+let { $db, $tables } = require('./_db');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $errorsUtils } = require(global.ROOT_PATH + '/plugins/errors');
 
@@ -55,7 +55,7 @@ const name = 'sections';
 class M_Sections extends Model {}
 
 M_Sections.init(new Scheme(), {
-  sequelize: db,
+  sequelize: $db,
   modelName: name,
 });
 

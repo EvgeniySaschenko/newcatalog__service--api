@@ -177,6 +177,17 @@ module.exports = {
     return result;
   },
 
+  // Get count items in rating by isHiden
+  async getCountItemsRatingByIsHiden({ ratingId, isHiden }) {
+    let result = await M_RatingsItems.count({
+      where: {
+        ratingId,
+        isHiden,
+      },
+    });
+    return result;
+  },
+
   // Get items for which there are screenshots but no logos
   async getItemsReadyScrenshotsNotLogo({ ratingId }) {
     let result = await M_RatingsItems.findAll({
@@ -253,36 +264,19 @@ module.exports = {
     }, []);
   },
 
-  // Получить элементы которые обнослялись после "date" (для создания кеша)
-  async getRatingIdsAfterDateUpdate({ date }) {
+  // Получить элементы которые обнослялись во время и после "dateInclAndAfter" (для создания / удаления кеша)
+  async getItemsForRatingsCache({ dateInclAndAfter, isHiden }) {
     let result = await M_RatingsItems.findAll({
       attributes: ['ratingId'],
       where: {
         dateUpdate: {
-          [Op.gte]: date,
+          [Op.gte]: dateInclAndAfter,
         },
-        isHiden: false,
+        isHiden,
       },
       group: ['ratingId'],
       order: [['ratingId', 'ASC']],
     });
     return result;
   },
-
-  // async getItemByImgId({ imgId }) {
-  //   let result = await M_RatingsItems.findOne({
-  //     attributes: ['whois'],
-  //     where: {
-  //       imgId,
-  //     },
-  //   });
-  //   return result;
-  // },
-
-  // async getItems() {
-  //   let result = await M_RatingsItems.findAll({
-  //     attributes: ['id', 'imgId', 'alexaRank'],
-  //   });
-  //   return result;
-  // },
 };

@@ -1,7 +1,7 @@
 let { M_Labels, name: tableName } = require(global.ROOT_PATH + '/models/labels.js');
 
 let striptags = require('striptags');
-const { Op } = require('sequelize');
+let { Op } = require('sequelize');
 
 module.exports = {
   tableName,
@@ -42,13 +42,13 @@ module.exports = {
     return result;
   },
 
-  // Получить элементы которые обнослялись после "date" (для создания кеша)
-  async getRatingIdsAfterDateUpdate({ date }) {
+  // Получить элементы которые обнослялись во время и после "dateInclAndAfter" (для создания / удаления кеша)
+  async getItemsForRatingsCache({ dateInclAndAfter }) {
     let result = await M_Labels.findAll({
       attributes: ['ratingId'],
       where: {
         dateUpdate: {
-          [Op.gte]: date,
+          [Op.gte]: dateInclAndAfter,
         },
       },
       group: ['ratingId'],
