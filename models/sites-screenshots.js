@@ -13,6 +13,10 @@ let Scheme = function () {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    visitorId: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
     url: {
       type: DataTypes.TEXT,
       defaultValue: null,

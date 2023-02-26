@@ -20,7 +20,7 @@ let Scheme = function () {
       defaultValue: null,
     },
     visitorId: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.INTEGER,
       defaultValue: 0,
     },
     color: {
