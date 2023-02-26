@@ -9,6 +9,10 @@ let Scheme = function () {
       primaryKey: true,
       autoIncrement: true,
     },
+    visitorId: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
     tableName: {
       type: DataTypes.STRING,
       allowNull: false,

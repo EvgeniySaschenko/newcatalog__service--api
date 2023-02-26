@@ -8,17 +8,20 @@ let logger = require('morgan');
 let routes = require('./routes');
 let bodyParser = require('body-parser');
 let fileUpload = require('express-fileupload');
-
+let { M_Sections } = require(global.ROOT_PATH + '/models/sections');
+let { M_RecordsDeleted } = require(global.ROOT_PATH + '/models/records-deleted');
+let { M_Ratings } = require(global.ROOT_PATH + '/models/ratings');
 let { M_Sites } = require(global.ROOT_PATH + '/models/sites');
+let { M_Labels } = require(global.ROOT_PATH + '/models/labels');
 let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots');
 let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items');
 let { M_CacheInfo, Scheme, name } = require(global.ROOT_PATH + '/models/cache-info');
-let { db } = require('./models/_db');
+let { $db } = require('./models/_db');
 let app = express();
 let { Op } = require('sequelize');
 let fsExtra = require('fs-extra');
 let axios = require('axios');
-// db.getQueryInterface().createTable(name, new Scheme());
+// $db.getQueryInterface().createTable(name, new Scheme());
 
 let { fork } = require('child_process');
 fork('./init-app', [global.ROOT_PATH]);
@@ -28,16 +31,14 @@ fork('./init-app', [global.ROOT_PATH]);
 
 // let screens = fs.readdirSync('./images/sites-screens');
 (async () => {
-  // let result = await M_Sites.findAll();
-  // console.log(225);
-  // for await (let { siteId, dateCreate } of result) {
-  //   console.log({ siteId, dateCreate });
-  //   await M_Sites.update(
+  // let result = await M_SitesScreenshots.findAll();
+  // for await (let { siteScreenshotId, dateCreate } of result) {
+  //   await M_SitesScreenshots.update(
   //     {
-  //       visitorId: 1,
+  //       visitorId: 0,
   //     },
   //     {
-  //       where: { siteId },
+  //       where: { siteScreenshotId },
   //     }
   //   );
   // }
