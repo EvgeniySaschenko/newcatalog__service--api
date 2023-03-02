@@ -31,10 +31,6 @@ let $tables = {
     name: 'records-deleted',
     value: 7,
   },
-  'cache-info': {
-    name: 'cache-info',
-    value: 8,
-  },
 };
 
 let sequelize = new Sequelize(DB_MAIN__NAME, DB_MAIN__USER, DB_MAIN__PASSWORD, {

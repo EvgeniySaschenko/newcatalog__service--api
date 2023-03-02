@@ -42,21 +42,6 @@ module.exports = {
     return result;
   },
 
-  // Получить элементы которые обнослялись во время и после "dateInclAndAfter" (для создания / удаления кеша)
-  async getItemsForRatingsCache({ dateInclAndAfter }) {
-    let result = await M_Labels.findAll({
-      attributes: ['ratingId'],
-      where: {
-        dateUpdate: {
-          [Op.gte]: dateInclAndAfter,
-        },
-      },
-      group: ['ratingId'],
-      order: [['ratingId', 'ASC']],
-    });
-    return result;
-  },
-
   // Получить ярлык по id
   async getLabelByLabelId({ labelId }) {
     let result = await M_Labels.findOne({

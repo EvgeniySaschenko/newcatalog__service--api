@@ -1,259 +1,368 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
-let lodash = require('lodash');
+let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 class Cache {
-  /*
-    Run create caches 
-    isCacheReset - Rebuild the entire cache
-  */
-  async runCacheCreate({ isCacheReset }) {
-    let dateStartCreate = new Date();
-    let dateCacheLast;
-    let cacheCountKeys = await $dbTemporary['content'].getCountKeys();
-    let cacheInfo = await $dbMain['cache-info'].getLastRecord();
+  // Add cache one rating
+  async createCacheRating({ ratingId }) {
+    // Get data
+    let ratingData = await this.getRatingData({ ratingId });
+    if (!ratingData) {
+      throw { server: $errors['Not enough data'] };
+    }
+    // Add to cache
+    await this.addRatingToCache(ratingData);
 
-    if (cacheInfo) {
-      dateCacheLast = cacheInfo.dateStartCreate;
+    // Update "dateFirstPublication"
+    let dateFirstPublication =
+      ratingData.rating.dateFirstPublication || (await this.setDateFirstPublication({ ratingId }));
+
+    // Delete sections change
+    await this.deleteSectionsRatingChange({
+      sectionsIdsCache: ratingData.rating.sectionsIdsCache,
+      sectionsIds: ratingData.rating.sectionsIds,
+      ratingIds: [{ ratingId }],
+    });
+
+    // Add rating to list
+    let ratingsData = [{ ratingId, dateFirstPublication }];
+    await this.addRatingsListIds({ ratingsData });
+    for await (let sectionId of Object.values(ratingData.rating.sectionsIds)) {
+      await this.addSectionRatingsListIds({ sectionId, ratingsData });
     }
 
-    if (!cacheCountKeys || isCacheReset) {
-      dateCacheLast = '1970-01-01';
-    }
+    // Update date create cache
+    await $dbMain['ratings'].editCacheCreation({
+      ratingId,
+      dateCacheCreation: new Date(),
+      sectionsIdsCache: ratingData.rating.sectionsIds,
+    });
 
-    // Ratings delete
-    let ratingIdsDeleted = await this.getRatingsIdsForDelete({ dateCacheLast });
-    let infoCacheDeleted = await this.deleteCacheRatings({ ratingIds: ratingIdsDeleted });
-
-    if (infoCacheDeleted.success.length || infoCacheDeleted.errors.length) {
-      await $dbMain['cache-info'].createItem({ info: infoCacheDeleted, dateStartCreate });
-    }
-
-    // Ratings create
-    let ratingIdsCreated = await this.getRatingsIdsForCreate({ dateCacheLast });
-    let infoCacheCreated = await this.createCacheRatings({ ratingIds: ratingIdsCreated });
-
-    if (infoCacheCreated.success.length || infoCacheCreated.errors.length) {
-      await $dbMain['cache-info'].createItem({ info: infoCacheCreated, dateStartCreate });
-    }
-
-    // Sections
-    let infoSectionsCreated = await this.createCacheSections();
-    await $dbMain['cache-info'].createItem({ info: infoSectionsCreated, dateStartCreate });
-
-    return (
-      !infoCacheDeleted.isErrorsContains &&
-      !infoCacheCreated.isErrorsContains &&
-      !infoSectionsCreated.isErrorsContains
-    );
+    return true;
   }
 
-  /*
-    Get elements created / updated after "dateCacheLast"
-  */
-  async getRatingsIdsForCreate({ dateCacheLast }) {
-    // updated
-    let ratingsUpdated = await $dbMain['ratings'].getItemsForRatingsCache({
-      dateInclAndAfter: dateCacheLast,
-      isHiden: false,
-    });
+  // Get rating related data
+  async getRatingData({ ratingId }) {
+    let rating = await $dbMain['ratings'].getRating({ ratingId });
 
-    let ratingsItemsUpdated = await $dbMain['ratings-items'].getItemsForRatingsCache({
-      dateInclAndAfter: dateCacheLast,
-      isHiden: false,
-    });
-
-    let labelsUpdated = await $dbMain['labels'].getItemsForRatingsCache({
-      dateInclAndAfter: dateCacheLast,
-    });
-
-    let sitesUpdated = await $dbMain['sites'].getItemsForRatingsCache({
-      dateInclAndAfter: dateCacheLast,
-      isHiden: false,
-    });
-
-    // deleted
-    let ratingsDeleted = await $dbMain['records-deleted'].getItemsForRatingsCache({
-      dateInclAndAfter: dateCacheLast,
-      tableName: 'ratings',
-    });
-
-    let ratingsItemsDeleted = await $dbMain['records-deleted'].getItemsForRatingsCache({
-      dateInclAndAfter: dateCacheLast,
-      tableName: 'ratings_items',
-    });
-
-    let labelsDeleted = await $dbMain['records-deleted'].getItemsForRatingsCache({
-      dateInclAndAfter: dateCacheLast,
-      tableName: 'labels',
-    });
-
-    let unicRatingId = lodash
-      .sortBy(
-        lodash.unionBy(
-          ratingsUpdated,
-          ratingsItemsUpdated,
-          labelsUpdated,
-          sitesUpdated,
-          ratingsDeleted,
-          ratingsItemsDeleted,
-          labelsDeleted,
-          'ratingId'
-        ),
-        'ratingId'
-      )
-      .filter((el) => el.ratingId);
-
-    return unicRatingId;
-  }
-
-  /*
-    Get elements (ratings, ratings-items) hidden or deleted after "dateCacheLast"
-    If rating hidden of deleted - in this case, the rating should definitely be removed from the cache
-    If the rating hides or deletes elements, you need to check if there are visible elements in the rating, if not, this cache needs to be deleted
-  */
-  async getRatingsIdsForDelete({ dateCacheLast }) {
-    // hidden
-    let ratingsHidden = await $dbMain['ratings'].getItemsForRatingsCache({
-      dateInclAndAfter: dateCacheLast,
-      isHiden: true,
-    });
-
-    let ratingsItemsHidden = await $dbMain['ratings-items'].getItemsForRatingsCache({
-      dateInclAndAfter: dateCacheLast,
-      isHiden: true,
-    });
-
-    // deleted
-    let ratingsDeleted = await $dbMain['records-deleted'].getItemsForRatingsCache({
-      dateInclAndAfter: dateCacheLast,
-      tableName: 'ratings',
-    });
-
-    let ratingsItemsDeleted = await $dbMain['records-deleted'].getItemsForRatingsCache({
-      dateInclAndAfter: dateCacheLast,
-      tableName: 'ratings_items',
-    });
-
-    // Check empty ratings
-    let unicRatingsItems = lodash.unionBy(ratingsItemsHidden, ratingsItemsDeleted, 'ratingId');
-    let emptyRatings = [];
-    for await (let { ratingId } of unicRatingsItems) {
-      let count = await $dbMain['ratings-items'].getCountItemsRatingByIsHiden({
+    let ratingsItems = (
+      await $dbMain['ratings-items'].getItemsRating({
         ratingId,
+        typeSort: rating.typeSort,
+      })
+    ).filter((el) => !el.isHiden);
+    let labels = await $dbMain['labels'].getLabelsRating({ ratingId });
+
+    if (rating.isHiden) {
+      return false;
+    }
+
+    if (!ratingsItems.length) {
+      return false;
+    }
+
+    return {
+      rating,
+      ratingsItems,
+      labels,
+    };
+  }
+
+  // Get data from all ratings where exist visible items
+  async getRatingsAllData() {
+    let ratingsData = [];
+    let ratings = await $dbMain['ratings'].getRatings();
+
+    for await (let rating of ratings) {
+      if (rating.isHiden) continue;
+
+      let coutnVisibleItems = await $dbMain['ratings-items'].getCountItemsRatingByIsHiden({
+        ratingId: rating.ratingId,
         isHiden: false,
       });
 
-      if (!count) {
-        emptyRatings.push({ ratingId });
-      }
+      if (!coutnVisibleItems) continue;
+
+      let data = await this.getRatingData({ ratingId: rating.ratingId });
+
+      if (!data) continue;
+
+      ratingsData.push(data);
     }
-
-    let unicRatingId = lodash
-      .sortBy(lodash.unionBy(ratingsHidden, ratingsDeleted, emptyRatings, 'ratingId'), 'ratingId')
-      .filter((el) => el.ratingId);
-
-    return unicRatingId;
+    return ratingsData;
   }
 
-  /*
-    Create cache ratings, hidden elements and empty ratings not added
-  */
-  async createCacheRatings({ ratingIds }) {
-    let infoCacheCreated = {
-      type: 'ratings',
-      operation: 'create',
-      success: [],
-      errors: [],
-      isErrorsContains: false,
-    };
+  // Add rating to cache
+  async addRatingToCache({ rating, ratingsItems, labels }) {
+    let ratingId = rating.ratingId;
 
-    for await (let { ratingId } of ratingIds) {
-      // Rating
-      let rating = await $dbMain['ratings'].getRating({ ratingId });
-      if (!rating || rating.isHiden) continue;
-
-      // Items
-      let ratingsItems = await $dbMain['ratings-items'].getItemsRating({
-        ratingId,
-        typeSort: rating.typeSort,
-      });
-
-      ratingsItems = ratingsItems.filter((el) => !el.isHiden);
-      if (!ratingsItems.length) continue;
-
-      // Labels
-      let labels = await $dbMain['labels'].getLabelsRating({ ratingId });
-
-      rating.labels = labels ? labels : [];
-      rating.items = ratingsItems;
-
-      let isSuccesCreated = await $dbTemporary['content'].addRating({ ratingId, data: rating });
-      if (isSuccesCreated) {
-        infoCacheCreated.success.push(ratingId);
-      } else {
-        infoCacheCreated.errors.push(ratingId);
-        infoCacheCreated.isErrorsContains = true;
-      }
-    }
-    return infoCacheCreated;
-  }
-
-  /*
-    Delete cache ratings: hidden, deleted, empty
-  */
-  async deleteCacheRatings({ ratingIds }) {
-    let infoCacheDeleted = {
-      type: 'ratings',
-      operation: 'delete',
-      success: [],
-      errors: [],
-      isErrorsContains: false,
-    };
-
-    for await (let { ratingId } of ratingIds) {
-      let isSuccesDeleted = await $dbTemporary['content'].deleteRating({ ratingId });
-      if (isSuccesDeleted) {
-        infoCacheDeleted.success.push(ratingId);
-      } else {
-        infoCacheDeleted.errors.push(ratingId);
-        infoCacheDeleted.isErrorsContains = true;
-      }
-    }
-    return infoCacheDeleted;
-  }
-
-  /*
-    Create cache sections, hidden not added
-  */
-  async createCacheSections() {
-    let infoCacheCreated = {
-      type: 'sections',
-      operation: 'create',
-      success: [],
-      errors: [],
-      isErrorsContains: false,
-    };
-    let sections = await $dbMain['sections'].getSections();
-    sections = sections.filter((el) => !el.isHiden);
-    let isSuccesCreated = await $dbTemporary['content'].addSections({ sections });
-    let sectionIds = sections.map((el) => {
-      return { sectionId: el.sectionId };
+    let isRating = await $dbTemporary['content'].addRating({
+      ratingId,
+      data: rating,
+    });
+    let isRatingItems = await $dbTemporary['content'].addRatingItems({
+      ratingId,
+      data: ratingsItems,
+    });
+    let isLabels = await $dbTemporary['content'].addLabels({
+      ratingId,
+      data: labels,
     });
 
-    if (isSuccesCreated) {
-      infoCacheCreated.success = sectionIds;
-    } else {
-      infoCacheCreated.errors = sectionIds;
-      infoCacheCreated.isErrorsContains = true;
+    if (!isRating || !isRatingItems || !isLabels) {
+      throw { server: $errors['Server error'] };
     }
 
-    return infoCacheCreated;
+    return true;
+  }
+
+  /*
+    Add to cache list all ratings ids
+    ratingsData = [{ ratingId, dateFirstPublication }...]
+  */
+  async addRatingsListIds({ ratingsData }) {
+    let ratingsListIds = await $dbTemporary['content'].getRatingsListIds();
+    if (!ratingsListIds) {
+      ratingsListIds = {
+        map: {},
+        arr: [],
+      };
+    }
+
+    for (let { ratingId, dateFirstPublication } of ratingsData) {
+      ratingsListIds.map[ratingId] = dateFirstPublication.getTime();
+    }
+
+    ratingsListIds.arr = Object.entries(ratingsListIds.map)
+      .sort((a, b) => {
+        return b[1] - a[1];
+      })
+      .map((el) => el[0]);
+
+    await $dbTemporary['content'].addRatingsListIds({ data: ratingsListIds });
+  }
+
+  /*
+      Add to cache list all ratings ids from section
+      sectionId
+      ratingsData = [{ ratingId, dateFirstPublication }...]
+    */
+  async addSectionRatingsListIds({ sectionId, ratingsData }) {
+    let sectionRatingIds = await $dbTemporary['content'].getSectionRatingsListIds({
+      sectionId,
+    });
+    if (!sectionRatingIds) {
+      sectionRatingIds = {
+        map: {},
+        arr: [],
+      };
+    }
+
+    for (let { ratingId, dateFirstPublication } of ratingsData) {
+      sectionRatingIds.map[ratingId] = dateFirstPublication.getTime();
+    }
+
+    sectionRatingIds.arr = Object.entries(sectionRatingIds.map)
+      .sort((a, b) => {
+        return b[1] - a[1];
+      })
+      .map((el) => el[0]);
+    let result = await $dbTemporary['content'].addSectionRatingsListIds({
+      sectionId,
+      data: sectionRatingIds,
+    });
+
+    if (!result) throw { server: $errors['Server error'] };
+    return true;
+  }
+
+  // Delete cache rating
+  async deleteCacheRating({ ratingId }) {
+    let rating = await $dbMain['ratings'].getRating({ ratingId });
+    let result = await this.deleteRatingFromCache({ ratingIds: [{ ratingId }] });
+    if (!result) throw { server: $errors['Server error'] };
+
+    await this.deleteSectionsRatingChange({
+      sectionsIdsCache: rating.sectionsIdsCache,
+      sectionsIds: rating.sectionsIds,
+      ratingIds: [{ ratingId }],
+    });
+
+    await this.deleteRatingsListIds({ ratingIds: [{ ratingId }] });
+
+    for await (let sectionId of Object.values(rating.sectionsIds)) {
+      await this.deleteSectionRatingsListIds({ sectionId, ratingIds: [{ ratingId }] });
+    }
+    return true;
+  }
+
+  // Delete ratings from cache
+  async deleteRatingFromCache({ ratingIds }) {
+    for await (let { ratingId } of ratingIds) {
+      let isRating = await $dbTemporary['content'].deleteRating({
+        ratingId,
+      });
+      let isRatingItems = await $dbTemporary['content'].deleteRatingItems({
+        ratingId,
+      });
+      let isLabels = await $dbTemporary['content'].deleteLabels({
+        ratingId,
+      });
+
+      if (!isRating || !isRatingItems || !isLabels) {
+        return false;
+      }
+
+      await $dbMain['ratings'].editCacheCreation({
+        ratingId,
+        dateCacheCreation: null,
+        sectionsIdsCache: null,
+      });
+    }
+    return true;
+  }
+
+  /*
+    For a list of ratings, remove ratings from the cache
+  */
+  async deleteRatingsListIds({ ratingIds }) {
+    let ratingsListIds = await $dbTemporary['content'].getRatingsListIds();
+    if (!ratingsListIds) return;
+
+    for (let { ratingId } of ratingIds) {
+      delete ratingsListIds.map[ratingId];
+    }
+
+    ratingsListIds.arr = Object.entries(ratingsListIds.map)
+      .sort((a, b) => {
+        return b[1] - a[1];
+      })
+      .map((el) => el[0]);
+
+    await $dbTemporary['content'].addRatingsListIds({ data: ratingsListIds });
+  }
+
+  /*
+    From ratings in section, remove ratings
+  */
+  async deleteSectionRatingsListIds({ sectionId, ratingIds }) {
+    let sectionRatingIds = await $dbTemporary['content'].getSectionRatingsListIds({
+      sectionId,
+    });
+
+    if (!sectionRatingIds) return;
+
+    for (let { ratingId } of ratingIds) {
+      delete sectionRatingIds.map[ratingId];
+    }
+
+    sectionRatingIds.arr = Object.entries(sectionRatingIds.map)
+      .sort((a, b) => {
+        return b[1] - a[1];
+      })
+      .map((el) => el[0]);
+    let result = await $dbTemporary['content'].addSectionRatingsListIds({
+      sectionId,
+      data: sectionRatingIds,
+    });
+
+    if (!result) throw { server: $errors['Server error'] };
+    return true;
+  }
+
+  /*
+    Delete rating IDs from sections to which ratings are no longer attached (relative to the previous cache)
+  */
+  async deleteSectionsRatingChange({ sectionsIdsCache, sectionsIds, ratingIds }) {
+    if (!sectionsIdsCache) return;
+    for (let sectionId of Object.values(sectionsIdsCache)) {
+      if (!sectionsIds[sectionId]) {
+        await this.deleteSectionRatingsListIds({ sectionId, ratingIds });
+      }
+    }
+  }
+
+  // Create cache sections
+  async createCacheSections() {
+    let sections = await $dbMain['sections'].getSections();
+    sections = sections.filter((el) => !el.isHiden);
+    let isSuccesCreated = await $dbTemporary['content'].addSections({ data: sections });
+    if (!isSuccesCreated) throw { server: $errors['Server error'] };
+    return true;
+  }
+
+  // Create cashe from all elements
+  async resetCache() {
+    await this.clearDatabase();
+    await this.createCacheSections();
+    let ratingsAllData = await this.getRatingsAllData();
+    let ratingsDataFromList = [];
+    let ratingsDataFromListSections = {};
+
+    if (!ratingsAllData.length) {
+      throw { server: $errors['Server error'] };
+    }
+
+    for await (let ratingData of ratingsAllData) {
+      // Add to cache
+      await this.addRatingToCache(ratingData);
+
+      // Update "dateFirstPublication"
+      let dateFirstPublication =
+        ratingData.rating.dateFirstPublication ||
+        (await this.setDateFirstPublication({
+          ratingId: ratingData.ratingId,
+        }));
+
+      // ratingsDataFromList
+      let data = { ratingId: ratingData.rating.ratingId, dateFirstPublication };
+      ratingsDataFromList.push(data);
+      // ratingsDataFromListSections
+      for (let sectionId in ratingData.rating.sectionsIds) {
+        if (!ratingsDataFromListSections[sectionId]) {
+          ratingsDataFromListSections[sectionId] = [];
+        }
+        ratingsDataFromListSections[sectionId].push(data);
+      }
+    }
+
+    // Add ratings to list
+    await this.addRatingsListIds({ ratingsData: ratingsDataFromList });
+    for await (let [sectionId, ratingsData] of Object.entries(ratingsDataFromListSections)) {
+      await this.addSectionRatingsListIds({ sectionId, ratingsData });
+    }
+
+    // Update date create cache
+    for await (let ratingData of ratingsAllData) {
+      await $dbMain['ratings'].editCacheCreation({
+        ratingId: ratingData.rating.ratingId,
+        dateCacheCreation: new Date(),
+        sectionsIdsCache: ratingData.rating.sectionsIds,
+      });
+    }
+    return true;
+  }
+
+  /*
+    Add from rating date first publication
+  */
+  async setDateFirstPublication({ ratingId }) {
+    await $dbMain['ratings'].editDateFirstPublication({ ratingId });
+    let rating = await $dbMain['ratings'].getRating({ ratingId });
+    return rating.dateFirstPublication;
   }
 
   /*
     Clear all cache
   */
   async clearDatabase() {
+    let ratings = await $dbMain['ratings'].getRatings();
+    for await (let { ratingId } of ratings) {
+      await $dbMain['ratings'].editCacheCreation({
+        ratingId,
+        dateCacheCreation: null,
+        sectionsIdsCache: null,
+      });
+    }
     return await $dbTemporary['content'].clearDatabase();
   }
 }

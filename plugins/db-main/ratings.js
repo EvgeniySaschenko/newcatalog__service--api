@@ -90,40 +90,10 @@ module.exports = {
     return result;
   },
 
-  // Получить все рейтинги пользователя
-  async getRatingsUser({ userId }) {
+  // Получить все рейтинги
+  async getRatings() {
     let result = await M_Ratings.findAll({
-      attributes: [
-        'ratingId',
-        'name',
-        'descr',
-        'isHiden',
-        'typeRating',
-        'typeSort',
-        'typeDisplay',
-        'sectionsIds',
-        'dateCreate',
-      ],
-      where: {
-        userId,
-      },
       order: [['dateCreate', 'DESC']],
-    });
-    return result;
-  },
-
-  // Получить элементы которые обнослялись во время и после "dateInclAndAfter" (для создания / удаления кеша)
-  async getItemsForRatingsCache({ dateInclAndAfter, isHiden }) {
-    let result = await M_Ratings.findAll({
-      attributes: ['ratingId'],
-      where: {
-        dateUpdate: {
-          [Op.gte]: dateInclAndAfter,
-        },
-        isHiden,
-      },
-      group: ['ratingId'],
-      order: [['ratingId', 'ASC']],
     });
     return result;
   },
@@ -131,5 +101,29 @@ module.exports = {
   // Удалить рейтинг
   async deleteRating({ ratingId }) {
     return await M_Ratings.destroy({ where: { ratingId } });
+  },
+
+  // Установить дату первой публикации (определяет последовательность вывода на сайте)
+  async editDateFirstPublication({ ratingId }) {
+    return await M_Ratings.update(
+      {
+        dateFirstPublication: new Date(),
+      },
+      {
+        where: { ratingId },
+      }
+    );
+  },
+  //   Двта создания кеша
+  async editCacheCreation({ ratingId, dateCacheCreation, sectionsIdsCache }) {
+    return await M_Ratings.update(
+      {
+        dateCacheCreation,
+        sectionsIdsCache,
+      },
+      {
+        where: { ratingId },
+      }
+    );
   },
 };

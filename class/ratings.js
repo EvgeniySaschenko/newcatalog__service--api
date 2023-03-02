@@ -14,12 +14,23 @@ class Ratings {
 
   // Получить рейтинг
   async getRating({ ratingId }) {
-    return await $dbMain['ratings'].getRating({ ratingId });
+    let rating = await $dbMain['ratings'].getRating({ ratingId });
+    let countRatingItemsVisible = await $dbMain['ratings-items'].getCountItemsRatingByIsHiden({
+      ratingId,
+      isHiden: false,
+    });
+    let countRatingItemsHidden = await $dbMain['ratings-items'].getCountItemsRatingByIsHiden({
+      ratingId,
+      isHiden: true,
+    });
+    rating.countRatingItemsTotal = countRatingItemsVisible + countRatingItemsHidden;
+    rating.countRatingItemsHidden = countRatingItemsHidden;
+    return rating;
   }
 
-  // Получить все рейтинги пользователя
-  async getRatingsUser({ userId }) {
-    return await $dbMain['ratings'].getRatingsUser({ userId });
+  // Получить все рейтинги
+  async getRatings() {
+    return await $dbMain['ratings'].getRatings();
   }
 
   // Удалить рейтинг

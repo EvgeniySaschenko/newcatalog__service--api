@@ -100,6 +100,11 @@ let Scheme = function () {
       },
       defaultValue: {},
     },
+    // id разделов которые находятся в кеше
+    sectionsIdsCache: {
+      type: DataTypes.JSONB,
+      defaultValue: null,
+    },
     visitorId: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
@@ -111,6 +116,15 @@ let Scheme = function () {
     dateUpdate: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+    },
+    // for sort
+    dateFirstPublication: {
+      type: DataTypes.DATE,
+      defaultValue: null,
+    },
+    dateCacheCreation: {
+      type: DataTypes.DATE,
+      defaultValue: null,
     },
   };
 };

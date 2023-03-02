@@ -3,12 +3,12 @@ let router = express.Router();
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
 let Cache = require(global.ROOT_PATH + '/class/cache');
 
-// Create cache
-router.post('/create', async (req, res, next) => {
+// Add cache rating
+router.post('/rating/:ratingId', async (req, res, next) => {
   let result = true;
   try {
     let cache = new Cache();
-    result = await cache.runCacheCreate({ isCacheReset: false });
+    result = await cache.createCacheRating(req.body);
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
@@ -17,12 +17,26 @@ router.post('/create', async (req, res, next) => {
   res.send(result);
 });
 
-// Reset cache
-router.post('/reset', async (req, res, next) => {
+// Delete cache rating
+router.delete('/rating/:ratingId', async (req, res, next) => {
   let result = true;
   try {
     let cache = new Cache();
-    result = await cache.runCacheCreate({ isCacheReset: true });
+    result = await cache.deleteCacheRating(req.body);
+  } catch (error) {
+    let errorsMessage = new ErrorsMessage();
+    result = errorsMessage.createMessage(error);
+    res.status(result.status);
+  }
+  res.send(result);
+});
+
+// Create new cache from all
+router.post('/reset-all', async (req, res, next) => {
+  let result = true;
+  try {
+    let cache = new Cache();
+    result = await cache.resetCache(req.body);
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
@@ -45,4 +59,17 @@ router.delete('/clear-all', async (req, res, next) => {
   res.send(result);
 });
 
+// Create cache sections
+router.post('/sections', async (req, res, next) => {
+  let result = true;
+  try {
+    let cache = new Cache();
+    result = await cache.createCacheSections();
+  } catch (error) {
+    let errorsMessage = new ErrorsMessage();
+    result = errorsMessage.createMessage(error);
+    res.status(result.status);
+  }
+  res.send(result);
+});
 module.exports = router;
