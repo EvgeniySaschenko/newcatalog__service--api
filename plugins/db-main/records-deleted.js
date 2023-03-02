@@ -14,24 +14,4 @@ module.exports = {
     });
     return result.get({ plain: true });
   },
-
-  // Получить элементы которые удалялись во время и после "dateInclAndAfter" (для удаления кеша)
-  async getItemsForRatingsCache({ dateInclAndAfter, tableName }) {
-    let result = await M_Records_deleted.findAll({
-      attributes: ['tableRecord'],
-      where: {
-        dateUpdate: {
-          [Op.gte]: dateInclAndAfter,
-        },
-        tableName,
-      },
-      order: [['tableRecord.ratingId', 'ASC']],
-    });
-
-    let unicRatingId = lodash.unionBy(result, 'tableRecord.ratingId').map((el) => {
-      let { ratingId } = el.tableRecord;
-      return { ratingId };
-    });
-    return unicRatingId;
-  },
 };

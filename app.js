@@ -15,7 +15,6 @@ let { M_Sites } = require(global.ROOT_PATH + '/models/sites');
 let { M_Labels } = require(global.ROOT_PATH + '/models/labels');
 let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots');
 let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items');
-let { M_CacheInfo, Scheme, name } = require(global.ROOT_PATH + '/models/cache-info');
 let { $db } = require('./models/_db');
 let app = express();
 let { Op } = require('sequelize');

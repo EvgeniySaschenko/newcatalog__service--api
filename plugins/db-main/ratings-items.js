@@ -263,20 +263,4 @@ module.exports = {
       return total;
     }, []);
   },
-
-  // Получить элементы которые обнослялись во время и после "dateInclAndAfter" (для создания / удаления кеша)
-  async getItemsForRatingsCache({ dateInclAndAfter, isHiden }) {
-    let result = await M_RatingsItems.findAll({
-      attributes: ['ratingId'],
-      where: {
-        dateUpdate: {
-          [Op.gte]: dateInclAndAfter,
-        },
-        isHiden,
-      },
-      group: ['ratingId'],
-      order: [['ratingId', 'ASC']],
-    });
-    return result;
-  },
 };
