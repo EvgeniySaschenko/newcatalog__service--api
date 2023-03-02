@@ -10,7 +10,7 @@ router.get('/', async (req, res, next) => {
 
   try {
     let ratings = new Ratings();
-    result = await ratings.getRatings();
+    result = await ratings.getRatings(req);
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
