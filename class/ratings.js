@@ -28,9 +28,9 @@ class Ratings {
     return rating;
   }
 
-  // Получить все рейтинги
-  async getRatings() {
-    return await $dbMain['ratings'].getRatings();
+  // Получить рейтинги
+  async getRatings({ offset, limit }) {
+    return await $dbMain['ratings'].getRatings({ offset, limit });
   }
 
   // Удалить рейтинг

@@ -92,8 +92,15 @@ module.exports = {
 
   // Получить все рейтинги
   async getRatings() {
+    // let maxLimit = 200;
+    // offset = offset || 0;
+    // limit = limit || 15;
+    // limit = limit <= maxLimit ? limit : maxLimit;
     let result = await M_Ratings.findAll({
-      order: [['dateCreate', 'DESC']],
+      order: [
+        ['dateCreate', 'DESC'],
+        ['dateFirstPublication', 'DESC'],
+      ],
     });
     return result;
   },

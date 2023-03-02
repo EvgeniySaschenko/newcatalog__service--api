@@ -70,7 +70,7 @@ class Cache {
   // Get data from all ratings where exist visible items
   async getRatingsAllData() {
     let ratingsData = [];
-    let ratings = await $dbMain['ratings'].getRatings();
+    let ratings = await $dbMain['ratings'].getRatings({});
 
     for await (let rating of ratings) {
       if (rating.isHiden) continue;
@@ -134,7 +134,7 @@ class Cache {
 
     ratingsListIds.arr = Object.entries(ratingsListIds.map)
       .sort((a, b) => {
-        return b[1] - a[1];
+        return a[1] - b[1];
       })
       .map((el) => el[0]);
 
@@ -163,7 +163,7 @@ class Cache {
 
     sectionRatingIds.arr = Object.entries(sectionRatingIds.map)
       .sort((a, b) => {
-        return b[1] - a[1];
+        return a[1] - b[1];
       })
       .map((el) => el[0]);
     let result = await $dbTemporary['content'].addSectionRatingsListIds({
@@ -234,7 +234,7 @@ class Cache {
 
     ratingsListIds.arr = Object.entries(ratingsListIds.map)
       .sort((a, b) => {
-        return b[1] - a[1];
+        return a[1] - b[1];
       })
       .map((el) => el[0]);
 
@@ -257,7 +257,7 @@ class Cache {
 
     sectionRatingIds.arr = Object.entries(sectionRatingIds.map)
       .sort((a, b) => {
-        return b[1] - a[1];
+        return a[1] - b[1];
       })
       .map((el) => el[0]);
     let result = await $dbTemporary['content'].addSectionRatingsListIds({
@@ -310,7 +310,7 @@ class Cache {
       let dateFirstPublication =
         ratingData.rating.dateFirstPublication ||
         (await this.setDateFirstPublication({
-          ratingId: ratingData.ratingId,
+          ratingId: ratingData.rating.ratingId,
         }));
 
       // ratingsDataFromList
@@ -355,7 +355,7 @@ class Cache {
     Clear all cache
   */
   async clearDatabase() {
-    let ratings = await $dbMain['ratings'].getRatings();
+    let ratings = await $dbMain['ratings'].getRatings({});
     for await (let { ratingId } of ratings) {
       await $dbMain['ratings'].editCacheCreation({
         ratingId,
