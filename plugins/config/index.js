@@ -81,11 +81,6 @@ let $config = {
     // Sets the interval for checking for new entries in the database or the minimum interval between screenshots.
     timeIntervalScreenshotCreate: 1000,
   },
-  // db-temporary
-  'db-temporary': {
-    alexa: 0,
-    content: 1,
-  },
 };
 
 module.exports = {

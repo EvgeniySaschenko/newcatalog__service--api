@@ -365,6 +365,14 @@ class Cache {
     }
     return await $dbTemporary['content'].clearDatabase();
   }
+
+  /*
+    Set id cache
+  */
+  async setCacheId() {
+    let result = await $dbTemporary['content'].setCacheId();
+    return result;
+  }
 }
 
 module.exports = Cache;

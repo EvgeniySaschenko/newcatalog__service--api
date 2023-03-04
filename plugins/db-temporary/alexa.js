@@ -1,18 +1,17 @@
 let { createClient } = require('redis');
 let fse = require('fs-extra');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
-let { DB_TEMPORARY__HOST } = process.env;
+let { DB_TEMPORARY__HOST, DB_TEMPORARY__DB_ALEXA, DB_TEMPORARY__DB_ALEXA_PREFIXES } = process.env;
 const client = createClient({
-  url: `${DB_TEMPORARY__HOST}/${$config['db-temporary'].alexa}`,
+  url: `${DB_TEMPORARY__HOST}/${DB_TEMPORARY__DB_ALEXA}`,
 });
 client.on('error', (err) => {
   console.error('Redis Alexa Error', err);
   client.quit();
 });
 
-module.exports = {
-  prefixAlexaRank: 'alexa_rank',
+let prefixes = JSON.parse(DB_TEMPORARY__DB_ALEXA_PREFIXES);
 
+module.exports = {
   // Create database AlexaRank
   async createDataDaseCasheAlexaRank() {
     await client.connect();
@@ -21,7 +20,7 @@ module.exports = {
       let fileContent = fse.readFileSync(global.ROOT_PATH + '/data/alexa-rank.csv', 'utf8');
       for (let item of fileContent.split('\n')) {
         let [rank, host] = item.split(',');
-        await client.set(`${this.prefixAlexaRank}_${host}`, rank);
+        await client.set(`${prefixes['alexa-rank']}_${host}`, rank);
       }
       await client.set('isAlexaRankData', 'true');
     }
@@ -32,7 +31,7 @@ module.exports = {
   async getAlexaRank(domain) {
     try {
       await client.connect();
-      let alexaRank = await client.get(`${this.prefixAlexaRank}_${domain}`);
+      let alexaRank = await client.get(`${prefixes['alexa-rank']}_${domain}`);
       await client.quit();
       return Number(alexaRank) || null;
     } catch (error) {
