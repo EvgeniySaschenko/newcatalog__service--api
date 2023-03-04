@@ -9,6 +9,9 @@ router.post('/rating/:ratingId', async (req, res, next) => {
   try {
     let cache = new Cache();
     result = await cache.createCacheRating(req.body);
+    if (result) {
+      result = await cache.setCacheId();
+    }
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
@@ -23,6 +26,9 @@ router.delete('/rating/:ratingId', async (req, res, next) => {
   try {
     let cache = new Cache();
     result = await cache.deleteCacheRating(req.body);
+    if (result) {
+      result = await cache.setCacheId();
+    }
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
@@ -37,6 +43,9 @@ router.post('/reset-all', async (req, res, next) => {
   try {
     let cache = new Cache();
     result = await cache.resetCache(req.body);
+    if (result) {
+      result = await cache.setCacheId();
+    }
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
@@ -51,6 +60,10 @@ router.delete('/clear-all', async (req, res, next) => {
   try {
     let cache = new Cache();
     result = await cache.clearDatabase();
+    // No identifier indicates no cache
+    // if (result) {
+    //   result = await cache.setCacheId();
+    // }
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
@@ -65,6 +78,9 @@ router.post('/sections', async (req, res, next) => {
   try {
     let cache = new Cache();
     result = await cache.createCacheSections();
+    if (result) {
+      result = await cache.setCacheId();
+    }
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
