@@ -261,7 +261,7 @@ module.exports = {
   async setCacheId() {
     try {
       await client.connect();
-      await client.set(prefixes['cache-id'], `${Date.now()}_${uuidv4()}`);
+      await client.set(prefixes['cache-id'], uuidv4());
       await client.quit();
       return true;
     } catch (error) {
@@ -269,5 +269,19 @@ module.exports = {
       console.error(error);
       if (error) throw error;
     }
+  },
+
+  // Delete id cache (used in cache changes)
+  async deleteCacheId() {
+    try {
+      await client.connect();
+      await client.del(prefixes['cache-id']);
+      await client.quit();
+      return true;
+    } catch (error) {
+      client.quit();
+      console.error(error);
+    }
+    return false;
   },
 };
