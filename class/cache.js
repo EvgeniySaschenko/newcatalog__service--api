@@ -373,6 +373,14 @@ class Cache {
     let result = await $dbTemporary['content'].setCacheId();
     return result;
   }
+
+  /*
+    Delete id cache
+  */
+  async deleteCacheId() {
+    let result = await $dbTemporary['content'].deleteCacheId();
+    return result;
+  }
 }
 
 module.exports = Cache;

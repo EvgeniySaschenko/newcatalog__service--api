@@ -8,6 +8,7 @@ router.post('/rating/:ratingId', async (req, res, next) => {
   let result = true;
   try {
     let cache = new Cache();
+    await cache.deleteCacheId();
     result = await cache.createCacheRating(req.body);
     if (result) {
       result = await cache.setCacheId();
@@ -25,6 +26,7 @@ router.delete('/rating/:ratingId', async (req, res, next) => {
   let result = true;
   try {
     let cache = new Cache();
+    await cache.deleteCacheId();
     result = await cache.deleteCacheRating(req.body);
     if (result) {
       result = await cache.setCacheId();
@@ -42,6 +44,7 @@ router.post('/reset-all', async (req, res, next) => {
   let result = true;
   try {
     let cache = new Cache();
+    await cache.deleteCacheId();
     result = await cache.resetCache(req.body);
     if (result) {
       result = await cache.setCacheId();
@@ -77,6 +80,7 @@ router.post('/sections', async (req, res, next) => {
   let result = true;
   try {
     let cache = new Cache();
+    await cache.deleteCacheId();
     result = await cache.createCacheSections();
     if (result) {
       result = await cache.setCacheId();

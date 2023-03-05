@@ -1,5 +1,6 @@
 FROM itisfoundation/puppeteer:14-3
 
+RUN apt update
 RUN apt install whois
 
 ARG WORKDIR_BASE
