@@ -29,15 +29,14 @@ class Ratings {
   }
 
   // Получить рейтинги
-  async getRatings({ offset, limit }) {
-    return await $dbMain['ratings'].getRatings({ offset, limit });
+  async getRatings() {
+    return await $dbMain['ratings'].getRatings();
   }
 
   // Удалить рейтинг
   async deleteRating({ ratingId }) {
     let ratingItems = await $dbMain['ratings-items'].getItemsRating({ ratingId });
     let ratingLabels = await $dbMain['labels'].getLabelsRating({ ratingId });
-    console.log(ratingItems.length, ratingLabels.length);
     if (ratingItems.length || ratingLabels.length) {
       throw {
         errors: [

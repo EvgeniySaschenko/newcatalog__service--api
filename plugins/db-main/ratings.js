@@ -90,6 +90,21 @@ module.exports = {
     return result;
   },
 
+  // Получить количество опубликованых рейтингов в разделе
+  async getRatingPublishedCountBySectionId({ sectionId }) {
+    let result = await M_Ratings.count({
+      where: {
+        sectionsIds: {
+          [sectionId]: sectionId,
+        },
+        dateCacheCreation: {
+          [Op.ne]: null,
+        },
+      },
+    });
+    return result;
+  },
+
   // Получить все рейтинги
   async getRatings() {
     // let maxLimit = 200;

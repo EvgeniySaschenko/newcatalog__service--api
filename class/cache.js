@@ -4,7 +4,7 @@ let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 class Cache {
   // Add cache one rating
   async createCacheRating({ ratingId }) {
-    // Get data
+    // Get datap
     let ratingData = await this.getRatingData({ ratingId });
     if (!ratingData) {
       throw { server: $errors['Not enough data'] };
@@ -285,6 +285,14 @@ class Cache {
   async createCacheSections() {
     let sections = await $dbMain['sections'].getSections();
     sections = sections.filter((el) => !el.isHiden);
+    for await (let item of sections) {
+      let countRatingPublished = await $dbMain['ratings'].getRatingPublishedCountBySectionId({
+        sectionId: item.sectionId,
+      });
+      item.countRatingPublished = countRatingPublished;
+    }
+    sections = sections.filter((el) => el.countRatingPublished);
+
     let isSuccesCreated = await $dbTemporary['content'].addSections({ data: sections });
     if (!isSuccesCreated) throw { server: $errors['Server error'] };
     return true;
@@ -293,7 +301,6 @@ class Cache {
   // Create cashe from all elements
   async resetCache() {
     await this.clearDatabase();
-    await this.createCacheSections();
     let ratingsAllData = await this.getRatingsAllData();
     let ratingsDataFromList = [];
     let ratingsDataFromListSections = {};
@@ -323,6 +330,7 @@ class Cache {
         }
         ratingsDataFromListSections[sectionId].push(data);
       }
+      await this.createCacheSections();
     }
 
     // Add ratings to list
