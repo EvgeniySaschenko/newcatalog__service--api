@@ -97,15 +97,39 @@ class Cache {
 
     let isRating = await $dbTemporary['content'].addRating({
       ratingId,
-      data: rating,
+      data: {
+        ratingId: rating.ratingId,
+        name: rating.name,
+        descr: rating.descr,
+        sectionsIds: rating.sectionsIds,
+        dateFirstPublication: rating.dateFirstPublication,
+      },
     });
     let isRatingItems = await $dbTemporary['content'].addRatingItems({
       ratingId,
-      data: ratingsItems,
+      data: ratingsItems.map((el) => {
+        return {
+          ratingItemId: el.ratingItemId,
+          ratingId: el.ratingId,
+          siteId: el.siteId,
+          url: el.url,
+          name: el.name,
+          labelsIds: Object.values(el.labelsIds),
+          logoImg: el.logoImg,
+          hostname: el.hostname,
+          color: el.color,
+        };
+      }),
     });
     let isLabels = await $dbTemporary['content'].addLabels({
       ratingId,
-      data: labels,
+      data: labels.map((el) => {
+        return {
+          labelId: el.labelId,
+          color: el.color,
+          name: el.name,
+        };
+      }),
     });
 
     if (!isRating || !isRatingItems || !isLabels) {
@@ -330,7 +354,6 @@ class Cache {
         }
         ratingsDataFromListSections[sectionId].push(data);
       }
-      await this.createCacheSections();
     }
 
     // Add ratings to list
@@ -347,6 +370,8 @@ class Cache {
         sectionsIdsCache: ratingData.rating.sectionsIds,
       });
     }
+
+    await this.createCacheSections();
     return true;
   }
 
