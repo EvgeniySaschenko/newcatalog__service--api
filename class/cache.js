@@ -315,7 +315,15 @@ class Cache {
       });
       item.countRatingPublished = countRatingPublished;
     }
-    sections = sections.filter((el) => el.countRatingPublished);
+    sections = sections
+      .filter((el) => el.countRatingPublished && !el.isHiden)
+      .map((el) => {
+        return {
+          sectionId: el.sectionId,
+          name: el.name,
+          countRatingPublished: el.countRatingPublished,
+        };
+      });
 
     let isSuccesCreated = await $dbTemporary['content'].addSections({ data: sections });
     if (!isSuccesCreated) throw { server: $errors['Server error'] };
