@@ -1,8 +1,6 @@
 let { Op } = require('sequelize');
 let { M_Sites, name: tableName } = require(global.ROOT_PATH + '/models/sites.js');
-let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items');
 let striptags = require('striptags');
-let lodash = require('lodash');
 
 module.exports = {
   tableName,

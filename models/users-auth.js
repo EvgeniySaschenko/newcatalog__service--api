@@ -1,20 +1,29 @@
 let { Model, DataTypes } = require('sequelize');
 let { $db, $tables } = require('./_db');
 
-// Счётчик посещений
+// Пользователи
 let Scheme = function () {
   return {
-    id: {
+    userAuthId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    visitorId: {
+    mail: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
+    ip: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
+    userAgent: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
+    type: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
-    },
-    ratingId: {
-      type: DataTypes.INTEGER,
     },
     dateCreate: {
       type: DataTypes.DATE,
@@ -27,12 +36,12 @@ let Scheme = function () {
   };
 };
 
-const name = 'visitors_counter';
-class M_VisitorsCounter extends Model {}
+const name = 'users-auth';
+class M_UsersAuth extends Model {}
 
-M_VisitorsCounter.init(new Scheme(), {
+M_UsersAuth.init(new Scheme(), {
   sequelize: $db,
   modelName: name,
 });
 
-module.exports = { M_VisitorsCounter, Scheme, name };
+module.exports = { M_UsersAuth, Scheme, name };
