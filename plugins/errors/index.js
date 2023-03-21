@@ -42,6 +42,16 @@ let $errors = {
   'You can not remove a rating that has sites or labels': $t(
     'You can not remove a rating that has sites or labels'
   ),
+  //
+  'Value must be e-mail': $t('Value must be e-mail'),
+  //
+  'Incorrect login or password': $t('Incorrect login or password'),
+  //
+  'Exceeded number of login attempts. Authorization temporarily blocked': $t(
+    'Exceeded number of login attempts. Authorization temporarily blocked'
+  ),
+  //
+  'Auth error': $t('Auth error'),
 };
 
 let $errorsUtils = {

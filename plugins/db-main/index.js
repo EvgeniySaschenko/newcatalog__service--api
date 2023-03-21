@@ -6,6 +6,8 @@ let $dbMain = {
   sites: require('./sites'),
   'ratings-items': require('./ratings-items'),
   'records-deleted': require('./records-deleted'),
+  users: require('./users'),
+  'users-auth': require('./users-auth'),
 };
 
 module.exports = {

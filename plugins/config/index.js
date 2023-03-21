@@ -8,6 +8,19 @@ let localesObject = (() => {
 })();
 
 let $config = {
+  // users
+  users: {
+    mailLengthMin: 3,
+    mailLengthMax: 255,
+    passwordLengthMin: 6,
+    passwordLengthMax: 20,
+    loginAttemptMaxCount: 5,
+    loginAttempTimaut: 600, // sec
+    salt: 'dgkdfsjg;kdfjsgkj53',
+    cookieSessionId: 'sessionId',
+    sessionIdMaxAge: 30, // sec
+    cookieUserId: 'userId',
+  },
   // lang
   lang: {
     default: 'ua',

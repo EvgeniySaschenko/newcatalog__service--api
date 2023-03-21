@@ -8,6 +8,11 @@ let logger = require('morgan');
 let routes = require('./routes');
 let bodyParser = require('body-parser');
 let fileUpload = require('express-fileupload');
+
+let UserLogin = require(global.ROOT_PATH + '/class/user-login');
+let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
+
+let { M_UsersAuth, Scheme, name } = require(global.ROOT_PATH + '/models/users-auth');
 let { M_Sections } = require(global.ROOT_PATH + '/models/sections');
 let { M_RecordsDeleted } = require(global.ROOT_PATH + '/models/records-deleted');
 let { M_Ratings } = require(global.ROOT_PATH + '/models/ratings');
@@ -30,6 +35,7 @@ fork('./init-app', [global.ROOT_PATH]);
 
 // let screens = fs.readdirSync('./images/sites-screens');
 (async () => {
+  await $db.getQueryInterface().createTable(name, new Scheme());
   // let result = await M_SitesScreenshots.findAll();
   // for await (let { siteScreenshotId, dateCreate } of result) {
   //   await M_SitesScreenshots.update(
@@ -165,6 +171,34 @@ fork('./init-app', [global.ROOT_PATH]);
   //     );
   //   }
 })();
+
+// Don't skip if user is not logged in
+app.use(async (req, res, next) => {
+  let isAuth = false;
+  try {
+    isAuth = true;
+    let userLogin = new UserLogin();
+    await userLogin.checkAuth({
+      sessionId: req?.cookies?.sessionId || '',
+      userId: req?.cookies?.userId || '',
+      userAgent: req?.headers['user-agent'] || '',
+      ip: req?.headers['x-forwarded-for'] || '',
+    });
+  } catch (error) {
+    let errorsMessage = new ErrorsMessage();
+    errorsMessage.createMessage(error);
+  }
+
+  let excludeUrl = {
+    '/api/user/login': true,
+    '/api/user/log-out': true,
+  };
+
+  if (!isAuth || !excludeUrl[req.url]) {
+    res.sendStatus(401);
+  }
+  next();
+});
 
 app.use('/images', (req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

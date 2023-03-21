@@ -1,56 +1,51 @@
 let { Model, DataTypes } = require('sequelize');
 let { $db, $tables } = require('./_db');
+let { $config } = require(global.ROOT_PATH + '/plugins/config');
+let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 
 // Пользователи
 let Scheme = function () {
   return {
-    id: {
+    userId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-    },
-    avatar: {
-      type: DataTypes.STRING(32),
-      defaultValue: '',
-    },
-    name: {
-      type: DataTypes.STRING(100),
-      unique: true,
-      validate: {
-        isAlphanumeric: {
-          msg: 'Имя может содержать только буквы (лат.) или цифры',
-        },
-        len: {
-          args: [3, 100],
-          msg: 'Длина может быть от 3 до 100 символов',
-        },
-      },
     },
     mail: {
       type: DataTypes.STRING,
       unique: true,
       isEmail: true,
       validate: {
-        isEmail: { msg: 'Значение должно быть e-mail' },
+        isEmail: { msg: $errors['Value must be e-mail'] },
         len: {
-          args: [3, 255],
-          msg: 'Поле не может быть пустым. Максимольное количество символов 255',
+          args: [$config.users.mailLengthMin, $config.users.mailLengthMax],
+          msg: $errors['String length range'](
+            $config.users.mailLengthMin,
+            $config.users.mailLengthMax
+          ),
         },
       },
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: null,
     },
-    accessRight: {
+    userAgent: {
+      type: DataTypes.STRING,
+      default: null,
+    },
+    sessionId: {
+      type: DataTypes.STRING,
+      unique: true,
+    },
+    countLoginAttempt: {
       type: DataTypes.INTEGER,
       validate: {
-        min: 0,
+        max: {
+          args: [$config.users.loginAttemptMaxCount],
+          msg: $errors['Exceeded number of login attempts. Authorization temporarily blocked'],
+        },
       },
-      defaultValue: 1,
-    },
-    visitorId: {
-      type: DataTypes.INTEGER,
       defaultValue: 0,
     },
     dateCreate: {
@@ -60,6 +55,14 @@ let Scheme = function () {
     dateUpdate: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+    },
+    dateEntry: {
+      type: DataTypes.DATE,
+      defaultValue: null,
+    },
+    dateLoginAttempt: {
+      type: DataTypes.DATE,
+      defaultValue: null,
     },
   };
 };

@@ -1,7 +1,7 @@
 FROM itisfoundation/puppeteer:14-3
 
-RUN apt update
-RUN apt install whois
+RUN apt-get update &&\ 
+    apt-get install whois
 
 ARG WORKDIR_BASE
 ARG SERVICE
@@ -13,3 +13,4 @@ COPY package.json package-lock.json ./
 RUN npm install
 
 COPY . .
+
