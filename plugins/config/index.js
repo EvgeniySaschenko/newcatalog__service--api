@@ -15,11 +15,11 @@ let $config = {
     passwordLengthMin: 6,
     passwordLengthMax: 20,
     loginAttemptMaxCount: 5,
-    loginAttempTimaut: 600, // sec
+    loginAttempTimaut: 600, // sec (Brute force)
     salt: 'dgkdfsjg;kdfjsgkj53',
-    cookieSessionId: 'sessionId',
-    sessionIdMaxAge: 30, // sec
+    sessionMaxAge: 1200, // sec (The frontend periodically asks to update the key, during this time a request to update the key should come)
     cookieUserId: 'userId',
+    cookieSessionId: 'sessionId',
   },
   // lang
   lang: {
