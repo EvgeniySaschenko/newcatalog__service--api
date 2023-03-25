@@ -41,8 +41,8 @@ router.put('/log-out', async (req, res, next) => {
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
-    res.status(result.status);
   }
+  res.status(401);
   res.send(result);
 });
 
@@ -52,7 +52,7 @@ router.put('/refresh-auth', async (req, res, next) => {
     let userLogin = new UserLogin();
     result = await userLogin.refreshAuth({
       sessionId: req?.cookies?.sessionId || '',
-      userId: req?.cookies?.userId || '',
+      userId: req?.cookies?.userId || 0,
       userAgent: req?.headers['user-agent'] || '',
       response: res,
       ip: req?.headers['x-forwarded-for'] || '',
@@ -60,8 +60,14 @@ router.put('/refresh-auth', async (req, res, next) => {
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     result = errorsMessage.createMessage(error);
+    result.status = 401;
     res.status(result.status);
   }
+
+  if (!result) {
+    res.status(401);
+  }
+
   res.send(result);
 });
 

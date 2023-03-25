@@ -3,10 +3,19 @@ let crypto = require('crypto');
 let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { v4: uuidv4 } = require('uuid');
-const sessionIdMaxAge = $config.users.sessionIdMaxAge * 1000;
-
 class UserLogin {
   async auth({ mail, password, userAgent = '', ip, response }) {
+    if (!mail) {
+      throw {
+        errors: [
+          {
+            path: 'mail',
+            message: $errors['This field cannot be empty'],
+          },
+        ],
+      };
+    }
+
     password = this.encryptPassword(password);
 
     let user = await $dbMain['users'].getUserByMail({ mail });
@@ -167,6 +176,8 @@ class UserLogin {
         userAgent,
         type: 'refresh-log-out',
       });
+
+      return false;
     }
     return true;
   }
@@ -179,7 +190,8 @@ class UserLogin {
 
     let dateEntryMs = new Date(dateEntry).getTime();
     let dateCurrent = new Date().getTime();
-    if (dateCurrent - dateEntryMs < sessionIdMaxAge) {
+
+    if (dateCurrent - dateEntryMs < $config.users.sessionMaxAge * 1000) {
       return true;
     }
     return false;
@@ -234,13 +246,15 @@ class UserLogin {
   encryptPassword(password) {
     let { passwordLengthMin, passwordLengthMax, salt } = $config.users;
     if (password.length < passwordLengthMin || password.length > passwordLengthMax) {
+      let errors = [
+        {
+          path: 'password',
+          message: $errors['String length range'](passwordLengthMin, passwordLengthMax),
+        },
+      ];
+
       throw {
-        errors: [
-          {
-            path: 'password',
-            message: $errors['String length range'](passwordLengthMin, passwordLengthMax),
-          },
-        ],
+        errors,
       };
     }
 
@@ -264,16 +278,16 @@ class UserLogin {
     );
   }
 
-  // Set cookies
+  // Set cookies (The frontend will send a session refresh request every 5 minutes. In order not to take into account the time zone, set the lifetime to 2 days)
   setAuthCookies({ sessionId, userId, response }) {
     response.cookie($config.users.cookieSessionId, sessionId, {
-      maxAge: 3600 * 24 * 1000,
+      maxAge: 3600 * 48 * 1000,
       httpOnly: true,
       secure: true,
     });
 
     response.cookie($config.users.cookieUserId, userId, {
-      maxAge: 3600 * 24 * 1000,
+      maxAge: 3600 * 48 * 1000,
       httpOnly: true,
       secure: true,
     });

@@ -52,6 +52,8 @@ let $errors = {
   ),
   //
   'Auth error': $t('Auth error'),
+  //
+  'This field cannot be empty': $t('This field cannot be empty'),
 };
 
 let $errorsUtils = {

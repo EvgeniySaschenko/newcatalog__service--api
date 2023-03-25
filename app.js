@@ -172,6 +172,22 @@ fork('./init-app', [global.ROOT_PATH]);
   //   }
 })();
 
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(
+  fileUpload({
+    createParentPath: true,
+  })
+);
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, $resourcesPath.dataFilesPublicPath)));
+
+app.use('/images', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+});
+
 // Don't skip if user is not logged in
 app.use(async (req, res, next) => {
   let isAuth = false;
@@ -180,7 +196,7 @@ app.use(async (req, res, next) => {
     let userLogin = new UserLogin();
     await userLogin.checkAuth({
       sessionId: req?.cookies?.sessionId || '',
-      userId: req?.cookies?.userId || '',
+      userId: req?.cookies?.userId || 0,
       userAgent: req?.headers['user-agent'] || '',
       ip: req?.headers['x-forwarded-for'] || '',
     });
@@ -194,27 +210,11 @@ app.use(async (req, res, next) => {
     '/api/user/log-out': true,
   };
 
-  if (!isAuth || !excludeUrl[req.url]) {
+  if (!isAuth || (!isAuth && !excludeUrl[req.url])) {
     res.sendStatus(401);
   }
   next();
 });
-
-app.use('/images', (req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  next();
-});
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(
-  fileUpload({
-    createParentPath: true,
-  })
-);
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, $resourcesPath.dataFilesPublicPath)));
 
 app.use('/api', routes);
 
