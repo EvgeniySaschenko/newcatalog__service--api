@@ -9,6 +9,14 @@ let Scheme = function () {
       primaryKey: true,
       autoIncrement: true,
     },
+    sessionId: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
     mail: {
       type: DataTypes.STRING,
       defaultValue: null,

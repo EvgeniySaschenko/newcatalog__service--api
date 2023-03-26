@@ -19,6 +19,7 @@
     "fs-extra": "^10.0.1",
     "google-translate-api": "^2.3.0",
     "http-errors": "~1.6.3",
+    "jsonwebtoken": "^9.0.0",
     "kill-port": "^1.6.1",
     "lodash": "^4.17.21",
     "morgan": "~1.9.1",

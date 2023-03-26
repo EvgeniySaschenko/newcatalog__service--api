@@ -11,6 +11,7 @@ let fileUpload = require('express-fileupload');
 
 let UserLogin = require(global.ROOT_PATH + '/class/user-login');
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
+let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
 let { M_UsersAuth, Scheme, name } = require(global.ROOT_PATH + '/models/users-auth');
 let { M_Sections } = require(global.ROOT_PATH + '/models/sections');
@@ -22,9 +23,7 @@ let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screensho
 let { M_RatingsItems } = require(global.ROOT_PATH + '/models/ratings-items');
 let { $db } = require('./models/_db');
 let app = express();
-let { Op } = require('sequelize');
-let fsExtra = require('fs-extra');
-let axios = require('axios');
+
 // $db.getQueryInterface().createTable(name, new Scheme());
 
 let { fork } = require('child_process');
@@ -192,14 +191,14 @@ app.use('/images', (req, res, next) => {
 app.use(async (req, res, next) => {
   let isAuth = false;
   try {
-    isAuth = true;
     let userLogin = new UserLogin();
+
     await userLogin.checkAuth({
-      sessionId: req?.cookies?.sessionId || '',
-      userId: req?.cookies?.userId || 0,
-      userAgent: req?.headers['user-agent'] || '',
-      ip: req?.headers['x-forwarded-for'] || '',
+      token: req.cookies[$config.users.cookieToken] || '',
+      userAgent: req.headers['user-agent'] || '',
+      ip: req.headers['x-forwarded-for'] || '',
     });
+    isAuth = true;
   } catch (error) {
     let errorsMessage = new ErrorsMessage();
     errorsMessage.createMessage(error);
@@ -210,10 +209,11 @@ app.use(async (req, res, next) => {
     '/api/user/log-out': true,
   };
 
-  if (!isAuth || (!isAuth && !excludeUrl[req.url])) {
+  if (isAuth || excludeUrl[req.url]) {
+    next();
+  } else {
     res.sendStatus(401);
   }
-  next();
 });
 
 app.use('/api', routes);

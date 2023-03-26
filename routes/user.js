@@ -2,6 +2,7 @@ let express = require('express');
 let router = express.Router();
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
 let UserLogin = require(global.ROOT_PATH + '/class/user-login');
+let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
 // Login to site
 router.put('/login', async (req, res, next) => {
@@ -31,9 +32,8 @@ router.put('/log-out', async (req, res, next) => {
   try {
     let userLogin = new UserLogin();
     await userLogin.logOut({
-      sessionId: req?.cookies?.sessionId || '',
-      userId: req?.cookies?.userId || '',
-      userAgent: req?.headers['user-agent'] || '',
+      token: req.cookies[$config.users.cookieToken] || '',
+      userAgent: req.headers['user-agent'] || '',
       response: res,
       ip: req?.headers['x-forwarded-for'] || '',
     });
@@ -51,9 +51,8 @@ router.put('/refresh-auth', async (req, res, next) => {
   try {
     let userLogin = new UserLogin();
     result = await userLogin.refreshAuth({
-      sessionId: req?.cookies?.sessionId || '',
-      userId: req?.cookies?.userId || 0,
-      userAgent: req?.headers['user-agent'] || '',
+      token: req.cookies[$config.users.cookieToken] || '',
+      userAgent: req.headers['user-agent'] || '',
       response: res,
       ip: req?.headers['x-forwarded-for'] || '',
     });

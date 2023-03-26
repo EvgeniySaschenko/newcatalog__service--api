@@ -1,4 +1,7 @@
 let tldts = require('tldts');
+let jwt = require('jsonwebtoken');
+let { v4: uuidv4 } = require('uuid');
+let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
 
 let $utils = {
   // Get info from domain
@@ -60,6 +63,40 @@ let $utils = {
       width: newWidth || width,
       height: newHeight || height,
     };
+  },
+
+  // Create token
+  async createToken({ data, expiresIn }) {
+    let tokenSecretKey = await $dbTemporary['settings'].getServiceApiTokenSecretKey();
+    if (!tokenSecretKey) {
+      tokenSecretKey = uuidv4();
+      await $dbTemporary['settings'].addServiceApiTokenSecretKey(tokenSecretKey);
+    }
+
+    let token = jwt.sign(
+      {
+        data,
+      },
+      tokenSecretKey,
+      { expiresIn }
+    );
+
+    return token;
+  },
+
+  // Get token
+  async getTokenData({ token }) {
+    let tokenSecretKey = await $dbTemporary['settings'].getServiceApiTokenSecretKey();
+
+    let data;
+    jwt.verify(token, tokenSecretKey, function (err, decoded) {
+      if (err) {
+        data = false;
+      }
+
+      data = decoded?.data || false;
+    });
+    return data;
   },
 };
 
