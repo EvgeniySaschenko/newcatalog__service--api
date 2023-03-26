@@ -10,7 +10,7 @@ router.put('/login', async (req, res, next) => {
   try {
     let userLogin = new UserLogin();
     await userLogin.auth({
-      mail: req?.body?.mail,
+      email: req?.body?.email,
       password: req?.body?.password,
       userAgent: req?.headers['user-agent'],
       response: res,
@@ -73,7 +73,7 @@ router.put('/refresh-auth', async (req, res, next) => {
 // Create user
 // router.post('/create', async (req, res, next) => {
 //   let user = {
-//     mail: 'newcatalog.net@gmail.com',
+//     email: 'newcatalog.net@gmail.com',
 //     password: '123456',
 //   };
 

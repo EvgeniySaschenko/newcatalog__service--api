@@ -17,7 +17,7 @@ let Scheme = function () {
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
-    mail: {
+    email: {
       type: DataTypes.STRING,
       defaultValue: null,
     },
