@@ -19,7 +19,7 @@ let $config = {
     salt: 'dgkdfsjg;kdfjsgkj53',
     sessionMaxAge: 1200, // sec (The frontend periodically asks to update the key, during this time a request to update the key should come)
     cookieUserId: 'userId',
-    cookieSessionId: 'sessionId',
+    cookieToken: 'token',
   },
   // lang
   lang: {

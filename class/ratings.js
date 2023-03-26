@@ -1,15 +1,59 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 class Ratings {
   // Создать рейтинг
-  async createRating(rating = {}) {
-    return await $dbMain['ratings'].createRating(rating);
+  async createRating({
+    token,
+    name,
+    descr,
+    typeRating,
+    typeSort,
+    typeDisplay,
+    sectionsIds,
+    isHiden,
+  }) {
+    let { userId } = await $utils.getTokenData({ token });
+
+    return await $dbMain['ratings'].createRating({
+      userId,
+      name,
+      descr,
+      typeRating,
+      typeSort,
+      typeDisplay,
+      sectionsIds,
+      isHiden,
+    });
   }
 
   // Редактировать рейтинг
-  async editRating(rating = {}) {
-    return await $dbMain['ratings'].editRating(rating);
+  async editRating({
+    token,
+    ratingId,
+    name,
+    descr,
+    isHiden,
+    typeRating,
+    typeSort,
+    typeDisplay,
+    sectionsIds,
+    visitorId,
+  }) {
+    let { userId } = await $utils.getTokenData({ token });
+    return await $dbMain['ratings'].editRating({
+      userId,
+      ratingId,
+      name,
+      descr,
+      isHiden,
+      typeRating,
+      typeSort,
+      typeDisplay,
+      sectionsIds,
+      visitorId,
+    });
   }
 
   // Получить рейтинг

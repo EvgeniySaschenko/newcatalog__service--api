@@ -2,7 +2,9 @@ let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let crypto = require('crypto');
 let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { v4: uuidv4 } = require('uuid');
+
 class UserLogin {
   async auth({ mail, password, userAgent = '', ip, response }) {
     if (!mail) {
@@ -23,11 +25,12 @@ class UserLogin {
     // Trying to log in from multiple devices
     if (this.сheckSessionExpiration({ dateEntry: user?.dateEntry })) {
       await $dbMain['users-auth'].createAuth({
+        sessionId: user.sessionId,
+        userId: user.userId,
         mail,
         ip,
         password,
         userAgent,
-        sessionId: null,
         type: 'another-device',
       });
 
@@ -44,6 +47,8 @@ class UserLogin {
     // Brute force protection
     if (user) {
       await $dbMain['users-auth'].createAuth({
+        sessionId: user.sessionId,
+        userId: user.userId,
         mail,
         ip,
         userAgent,
@@ -60,6 +65,8 @@ class UserLogin {
     // Incorrect auth data
     if (!user || !password || password !== user.password) {
       await $dbMain['users-auth'].createAuth({
+        sessionId: user.sessionId || null,
+        userId: user.userId || 0,
         mail,
         ip,
         userAgent,
@@ -76,9 +83,11 @@ class UserLogin {
       };
     }
 
-    await this.setAuthData({ userId: user.userId, userAgent, response });
+    let sessionId = await this.setAuthData({ userId: user.userId, userAgent, response });
 
     await $dbMain['users-auth'].createAuth({
+      sessionId,
+      userId: user.userId,
       mail,
       ip,
       userAgent,
@@ -89,13 +98,42 @@ class UserLogin {
   }
 
   // Check auth user
-  async checkAuth({ userId, sessionId, userAgent, ip }) {
-    let user = await $dbMain['users'].getUserByUserId({ userId });
+  async checkAuth({ token, userAgent, ip }) {
+    let tokenData = await $utils.getTokenData({ token });
 
-    let isValidSessionExpiration = this.сheckSessionExpiration({ dateEntry: user?.dateEntry });
-
-    if (!isValidSessionExpiration || sessionId !== user.sessionId || userAgent !== user.userAgent) {
+    // Empty
+    if (!tokenData) {
       await $dbMain['users-auth'].createAuth({
+        sessionId: null,
+        userId: 0,
+        mail: null,
+        ip,
+        userAgent,
+        type: 'check-auth-error',
+      });
+
+      throw {
+        errors: [
+          {
+            path: 'auth',
+            message: $errors['Auth error'],
+          },
+        ],
+      };
+    }
+
+    let dbData = await $dbMain['users'].getUserByUserId({ userId: tokenData.userId });
+    let isValidSessionExpiration = this.сheckSessionExpiration({ dateEntry: dbData?.dateEntry });
+
+    // Wrong data
+    if (
+      !isValidSessionExpiration ||
+      tokenData.sessionId !== dbData.sessionId ||
+      userAgent !== dbData.userAgent
+    ) {
+      await $dbMain['users-auth'].createAuth({
+        sessionId: tokenData.sessionId || null,
+        userId: tokenData.userId || 0,
         mail: null,
         ip,
         userAgent,
@@ -124,7 +162,9 @@ class UserLogin {
       sessionId,
     });
 
-    this.setAuthCookies({ sessionId, userId, response });
+    await this.setAuthCookies({ sessionId, userId, response });
+
+    return sessionId;
   }
 
   // Create user
@@ -135,11 +175,37 @@ class UserLogin {
   }
 
   // Refresh auth
-  async refreshAuth({ userId = 0, sessionId, userAgent, response, ip }) {
+  async refreshAuth({ token, userAgent, response, ip }) {
+    let tokenData = await $utils.getTokenData({ token });
+    // Empty
+    if (!tokenData) {
+      await $dbMain['users-auth'].createAuth({
+        sessionId: null,
+        userId: 0,
+        mail: null,
+        ip,
+        userAgent,
+        type: 'refresh-incorrect',
+      });
+
+      throw {
+        errors: [
+          {
+            path: 'auth',
+            message: $errors['Server error'],
+          },
+        ],
+      };
+    }
+
+    let { userId, sessionId } = tokenData;
+
     let user = await $dbMain['users'].getUserByUserId({ userId });
 
     if (!sessionId || sessionId !== user.sessionId || userAgent !== user.userAgent) {
       await $dbMain['users-auth'].createAuth({
+        sessionId: sessionId || null,
+        userId: userId || 0,
         mail: null,
         ip,
         userAgent,
@@ -159,18 +225,22 @@ class UserLogin {
 
     // Refres session id
     if (this.сheckSessionExpiration({ dateEntry: user?.dateEntry })) {
-      await this.setAuthData({ userId: user.userId, userAgent, response });
+      let sessionId = await this.setAuthData({ userId: user.userId, userAgent, response });
 
       await $dbMain['users-auth'].createAuth({
+        sessionId,
+        userId: user.userId,
         mail: null,
         ip,
         userAgent,
         type: 'refresh',
       });
     } else {
-      await this.logOut({ sessionId, userId, userAgent, response });
+      await this.logOut({ token, userAgent, ip, response });
 
       await $dbMain['users-auth'].createAuth({
+        sessionId,
+        userId,
         mail: null,
         ip,
         userAgent,
@@ -198,20 +268,26 @@ class UserLogin {
   }
 
   // Log out user
-  async logOut({ sessionId, userId, userAgent, ip, response }) {
+  async logOut({ token, userAgent, ip, response }) {
+    let tokenData = await $utils.getTokenData({ token });
+
+    this.clearAuthCookies({ response });
+
+    if (!tokenData) return true;
+
+    let { sessionId, userId } = tokenData;
+
     if (!sessionId || !userId || !userAgent) return true;
 
-    let result = await $dbMain['users'].editUserLogOut({
+    await $dbMain['users'].editUserLogOut({
       sessionId,
       userId,
       userAgent,
     });
 
-    if (result) {
-      this.clearAuthCookies({ response });
-    }
-
     await $dbMain['users-auth'].createAuth({
+      sessionId,
+      userId,
       mail: null,
       ip,
       userAgent,
@@ -279,14 +355,12 @@ class UserLogin {
   }
 
   // Set cookies (The frontend will send a session refresh request every 5 minutes. In order not to take into account the time zone, set the lifetime to 2 days)
-  setAuthCookies({ sessionId, userId, response }) {
-    response.cookie($config.users.cookieSessionId, sessionId, {
-      maxAge: 3600 * 48 * 1000,
-      httpOnly: true,
-      secure: true,
+  async setAuthCookies({ sessionId, userId, response }) {
+    let token = await $utils.createToken({
+      data: { sessionId, userId },
+      expiresIn: $config.users.sessionMaxAge,
     });
-
-    response.cookie($config.users.cookieUserId, userId, {
+    response.cookie($config.users.cookieToken, token, {
       maxAge: 3600 * 48 * 1000,
       httpOnly: true,
       secure: true,
@@ -295,11 +369,7 @@ class UserLogin {
 
   // Clear cookies
   clearAuthCookies({ response }) {
-    response.cookie($config.users.cookieSessionId, '', {
-      maxAge: 0,
-    });
-
-    response.cookie($config.users.cookieUserId, '', {
+    response.cookie($config.users.cookieToken, '', {
       maxAge: 0,
     });
   }

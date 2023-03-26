@@ -35,6 +35,7 @@ module.exports = {
 
   // Редактировать рейтинг
   async editRating({
+    userId,
     ratingId,
     name,
     descr,
@@ -62,7 +63,7 @@ module.exports = {
         visitorId,
       },
       {
-        where: { ratingId },
+        where: { ratingId, userId },
       }
     );
     return result;
