@@ -10,8 +10,8 @@ let localesObject = (() => {
 let $config = {
   // users
   users: {
-    mailLengthMin: 3,
-    mailLengthMax: 255,
+    emailLengthMin: 3,
+    emailLengthMax: 255,
     passwordLengthMin: 6,
     passwordLengthMax: 20,
     loginAttemptMaxCount: 5,

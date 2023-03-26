@@ -6,12 +6,12 @@ let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { v4: uuidv4 } = require('uuid');
 
 class UserLogin {
-  async auth({ mail, password, userAgent = '', ip, response }) {
-    if (!mail) {
+  async auth({ email, password, userAgent = '', ip, response }) {
+    if (!email) {
       throw {
         errors: [
           {
-            path: 'mail',
+            path: 'email',
             message: $errors['This field cannot be empty'],
           },
         ],
@@ -20,14 +20,14 @@ class UserLogin {
 
     password = this.encryptPassword(password);
 
-    let user = await $dbMain['users'].getUserByMail({ mail });
+    let user = await $dbMain['users'].getUserByEmail({ email });
 
     // Trying to log in from multiple devices
     if (this.сheckSessionExpiration({ dateEntry: user?.dateEntry })) {
       await $dbMain['users-auth'].createAuth({
         sessionId: user.sessionId,
         userId: user.userId,
-        mail,
+        email,
         ip,
         password,
         userAgent,
@@ -49,7 +49,7 @@ class UserLogin {
       await $dbMain['users-auth'].createAuth({
         sessionId: user.sessionId,
         userId: user.userId,
-        mail,
+        email,
         ip,
         userAgent,
         type: 'incorrect',
@@ -67,7 +67,7 @@ class UserLogin {
       await $dbMain['users-auth'].createAuth({
         sessionId: user.sessionId || null,
         userId: user.userId || 0,
-        mail,
+        email,
         ip,
         userAgent,
         type: 'incorrect',
@@ -88,7 +88,7 @@ class UserLogin {
     await $dbMain['users-auth'].createAuth({
       sessionId,
       userId: user.userId,
-      mail,
+      email,
       ip,
       userAgent,
       type: 'login',
@@ -106,7 +106,7 @@ class UserLogin {
       await $dbMain['users-auth'].createAuth({
         sessionId: null,
         userId: 0,
-        mail: null,
+        email: null,
         ip,
         userAgent,
         type: 'check-auth-error',
@@ -134,7 +134,7 @@ class UserLogin {
       await $dbMain['users-auth'].createAuth({
         sessionId: tokenData.sessionId || null,
         userId: tokenData.userId || 0,
-        mail: null,
+        email: null,
         ip,
         userAgent,
         type: 'check-auth-error',
@@ -168,9 +168,9 @@ class UserLogin {
   }
 
   // Create user
-  async createUser({ mail, password }) {
+  async createUser({ email, password }) {
     password = this.encryptPassword(password);
-    let result = await $dbMain['users'].createUser({ mail, password });
+    let result = await $dbMain['users'].createUser({ email, password });
     return result;
   }
 
@@ -182,7 +182,7 @@ class UserLogin {
       await $dbMain['users-auth'].createAuth({
         sessionId: null,
         userId: 0,
-        mail: null,
+        email: null,
         ip,
         userAgent,
         type: 'refresh-incorrect',
@@ -206,7 +206,7 @@ class UserLogin {
       await $dbMain['users-auth'].createAuth({
         sessionId: sessionId || null,
         userId: userId || 0,
-        mail: null,
+        email: null,
         ip,
         userAgent,
         type: 'refresh-incorrect',
@@ -230,7 +230,7 @@ class UserLogin {
       await $dbMain['users-auth'].createAuth({
         sessionId,
         userId: user.userId,
-        mail: null,
+        email: null,
         ip,
         userAgent,
         type: 'refresh',
@@ -241,7 +241,7 @@ class UserLogin {
       await $dbMain['users-auth'].createAuth({
         sessionId,
         userId,
-        mail: null,
+        email: null,
         ip,
         userAgent,
         type: 'refresh-log-out',
@@ -288,7 +288,7 @@ class UserLogin {
     await $dbMain['users-auth'].createAuth({
       sessionId,
       userId,
-      mail: null,
+      email: null,
       ip,
       userAgent,
       type: 'log-out',

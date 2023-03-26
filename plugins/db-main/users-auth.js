@@ -14,9 +14,9 @@ module.exports = {
     'check-auth-error': 9,
   },
   //  Create user
-  async createAuth({ sessionId, userId, mail, ip, userAgent, type }) {
+  async createAuth({ sessionId, userId, email, ip, userAgent, type }) {
     type = this.usersAuthTypes[type];
-    let result = await M_UsersAuth.create({ sessionId, userId, mail, ip, userAgent, type });
+    let result = await M_UsersAuth.create({ sessionId, userId, email, ip, userAgent, type });
     return result.get({ plain: true });
   },
 };

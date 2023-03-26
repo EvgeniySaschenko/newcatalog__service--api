@@ -11,17 +11,17 @@ let Scheme = function () {
       primaryKey: true,
       autoIncrement: true,
     },
-    mail: {
+    email: {
       type: DataTypes.STRING,
       unique: true,
       isEmail: true,
       validate: {
         isEmail: { msg: $errors['Value must be e-mail'] },
         len: {
-          args: [$config.users.mailLengthMin, $config.users.mailLengthMax],
+          args: [$config.users.emailLengthMin, $config.users.emailLengthMax],
           msg: $errors['String length range'](
-            $config.users.mailLengthMin,
-            $config.users.mailLengthMax
+            $config.users.emailLengthMin,
+            $config.users.emailLengthMax
           ),
         },
       },

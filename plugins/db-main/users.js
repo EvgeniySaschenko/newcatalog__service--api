@@ -3,13 +3,13 @@ let { M_Users, name: tableName } = require(global.ROOT_PATH + '/models/users');
 module.exports = {
   tableName,
   //  Create user
-  async createUser({ mail, password }) {
-    let result = await M_Users.create({ mail, password });
+  async createUser({ email, password }) {
+    let result = await M_Users.create({ email, password });
     return result.get({ plain: true });
   },
 
-  // Get user by mail
-  async getUserByMail({ mail }) {
+  // Get user by email
+  async getUserByEmail({ email }) {
     let result = await M_Users.findOne({
       attributes: [
         'userAgent',
@@ -21,7 +21,7 @@ module.exports = {
         'dateLoginAttempt',
       ],
       where: {
-        mail,
+        email,
       },
     });
     return result;
