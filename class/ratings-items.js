@@ -11,7 +11,7 @@ class RatingsItems {
 
     await this.checkRatingUrlExist({ ratingId, url });
 
-    let { isSubdomain, hostname, domain } = $utils.urlInfo(url);
+    let { isSubdomain, hostname, domain } = $utils['common'].urlInfo(url);
 
     let { siteId } = await this.checkSiteExist({ hostname, url, isSubdomain, domain });
     let page = await this.getPage(url); // получить заголовок страницы

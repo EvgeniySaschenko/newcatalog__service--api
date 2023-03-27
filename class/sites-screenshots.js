@@ -145,7 +145,7 @@ class SitesScreenshots {
       siteScreenshotId = result.siteScreenshotId;
 
       // Calculate maximum screenshot dimensions
-      let screenshot = $utils.сalcmMaxDimensionsImage({
+      let screenshot = $utils['common'].сalcmMaxDimensionsImage({
         height: tmpFileMeta.height,
         width: tmpFileMeta.width,
         maxHeight: $config['puppeteer'].viewportHeight,

@@ -156,7 +156,7 @@ module.exports = {
     result = result.map((el) => {
       let site = el.site;
       let { siteScreenshotId, siteLogoId, dateLogoCreate } = site;
-      let { domain, hostname, isSubdomain } = $utils.urlInfo(el.url);
+      let { domain, hostname, isSubdomain } = $utils['common'].urlInfo(el.url);
       let resetCashe = dateLogoCreate ? new Date(dateLogoCreate).getTime() : '';
       el.logoImg = $resourcesPath.fileUrlSiteLogo({
         siteLogoId,

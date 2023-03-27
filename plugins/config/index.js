@@ -20,6 +20,8 @@ let $config = {
     sessionMaxAge: 1200, // sec (The frontend periodically asks to update the key, during this time a request to update the key should come)
     cookieUserId: 'userId',
     cookieToken: 'token',
+    emailDefault: 'test@test.com',
+    passwordDefault: '123456',
   },
   // lang
   lang: {

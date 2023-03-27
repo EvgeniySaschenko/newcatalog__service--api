@@ -67,7 +67,7 @@ class Sites {
     file = await sharp(file).extract({ left, top, width: cutWidth, height: cutHeight }).toBuffer();
 
     // Calculate maximum logo dimensions
-    let logo = $utils.сalcmMaxDimensionsImage({
+    let logo = $utils['common'].сalcmMaxDimensionsImage({
       height: cutHeight,
       width: cutWidth,
       maxHeight,
@@ -86,7 +86,7 @@ class Sites {
 
   // Get site whois info
   async getWhois(host) {
-    let { domain } = $utils.urlInfo(host);
+    let { domain } = $utils['common'].urlInfo(host);
     let whoisConsole = {};
     let whoisApi = {};
 
@@ -237,7 +237,7 @@ class Sites {
 
   // Get Alexa Rank
   async getAlexaRank(host) {
-    let { domain } = $utils.urlInfo(host);
+    let { domain } = $utils['common'].urlInfo(host);
     let alexaRank = await $dbTemporary['alexa'].getAlexaRank(domain);
     return alexaRank || $config['sites'].defaultAlexaRank;
   }

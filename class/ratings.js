@@ -14,7 +14,7 @@ class Ratings {
     sectionsIds,
     isHiden,
   }) {
-    let { userId } = await $utils.getTokenData({ token });
+    let { userId } = await $utils['user'].getTokenData({ token });
 
     return await $dbMain['ratings'].createRating({
       userId,
@@ -41,7 +41,7 @@ class Ratings {
     sectionsIds,
     visitorId,
   }) {
-    let { userId } = await $utils.getTokenData({ token });
+    let { userId } = await $utils['user'].getTokenData({ token });
     return await $dbMain['ratings'].editRating({
       userId,
       ratingId,
