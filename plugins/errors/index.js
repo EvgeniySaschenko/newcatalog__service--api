@@ -45,6 +45,8 @@ let $errors = {
   //
   'Value must be e-mail': $t('Value must be e-mail'),
   //
+  'This e-mail already exists': $t('This e-mail already exists'),
+  //
   'Incorrect login or password': $t('Incorrect login or password'),
   //
   'Exceeded number of login attempts. Authorization temporarily blocked': $t(

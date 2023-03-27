@@ -1,6 +1,6 @@
 let $utils = {
   common: require('./common'),
-  user: require('./user'),
+  users: require('./users'),
 };
 
 module.exports = {
