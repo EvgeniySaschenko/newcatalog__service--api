@@ -27,6 +27,28 @@ module.exports = {
     return result;
   },
 
+  // Update user email
+  async editEmail({ userId, email }) {
+    let result = await M_Users.update(
+      {
+        email,
+      },
+      { where: { userId } }
+    );
+    return result;
+  },
+
+  // Update user password
+  async editPassword({ userId, password }) {
+    let result = await M_Users.update(
+      {
+        password,
+      },
+      { where: { userId } }
+    );
+    return result;
+  },
+
   // Get user auth
   async getUserByUserId({ userId }) {
     let result = await M_Users.findOne({

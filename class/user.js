@@ -11,11 +11,40 @@ class User {
     let result;
     let email = $config.users.emailDefault;
     let password = $config.users.passwordDefault;
-    password = $utils['user'].encryptPassword(password);
+    password = $utils['users'].encryptPassword(password);
     let user = await $dbMain['users'].getUserByEmail({ email });
     if (!user) {
       result = await $dbMain['users'].createUser({ email, password });
     }
+    return result;
+  }
+
+  // Edit email
+  async editEmail({ token, email }) {
+    let result;
+    let user = await $dbMain['users'].getUserByEmail({ email });
+    if (user) {
+      throw {
+        errors: [
+          {
+            path: 'email',
+            message: $errors['This e-mail already exists'],
+          },
+        ],
+      };
+    }
+
+    let { userId } = await $utils['users'].getTokenData({ token });
+    result = await $dbMain['users'].editEmail({ email, userId });
+    return result;
+  }
+
+  // Edit password
+  async editPassword({ token, password }) {
+    let result;
+    let { userId } = await $utils['users'].getTokenData({ token });
+    password = $utils['users'].encryptPassword(password);
+    result = await $dbMain['users'].editPassword({ password, userId });
     return result;
   }
 }

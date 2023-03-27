@@ -17,7 +17,7 @@ class UserLogin {
       };
     }
 
-    password = $utils['user'].encryptPassword(password);
+    password = $utils['users'].encryptPassword(password);
 
     let user = await $dbMain['users'].getUserByEmail({ email });
 
@@ -98,7 +98,7 @@ class UserLogin {
 
   // Check auth user
   async checkAuth({ token, userAgent, ip }) {
-    let tokenData = await $utils['user'].getTokenData({ token });
+    let tokenData = await $utils['users'].getTokenData({ token });
 
     // Empty
     if (!tokenData) {
@@ -166,9 +166,9 @@ class UserLogin {
     return sessionId;
   }
 
-  // Refresh auth
-  async refreshAuth({ token, userAgent, response, ip }) {
-    let tokenData = await $utils['user'].getTokenData({ token });
+  // Auth refresh
+  async authRefresh({ token, userAgent, response, ip }) {
+    let tokenData = await $utils['users'].getTokenData({ token });
     // Empty
     if (!tokenData) {
       await $dbMain['users-auth'].createAuth({
@@ -261,7 +261,7 @@ class UserLogin {
 
   // Log out user
   async logOut({ token, userAgent, ip, response }) {
-    let tokenData = await $utils['user'].getTokenData({ token });
+    let tokenData = await $utils['users'].getTokenData({ token });
 
     this.clearAuthCookies({ response });
 
@@ -319,7 +319,7 @@ class UserLogin {
 
   // Set cookies (The frontend will send a session refresh request every 5 minutes. In order not to take into account the time zone, set the lifetime to 2 days)
   async setAuthCookies({ sessionId, userId, response }) {
-    let token = await $utils['user'].createToken({
+    let token = await $utils['users'].createToken({
       data: { sessionId, userId },
       expiresIn: $config.users.sessionMaxAge,
     });
