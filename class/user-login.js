@@ -1,5 +1,4 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
-let crypto = require('crypto');
 let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
@@ -18,7 +17,7 @@ class UserLogin {
       };
     }
 
-    password = this.encryptPassword(password);
+    password = $utils['user'].encryptPassword(password);
 
     let user = await $dbMain['users'].getUserByEmail({ email });
 
@@ -99,7 +98,7 @@ class UserLogin {
 
   // Check auth user
   async checkAuth({ token, userAgent, ip }) {
-    let tokenData = await $utils.getTokenData({ token });
+    let tokenData = await $utils['user'].getTokenData({ token });
 
     // Empty
     if (!tokenData) {
@@ -167,16 +166,9 @@ class UserLogin {
     return sessionId;
   }
 
-  // Create user
-  async createUser({ email, password }) {
-    password = this.encryptPassword(password);
-    let result = await $dbMain['users'].createUser({ email, password });
-    return result;
-  }
-
   // Refresh auth
   async refreshAuth({ token, userAgent, response, ip }) {
-    let tokenData = await $utils.getTokenData({ token });
+    let tokenData = await $utils['user'].getTokenData({ token });
     // Empty
     if (!tokenData) {
       await $dbMain['users-auth'].createAuth({
@@ -269,7 +261,7 @@ class UserLogin {
 
   // Log out user
   async logOut({ token, userAgent, ip, response }) {
-    let tokenData = await $utils.getTokenData({ token });
+    let tokenData = await $utils['user'].getTokenData({ token });
 
     this.clearAuthCookies({ response });
 
@@ -318,35 +310,6 @@ class UserLogin {
     return result;
   }
 
-  // Encrypt password
-  encryptPassword(password) {
-    let { passwordLengthMin, passwordLengthMax, salt } = $config.users;
-    if (password.length < passwordLengthMin || password.length > passwordLengthMax) {
-      let errors = [
-        {
-          path: 'password',
-          message: $errors['String length range'](passwordLengthMin, passwordLengthMax),
-        },
-      ];
-
-      throw {
-        errors,
-      };
-    }
-
-    password = crypto
-      .createHash('md5')
-      .update(password + salt)
-      .digest('hex');
-
-    password = crypto
-      .createHash('md5')
-      .update(password + salt)
-      .digest('hex');
-
-    return password;
-  }
-
   // Create session Id
   createSessionId() {
     return (
@@ -356,7 +319,7 @@ class UserLogin {
 
   // Set cookies (The frontend will send a session refresh request every 5 minutes. In order not to take into account the time zone, set the lifetime to 2 days)
   async setAuthCookies({ sessionId, userId, response }) {
-    let token = await $utils.createToken({
+    let token = await $utils['user'].createToken({
       data: { sessionId, userId },
       expiresIn: $config.users.sessionMaxAge,
     });
