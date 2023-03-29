@@ -1,4 +1,4 @@
-let { M_Sections, name: tableName } = require(global.ROOT_PATH + '/models/sections.js');
+let { M_Sections, name: tableName } = require('./models/sections');
 let striptags = require('striptags');
 let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
 

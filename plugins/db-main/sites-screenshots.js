@@ -1,5 +1,4 @@
-let { M_SitesScreenshots, name: tableName } = require(global.ROOT_PATH +
-  '/models/sites-screenshots');
+let { M_SitesScreenshots, name: tableName } = require('./models/sites-screenshots');
 
 module.exports = {
   tableName,

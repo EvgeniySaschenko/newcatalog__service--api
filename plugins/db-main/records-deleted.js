@@ -1,5 +1,4 @@
-let { M_Records_deleted, name: tableName } = require(global.ROOT_PATH +
-  '/models/records-deleted.js');
+let { M_Records_deleted, name: tableName } = require('./models/records-deleted');
 let { Op } = require('sequelize');
 let lodash = require('lodash');
 

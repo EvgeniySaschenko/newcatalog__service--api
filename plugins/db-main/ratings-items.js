@@ -1,6 +1,6 @@
-let { M_RatingsItems, name: tableName } = require(global.ROOT_PATH + '/models/ratings-items');
-let { M_Sites } = require(global.ROOT_PATH + '/models/sites');
-let { M_SitesScreenshots } = require(global.ROOT_PATH + '/models/sites-screenshots');
+let { M_RatingsItems, name: tableName } = require('./models/ratings-items');
+let { M_Sites } = require('./models/sites');
+let { M_SitesScreenshots } = require('./models/sites-screenshots');
 let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
