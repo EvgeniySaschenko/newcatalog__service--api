@@ -1,4 +1,4 @@
-let { M_Users, name: tableName } = require(global.ROOT_PATH + '/models/users');
+let { M_Users, name: tableName } = require('./models/users');
 
 module.exports = {
   tableName,

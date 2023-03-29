@@ -1,5 +1,5 @@
 let { Op } = require('sequelize');
-let { M_Sites, name: tableName } = require(global.ROOT_PATH + '/models/sites.js');
+let { M_Sites, name: tableName } = require('./models/sites');
 let striptags = require('striptags');
 
 module.exports = {

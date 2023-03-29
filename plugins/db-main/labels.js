@@ -1,4 +1,4 @@
-let { M_Labels, name: tableName } = require(global.ROOT_PATH + '/models/labels.js');
+let { M_Labels, name: tableName } = require('./models/labels');
 
 let striptags = require('striptags');
 let { Op } = require('sequelize');

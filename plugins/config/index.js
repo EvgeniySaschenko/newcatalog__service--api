@@ -23,6 +23,18 @@ let $config = {
     emailDefault: 'test@test.com',
     passwordDefault: '123456',
   },
+  // For authorization logging
+  usersAuthTypes: {
+    login: 1,
+    refresh: 2,
+    attempt: 3,
+    incorrect: 4,
+    'another-device': 5,
+    'log-out': 6,
+    'refresh-incorrect': 7,
+    'refresh-log-out': 8,
+    'check-auth-error': 9,
+  },
   // lang
   lang: {
     default: 'ua',
