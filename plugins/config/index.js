@@ -8,6 +8,13 @@ let localesObject = (() => {
 })();
 
 let $config = {
+  // These settings will be replaced with the settings from the database
+  settings: {
+    'site-lang-default': 'en',
+    'site-langs': ['en'],
+    'admin-lang-default': 'en',
+    'admin-langs': ['en'],
+  },
   // users
   users: {
     emailLengthMin: 3,
@@ -24,7 +31,7 @@ let $config = {
     passwordDefault: '123456',
   },
   // For authorization logging
-  usersAuthTypes: {
+  'users-auth-types': {
     login: 1,
     refresh: 2,
     attempt: 3,

@@ -16,6 +16,12 @@ let app = express();
 let { fork } = require('child_process');
 fork('./init-app', [global.ROOT_PATH]);
 
+// let { $db } = require('./plugins/db-main/models/_db');
+// let { M_UsersAuth, Scheme, name } = require(global.ROOT_PATH + '/plugins/db-main/models/settings');
+// (async function () {
+//   await $db.getQueryInterface().createTable(name, new Scheme());
+// })();
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

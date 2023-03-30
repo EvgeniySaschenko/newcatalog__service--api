@@ -8,6 +8,7 @@ let $dbMain = {
   'records-deleted': require('./records-deleted'),
   users: require('./users'),
   'users-auth': require('./users-auth'),
+  settings: require('./settings'),
 };
 
 module.exports = {
