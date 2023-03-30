@@ -5,7 +5,7 @@ module.exports = {
   tableName,
   //  Create user
   async createAuth({ sessionId, userId, email, ip, userAgent, type }) {
-    type = $config.usersAuthTypes[type];
+    type = $config['users-auth-types'][type];
     let result = await M_UsersAuth.create({ sessionId, userId, email, ip, userAgent, type });
     return result.get({ plain: true });
   },
