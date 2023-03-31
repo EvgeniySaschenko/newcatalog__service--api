@@ -8,6 +8,15 @@ let localesObject = (() => {
 })();
 
 let $config = {
+  // translations
+  translations: {
+    types: {
+      'service--api': { name: 'service--api', type: 1, pathRoot: './' },
+      'service--admin': { name: 'service--admin', type: 2, pathRoot: 'symlinks/service--admin' },
+      'service--site': { name: 'service--site', type: 3, pathRoot: 'symlinks/service--site' },
+    },
+    maxRecordsPerPage: 20,
+  },
   // These settings will be replaced with the settings from the database
   settings: {
     'site-lang-default': 'en',

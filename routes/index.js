@@ -9,5 +9,6 @@ router.use('/ratings-items', require('./ratings-items'));
 router.use('/sites', require('./sites'));
 router.use('/cache', require('./cache'));
 router.use('/settings', require('./settings'));
+router.use('/translations', require('./translations'));
 
 module.exports = router;
