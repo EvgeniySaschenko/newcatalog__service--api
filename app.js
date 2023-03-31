@@ -10,14 +10,44 @@ let fileUpload = require('express-fileupload');
 let UserLogin = require(global.ROOT_PATH + '/class/user-login');
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
+let Translations = require(global.ROOT_PATH + '/class/translations');
 
 let app = express();
 
 let { fork } = require('child_process');
+
 fork('./init-app', [global.ROOT_PATH]);
 
+(async function () {
+  // let xx = await $db.getQueryInterface().createDatabase('nc_translations');
+  // console.log(xx);
+  // $db.query('CREATE DATABASE IF NOT EXISTS `nc_translations`;').then((data) => {
+  //   console.log(data);
+  // });
+})();
+// $db.getQueryInterface().createDatabase('nc_translations');
+
+// let translations = new Translations();
+
+// translations.runCreateTranslitions({
+//   pathRoot: 'symlinks/service--site',
+//   typeName: 'service--site',
+// });
+
+// let translations2 = new Translations();
+
+// translations2.runCreateTranslitions({
+//   pathRoot: 'symlinks/service--admin',
+//   typeName: 'service--admin',
+// });
+
+// let translations3 = new Translations();
+
+// translations3.runCreateTranslitions({ pathRoot: './', typeName: 'service--api' });
+
 // let { $db } = require('./plugins/db-main/models/_db');
-// let { M_UsersAuth, Scheme, name } = require(global.ROOT_PATH + '/plugins/db-main/models/settings');
+// let { M_Translations, Scheme, name } = require(global.ROOT_PATH +
+//   '/plugins/db-main/models/translations');
 // (async function () {
 //   await $db.getQueryInterface().createTable(name, new Scheme());
 // })();
