@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "cross-env nodemon ./bin/www && node i.js",
-    "start": "cross-env node ./bin/www"
+    "dev": "cross-env nodemon ./bin/www",
+    "start": "cross-env node ./bin/www",
+    "lint": "eslint ."
   },
   "dependencies": {
     "app-root-path": "^3.0.0",
