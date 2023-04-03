@@ -33,6 +33,7 @@ let $config = {
     loginAttemptMaxCount: 5,
     loginAttempTimaut: 600, // sec (Brute force)
     salt: 'dgkdfsjg;kdfjsgkj53',
+    // If you change the mobile / desktop mode in the browser, the user agent will be changed. Therefore, the user will be kicked out of the system and he will not be able to log in for a while
     sessionMaxAge: 1200, // sec (The frontend periodically asks to update the key, during this time a request to update the key should come)
     cookieUserId: 'userId',
     cookieToken: 'token',

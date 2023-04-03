@@ -29,19 +29,16 @@ let $errors = {
   //
   'Not enough data': $t('Not enough data'),
   //
-  'This site is currently in the screenshot queue': $t(
-    'This site is currently in the screenshot queue'
-  ),
+  // eslint-disable-next-line prettier/prettier
+  'This site is currently in the screenshot queue': $t('This site is currently in the screenshot queue'),
   //
   'Invalid file': $t('Invalid file'),
   //
-  'You can not delete a section that has ratings': $t(
-    'You can not delete a section that has ratings'
-  ),
+  // eslint-disable-next-line prettier/prettier
+  'You can not delete a section that has ratings': $t('You can not delete a section that has ratings'),
   //
-  'You can not remove a rating that has sites or labels': $t(
-    'You can not remove a rating that has sites or labels'
-  ),
+  // eslint-disable-next-line prettier/prettier
+  'You can not remove a rating that has sites or labels': $t('You can not remove a rating that has sites or labels'),
   //
   'Value must be e-mail': $t('Value must be e-mail'),
   //
@@ -49,9 +46,8 @@ let $errors = {
   //
   'Incorrect login or password': $t('Incorrect login or password'),
   //
-  'Exceeded number of login attempts. Authorization temporarily blocked': $t(
-    'Exceeded number of login attempts. Authorization temporarily blocked'
-  ),
+  // eslint-disable-next-line prettier/prettier
+  'Exceeded number of login attempts. Authorization temporarily blocked': $t('Exceeded number of login attempts. Authorization temporarily blocked'),
   //
   'Auth error': $t('Auth error'),
   //

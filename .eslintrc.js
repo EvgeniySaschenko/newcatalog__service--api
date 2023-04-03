@@ -16,6 +16,7 @@ module.exports = {
     'unicorn/error-message': 'off',
     eqeqeq: 'warn',
     'no-empty-function': 'off',
+    'function-paren-newline': ['error', 'multiline-arguments'],
   },
   overrides: [
     {
