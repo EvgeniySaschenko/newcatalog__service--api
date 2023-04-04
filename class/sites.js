@@ -7,7 +7,7 @@ let parserWhois = require('parse-whois');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 class Sites {
@@ -23,14 +23,14 @@ class Sites {
   // Run process logo create
   async runLogoCreate({ siteScreenshotId, logoScreenshotParams, color }) {
     if (!color || !logoScreenshotParams.cutHeight || !siteScreenshotId) {
-      throw Error($errors['Not enough data']);
+      throw Error($t('Not enough data'));
     }
 
     let screenshot = await $dbMain['sites-screenshots'].getSiteScreenshotById({
       siteScreenshotId,
     });
 
-    if (!screenshot || !screenshot.dateScreenshotCreated) throw Error($errors['Server error']);
+    if (!screenshot || !screenshot.dateScreenshotCreated) throw Error($t('Server error'));
 
     await this.createLogo({ siteScreenshotId, logoScreenshotParams });
     await $dbMain['sites'].updateLogoInfo({ color, siteScreenshotId, dateLogoCreate: new Date() });
@@ -171,7 +171,7 @@ class Sites {
   async linkDomainImagesToSubdomain({ domainSiteId, subdomainSiteId }) {
     let result = await $dbMain['sites'].getSiteBySiteId({ siteId: domainSiteId });
 
-    if (!result) throw Error($errors['Server error']);
+    if (!result) throw Error($t('Server error'));
 
     let { color, siteScreenshotId, siteLogoId, dateLogoCreate } = result;
 

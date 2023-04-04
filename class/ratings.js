@@ -1,5 +1,5 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 class Ratings {
@@ -86,7 +86,7 @@ class Ratings {
         errors: [
           {
             path: 'rating',
-            message: $errors['You can not remove a rating that has sites or labels'],
+            message: $t('You can not remove a rating that has sites or labels'),
           },
         ],
       };

@@ -1,7 +1,6 @@
 let { Model, DataTypes } = require('sequelize');
-let { $db, $tables } = require('./_db');
+let { $db } = require('./_db');
 
-// Создание скриншотов сайта
 let Scheme = function () {
   return {
     siteScreenshotId: {

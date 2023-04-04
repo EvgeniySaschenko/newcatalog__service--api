@@ -89,8 +89,8 @@ module.exports = {
   },
 
   // Получить все елементы рейтинга
-  async getItemsRating({ ratingId, typeSort = $config.ratings.typeSort['alexa'] }) {
-    let [sortKey, sortValue] = Object.entries($config.ratings.typeSort).find(
+  async getItemsRating({ ratingId, typeSort = $config['ratings'].typeSort['alexa'] }) {
+    let [sortKey, sortValue] = Object.entries($config['ratings'].typeSort).find(
       (item) => item[1] === +typeSort
     );
 

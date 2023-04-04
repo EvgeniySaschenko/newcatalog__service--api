@@ -1,5 +1,5 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { v4: uuidv4 } = require('uuid');
@@ -11,7 +11,7 @@ class UserLogin {
         errors: [
           {
             path: 'email',
-            message: $errors['This field cannot be empty'],
+            message: $t('This field cannot be empty'),
           },
         ],
       };
@@ -37,7 +37,7 @@ class UserLogin {
         errors: [
           {
             path: 'auth',
-            message: $errors['Server error'],
+            message: $t('Server error'),
           },
         ],
       };
@@ -76,7 +76,7 @@ class UserLogin {
         errors: [
           {
             path: 'auth',
-            message: $errors['Incorrect login or password'],
+            message: $t('Incorrect login or password'),
           },
         ],
       };
@@ -115,7 +115,7 @@ class UserLogin {
         errors: [
           {
             path: 'auth',
-            message: $errors['Auth error'],
+            message: $t('Auth error'),
           },
         ],
       };
@@ -143,7 +143,7 @@ class UserLogin {
         errors: [
           {
             path: 'auth',
-            message: $errors['Auth error'],
+            message: $t('Auth error'),
           },
         ],
       };
@@ -184,7 +184,7 @@ class UserLogin {
         errors: [
           {
             path: 'auth',
-            message: $errors['Server error'],
+            message: $t('Server error'),
           },
         ],
       };
@@ -209,7 +209,7 @@ class UserLogin {
         errors: [
           {
             path: 'auth',
-            message: $errors['Server error'],
+            message: $t('Server error'),
           },
         ],
       };
@@ -253,7 +253,7 @@ class UserLogin {
     let dateEntryMs = new Date(dateEntry).getTime();
     let dateCurrent = new Date().getTime();
 
-    if (dateCurrent - dateEntryMs < $config.users.sessionMaxAge * 1000) {
+    if (dateCurrent - dateEntryMs < $config['users'].sessionMaxAge * 1000) {
       return true;
     }
     return false;
@@ -291,7 +291,7 @@ class UserLogin {
 
   // Update count login attempt
   async editUserLoginAttempt({ userId, countLoginAttempt, dateLoginAttempt }) {
-    const loginAttempTimaut = $config.users.loginAttempTimaut * 1000;
+    const loginAttempTimaut = $config['users'].loginAttempTimaut * 1000;
     let dateCurrent = new Date().getTime();
     let dateLoginAttemptMs = dateLoginAttempt ? new Date(dateLoginAttempt).getTime() : 0;
 
@@ -321,9 +321,9 @@ class UserLogin {
   async setAuthCookies({ sessionId, userId, response }) {
     let token = await $utils['users'].createToken({
       data: { sessionId, userId },
-      expiresIn: $config.users.sessionMaxAge,
+      expiresIn: $config['users'].sessionMaxAge,
     });
-    response.cookie($config.users.cookieToken, token, {
+    response.cookie($config['users'].cookieToken, token, {
       maxAge: 3600 * 48 * 1000,
       httpOnly: true,
       secure: true,
@@ -332,7 +332,7 @@ class UserLogin {
 
   // Clear cookies
   clearAuthCookies({ response }) {
-    response.cookie($config.users.cookieToken, '', {
+    response.cookie($config['users'].cookieToken, '', {
       maxAge: 0,
     });
   }

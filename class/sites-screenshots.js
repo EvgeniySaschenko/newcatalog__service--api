@@ -2,7 +2,7 @@ let puppeteer = require('puppeteer');
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let sharp = require('sharp');
 let fse = require('fs-extra');
@@ -53,7 +53,7 @@ class SitesScreenshots {
         errors: [
           {
             path: 'screenshot',
-            message: $errors['This site is currently in the screenshot queue'],
+            message: $t('This site is currently in the screenshot queue'),
           },
         ],
       };
@@ -111,11 +111,11 @@ class SitesScreenshots {
 
   // Upload screenshot
   async uploadCustomScreenshot({ fileImg }) {
-    let isMimeType = $config.sites.screenshotMimeTypes.includes(fileImg.mimetype);
+    let isMimeType = $config['sites'].screenshotMimeTypes.includes(fileImg.mimetype);
     let tmpFileName = $resourcesPath.saveTmpFile(fileImg.name);
     if (!isMimeType) {
       throw {
-        errors: [{ path: 'screenshot', message: $errors['Invalid file'] }],
+        errors: [{ path: 'screenshot', message: $t('Invalid file') }],
       };
     }
     await fileImg.mv(tmpFileName);

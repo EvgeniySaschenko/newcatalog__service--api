@@ -33,7 +33,7 @@ router.put('/log-out', async (req, res, next) => {
   try {
     let userLogin = new UserLogin();
     await userLogin.logOut({
-      token: req.cookies[$config.users.cookieToken] || '',
+      token: req.cookies[$config['users'].cookieToken] || '',
       userAgent: req.headers['user-agent'] || '',
       response: res,
       ip: req?.headers['x-forwarded-for'] || '',
@@ -52,7 +52,7 @@ router.put('/auth-refresh', async (req, res, next) => {
   try {
     let userLogin = new UserLogin();
     result = await userLogin.authRefresh({
-      token: req.cookies[$config.users.cookieToken] || '',
+      token: req.cookies[$config['users'].cookieToken] || '',
       userAgent: req.headers['user-agent'] || '',
       response: res,
       ip: req?.headers['x-forwarded-for'] || '',
@@ -77,7 +77,7 @@ router.put('/password', async (req, res, next) => {
   try {
     let user = new User();
     result = await user.editPassword({
-      token: req.cookies[$config.users.cookieToken] || '',
+      token: req.cookies[$config['users'].cookieToken] || '',
       password: req?.body?.password,
     });
   } catch (error) {
@@ -96,7 +96,7 @@ router.put('/email', async (req, res, next) => {
   try {
     let user = new User();
     result = await user.editEmail({
-      token: req.cookies[$config.users.cookieToken] || '',
+      token: req.cookies[$config['users'].cookieToken] || '',
       email: req?.body?.email,
     });
   } catch (error) {

@@ -1,9 +1,9 @@
 let { Model, DataTypes } = require('sequelize');
-let { $db, $tables } = require('./_db');
+let { $db } = require('./_db');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
-let { $errors, $errorsUtils } = require(global.ROOT_PATH + '/plugins/errors');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
+let { $translations, $t } = require(global.ROOT_PATH + '/plugins/translations');
 
-// Рейтинги
 let Scheme = function () {
   return {
     ratingId: {
@@ -11,87 +11,87 @@ let Scheme = function () {
       primaryKey: true,
       autoIncrement: true,
     },
-    // id пользователя который создал рейтинг
+    // id of the user who created the rating
     userId: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
-    // Название
+    // Name
     name: {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (langs) => {
-          $errorsUtils.validateLans({
+          $translations.validateLansObject({
             langs,
             lengthMin: $config['ratings'].nameLengthMin,
             lengthMax: $config['ratings'].nameLengthMax,
           });
         },
       },
-      defaultValue: $config['lang'].localesObject,
+      defaultValue: $translations.getLansObject({ type: 'site-langs' }),
     },
-    // Описание
+    // Description
     descr: {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (langs) => {
-          $errorsUtils.validateLans({
+          $translations.validateLansObject({
             langs,
             lengthMin: $config['ratings'].descrLengthMin,
             lengthMax: $config['ratings'].descrLengthMax,
           });
         },
       },
-      defaultValue: $config['lang'].localesObject,
+      defaultValue: $translations.getLansObject({ type: 'site-langs' }),
     },
-    // Указывает на то что рейтинг скрыт
+    // Indicates that the rating is hidden
     isHiden: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
-    // Сайты / ютуб...
+    // Websites / YouTube...
     typeRating: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         isType: (type) => {
           if (!Object.values($config['ratings'].typeRating).includes(+type)) {
-            throw new Error($errors['Wrong data format']);
+            throw new Error($t('Wrong data format'));
           }
         },
       },
     },
-    // Сортировка
+    // Sorting
     typeSort: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         isType: (type) => {
           if (!Object.values($config['ratings'].typeSort).includes(+type)) {
-            throw new Error($errors['Wrong data format']);
+            throw new Error($t('Wrong data format'));
           }
         },
       },
     },
-    // Плитка, линия
+    // Tile, line
     typeDisplay: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         isType: (type) => {
           if (!Object.values($config['ratings'].typeDisplay).includes(+type)) {
-            throw new Error($errors['Wrong data format']);
+            throw new Error($t('Wrong data format'));
           }
         },
       },
     },
-    // id разделов к которым привязан рейтинг
+    // id of the sections to which the rating is attached
     sectionsIds: {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (sectionsIds) => {
           let { sectionsIdsMin, sectionsIdsMax } = $config['ratings'];
-          $errorsUtils.validateDependencyIds({
+          $utils['common'].validateDependencyIds({
             ids: sectionsIds,
             numberMin: sectionsIdsMin,
             numberMax: sectionsIdsMax,
@@ -100,7 +100,7 @@ let Scheme = function () {
       },
       defaultValue: {},
     },
-    // id разделов которые находятся в кеше
+    // id of partitions that are in the cache
     sectionsIdsCache: {
       type: DataTypes.JSONB,
       defaultValue: null,

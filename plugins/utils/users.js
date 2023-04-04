@@ -2,7 +2,7 @@ let jwt = require('jsonwebtoken');
 let { v4: uuidv4 } = require('uuid');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
 let crypto = require('crypto');
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
 module.exports = {
@@ -42,12 +42,13 @@ module.exports = {
 
   // Encrypt password
   encryptPassword(password) {
-    let { passwordLengthMin, passwordLengthMax, salt } = $config.users;
+    let { passwordLengthMin, passwordLengthMax, salt } = $config['users'];
     if (password.length < passwordLengthMin || password.length > passwordLengthMax) {
       let errors = [
         {
           path: 'password',
-          message: $errors['String length range'](passwordLengthMin, passwordLengthMax),
+          message: `${$t('The number of characters in a string must be in the range:')} 
+          ${passwordLengthMin} - ${passwordLengthMax}`,
         },
       ];
 

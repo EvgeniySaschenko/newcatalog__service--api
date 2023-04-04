@@ -1,13 +1,13 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 class Cache {
   // Add cache one rating
   async createCacheRating({ ratingId }) {
     // Get datap
     let ratingData = await this.getRatingData({ ratingId });
     if (!ratingData) {
-      throw { server: $errors['Not enough data'] };
+      throw { server: $t('Not enough data') };
     }
     // Add to cache
     await this.addRatingToCache(ratingData);
@@ -133,7 +133,7 @@ class Cache {
     });
 
     if (!isRating || !isRatingItems || !isLabels) {
-      throw { server: $errors['Server error'] };
+      throw { server: $t('Server error') };
     }
 
     return true;
@@ -195,7 +195,7 @@ class Cache {
       data: sectionRatingIds,
     });
 
-    if (!result) throw { server: $errors['Server error'] };
+    if (!result) throw { server: $t('Server error') };
     return true;
   }
 
@@ -203,7 +203,7 @@ class Cache {
   async deleteCacheRating({ ratingId }) {
     let rating = await $dbMain['ratings'].getRating({ ratingId });
     let result = await this.deleteRatingFromCache({ ratingIds: [{ ratingId }] });
-    if (!result) throw { server: $errors['Server error'] };
+    if (!result) throw { server: $t('Server error') };
 
     await this.deleteSectionsRatingChange({
       sectionsIdsCache: rating.sectionsIdsCache,
@@ -289,7 +289,7 @@ class Cache {
       data: sectionRatingIds,
     });
 
-    if (!result) throw { server: $errors['Server error'] };
+    if (!result) throw { server: $t('Server error') };
     return true;
   }
 
@@ -326,7 +326,7 @@ class Cache {
       });
 
     let isSuccesCreated = await $dbTemporary['content'].addSections({ data: sections });
-    if (!isSuccesCreated) throw { server: $errors['Server error'] };
+    if (!isSuccesCreated) throw { server: $t('Server error') };
     return true;
   }
 
@@ -338,7 +338,7 @@ class Cache {
     let ratingsDataFromListSections = {};
 
     if (!ratingsAllData.length) {
-      throw { server: $errors['Server error'] };
+      throw { server: $t('Server error') };
     }
 
     for await (let ratingData of ratingsAllData) {

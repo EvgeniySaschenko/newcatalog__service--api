@@ -1,6 +1,6 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let striptags = require('striptags');
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 
 class Labels {
   // Создать ярлык
@@ -37,7 +37,7 @@ class Labels {
     });
     let result = await $dbMain['labels'].deleteLabel({ labelId });
     if (result) return true;
-    throw Error($errors['There is no such id']);
+    throw Error($t('There is no such id'));
   }
 
   // Проверяем наличие ярлыка в рейтинге с таким же названием
@@ -55,7 +55,7 @@ class Labels {
 
     if (isExist)
       throw {
-        errors: [{ path: 'name', message: $errors['A label with the same name already exists'] }],
+        errors: [{ path: 'name', message: $t('A label with the same name already exists') }],
       };
   }
 

@@ -1,9 +1,8 @@
 let { Model, DataTypes } = require('sequelize');
 let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
-let { $db, $tables } = require('./_db');
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $db } = require('./_db');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 
-// Отображает к каким разделам относится рейтинг
 let Scheme = function () {
   return {
     siteId: {
@@ -28,7 +27,7 @@ let Scheme = function () {
       validate: {
         is: {
           args: $regexp.colorHex,
-          msg: $errors['Color value must be in HEX format'],
+          msg: $t('Color value must be in HEX format'),
         },
       },
       defaultValue: null,

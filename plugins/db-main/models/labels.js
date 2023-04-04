@@ -1,10 +1,9 @@
 let { Model, DataTypes } = require('sequelize');
-let { $db, $tables } = require('./_db');
+let { $db } = require('./_db');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
-let { $errors, $errorsUtils } = require(global.ROOT_PATH + '/plugins/errors');
+let { $translations, $t } = require(global.ROOT_PATH + '/plugins/translations');
 
-// Ярлыки
 let Scheme = function () {
   return {
     labelId: {
@@ -16,14 +15,14 @@ let Scheme = function () {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (langs) => {
-          $errorsUtils.validateLans({
+          $translations.validateLansObject({
             langs,
-            lengthMin: $config.label.nameLengthMin,
-            lengthMax: $config.label.nameLengthMax,
+            lengthMin: $config['label'].nameLengthMin,
+            lengthMax: $config['label'].nameLengthMax,
           });
         },
       },
-      defaultValue: $config['lang'].localesObject,
+      defaultValue: $translations.getLansObject({ type: 'site-langs' }),
     },
     color: {
       type: DataTypes.STRING(7),
@@ -31,7 +30,7 @@ let Scheme = function () {
       validate: {
         is: {
           args: $regexp.colorHex,
-          msg: $errors['Color value must be in HEX format'],
+          msg: $t('Color value must be in HEX format'),
         },
       },
     },

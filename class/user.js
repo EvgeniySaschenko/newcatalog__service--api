@@ -1,5 +1,5 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
@@ -7,8 +7,8 @@ class User {
   // Create user - Only 1 user is created now
   async createUserDefault() {
     let result;
-    let email = $config.users.emailDefault;
-    let password = $config.users.passwordDefault;
+    let email = $config['users'].emailDefault;
+    let password = $config['users'].passwordDefault;
     password = $utils['users'].encryptPassword(password);
     let user = await $dbMain['users'].getUserByEmail({ email });
     if (!user) {
@@ -26,7 +26,7 @@ class User {
         errors: [
           {
             path: 'email',
-            message: $errors['This e-mail already exists'],
+            message: $t('This e-mail already exists'),
           },
         ],
       };

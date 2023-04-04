@@ -1,7 +1,7 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let striptags = require('striptags');
 let axios = require('axios');
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 class RatingsItems {
@@ -43,7 +43,7 @@ class RatingsItems {
 
     if (itemRatingByUrl) {
       throw {
-        errors: [{ path: 'url', message: $errors['A label with the same name already exists'] }],
+        errors: [{ path: 'url', message: $t('A label with the same name already exists') }],
       };
     }
     return false;
@@ -168,7 +168,7 @@ class RatingsItems {
 
     let result = await $dbMain['ratings-items'].deleteItem({ ratingItemId });
     if (result) return true;
-    throw Error($errors['There is no such id']);
+    throw Error($t('There is no such id'));
   }
 }
 
