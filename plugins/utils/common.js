@@ -1,4 +1,5 @@
 let tldts = require('tldts');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 
 module.exports = {
   // Get info from domain
@@ -31,6 +32,7 @@ module.exports = {
       publicSuffix,
     };
   },
+
   // Calculate maximum dimensions of an image
   сalcmMaxDimensionsImage({ height, width, maxHeight, maxWidth }) {
     let coefH = height / maxHeight;
@@ -60,5 +62,29 @@ module.exports = {
       width: newWidth || width,
       height: newHeight || height,
     };
+  },
+
+  // Validation of an object with an id - used when adding to the database
+  validateDependencyIds: ({ ids, numberMin, numberMax }) => {
+    // type
+    if (typeof ids !== 'object' || Array.isArray(ids)) {
+      throw Error($t('Wrong data format'));
+    }
+
+    // data
+    for (let key in ids) {
+      if (!+key || !Number.isInteger(+key) || key != ids[key]) {
+        throw Error($t('Wrong data format'));
+      }
+    }
+
+    // number
+    let numberIds = Object.keys(ids).length;
+
+    if (numberIds < numberMin || numberIds > numberMax) {
+      let text = $t('The number of elements can be in the range:');
+      let range = `${numberMin} - ${numberMax}`;
+      throw Error(`${text} ${range}`);
+    }
   },
 };

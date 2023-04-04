@@ -1,31 +1,37 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
-let { $t } = require(global.ROOT_PATH + '/plugins/translate');
+let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
 let langsMap = require('langs');
 
 class Settings {
-  // Create user - Only 1 user is created now
-  async createSettingsDefault() {
+  // Init settings default
+  async initSettingsDefault() {
     for await (let [name, value] of Object.entries($config['settings'])) {
-      await this.createSetting({ name, value });
+      let result = await this.createSetting({ name, value });
+      /*
+        Save language settings in "$translations"
+        The "type" match is checked by the "set..." function
+      */
+      $translations.setLangDefault({ type: result.name, lang: result.value });
+      $translations.setLans({ type: result.name, langs: result.value });
     }
   }
 
   // Create setting
   async createSetting({ name, value }) {
-    let isExist = await $dbMain['settings'].getSettingByName({ name });
-    if (isExist) return;
+    let setting = await $dbMain['settings'].getSettingByName({ name });
+    if (!setting) {
+      setting = await $dbMain['settings'].createSetting({ name, value });
+    }
 
-    let result = await $dbMain['settings'].createSetting({ name, value });
-    return result;
+    return setting;
   }
 
   // Edit lang default
   async editLangDefault({ name, lang }) {
     // not valid lang
     if (!langsMap.has('1', lang)) {
-      throw { server: $errors['Server error'] };
+      throw { server: $t('Server error') };
     }
 
     // check in list langs
@@ -61,14 +67,15 @@ class Settings {
         break;
       }
       default: {
-        throw { server: $errors['Server error'] };
+        throw { server: $t('Server error') };
       }
     }
 
     let result = await $dbMain['settings'].editSettingByName({ name, value: lang });
+    $translations.setLangDefault({ type: name, lang });
 
     if (!result) {
-      throw { server: $errors['Server error'] };
+      throw { server: $t('Server error') };
     }
     return true;
   }
@@ -78,7 +85,7 @@ class Settings {
     // not valid lang
     for (let lang of langs) {
       if (!langsMap.has('1', lang)) {
-        throw { server: $errors['Server error'] };
+        throw { server: $t('Server error') };
       }
     }
 
@@ -115,14 +122,15 @@ class Settings {
         break;
       }
       default: {
-        throw { server: $errors['Server error'] };
+        throw { server: $t('Server error') };
       }
     }
 
     let result = await $dbMain['settings'].editSettingByName({ name, value: langs });
+    $translations.setLans({ type: name, langs });
 
     if (!result) {
-      throw { server: $errors['Server error'] };
+      throw { server: $t('Server error') };
     }
 
     return true;

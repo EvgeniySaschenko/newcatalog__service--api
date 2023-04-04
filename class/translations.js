@@ -1,16 +1,12 @@
-/* eslint-disable no-useless-escape */
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
+let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
 let fse = require('fs-extra');
 let path = require('path');
 
 class Translations {
   // Regexps from search $t("text")
-  regexpsTranslate = [
-    /(?<=\$t\(\")(.*?)(?=\"\))/,
-    /(?<=\$t\(')(.*?)(?='\))/,
-    /(?<=\$t\(`)(.*?)(?=`\))/,
-  ];
+  regexpsTranslations = $regexp.translations;
 
   // Path root
   pathRoot = './';
@@ -95,7 +91,7 @@ class Translations {
     for await (let pathFile of this.filesPathsList) {
       let content = await fse.readFile(pathFile, 'utf8');
       let translations = [];
-      for (let regExp of this.regexpsTranslate) {
+      for (let regExp of this.regexpsTranslations) {
         let result = content.match(new RegExp(regExp, 'g'));
         if (result) {
           translations = [...translations, ...result];
@@ -144,7 +140,7 @@ class Translations {
   // Get translations service
   async getTranslationsForService({
     type,
-    maxRecordsPerPage = $config.translations.maxRecordsPerPage,
+    maxRecordsPerPage = $config['translations'].maxRecordsPerPage,
     page = 1,
   }) {
     let offset = (page - 1) * maxRecordsPerPage;

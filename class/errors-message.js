@@ -1,4 +1,4 @@
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 
 class ErrorsMessage {
   // Создать сообщение об ошибке
@@ -23,7 +23,7 @@ class ErrorsMessage {
     // Дефолтное сообщение об ошибке
     if (!isMessage) {
       status = 500;
-      result = { server: $errors['Server error'] };
+      result = { server: $t('Server error') };
     }
     return { status, errors: result };
   }

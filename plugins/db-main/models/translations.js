@@ -1,9 +1,7 @@
 let { Model, DataTypes } = require('sequelize');
-let { $db, $tables } = require('./_db');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
-let { $errorsUtils } = require(global.ROOT_PATH + '/plugins/errors');
+let { $db } = require('./_db');
+let { $translations } = require(global.ROOT_PATH + '/plugins/translations');
 
-// Отображает к каким разделам относится рейтинг
 let Scheme = function () {
   return {
     translationId: {
@@ -19,12 +17,12 @@ let Scheme = function () {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (langs) => {
-          $errorsUtils.validateLans({
+          $translations.validateLansObject({
             langs,
           });
         },
       },
-      defaultValue: $config['lang'].localesObject,
+      defaultValue: $translations.getLansObject({ type: 'site-langs' }),
     },
     type: {
       type: DataTypes.INTEGER,

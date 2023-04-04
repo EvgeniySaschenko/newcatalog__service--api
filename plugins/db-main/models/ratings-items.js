@@ -1,12 +1,11 @@
 let { Model, DataTypes } = require('sequelize');
-let { $db, $tables } = require('./_db');
+let { $db } = require('./_db');
 let { M_Sites } = require('./sites');
 let { M_SitesScreenshots } = require('./sites-screenshots');
-
+let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
-let { $errors, $errorsUtils } = require(global.ROOT_PATH + '/plugins/errors');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
-// Отображает к каким разделам относится рейтинг
 let Scheme = function () {
   return {
     ratingItemId: {
@@ -35,7 +34,7 @@ let Scheme = function () {
           try {
             new URL(url);
           } catch (error) {
-            throw Error($errors['The link must start with "http" or "https"']);
+            throw Error($t('The link must start with "http" or "https"'));
           }
         },
       },
@@ -45,14 +44,14 @@ let Scheme = function () {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (langs) => {
-          $errorsUtils.validateLans({
+          $translations.validateLansObject({
             langs,
             lengthMin: $config['ratings-items'].nameLengthMin,
             lengthMax: $config['ratings-items'].nameLengthMax,
           });
         },
       },
-      defaultValue: $config['lang'].localesObject,
+      defaultValue: $translations.getLansObject({ type: 'site-langs' }),
     },
     labelsIds: {
       type: DataTypes.JSONB,
@@ -60,8 +59,7 @@ let Scheme = function () {
         // example { 1: 1 }
         checkJSON: (labelsIds) => {
           let { labelsIdsMin, labelsIdsMax } = $config['ratings-items'];
-
-          $errorsUtils.validateDependencyIds({
+          $utils['common'].validateDependencyIds({
             ids: labelsIds,
             numberMin: labelsIdsMin,
             numberMax: labelsIdsMax,

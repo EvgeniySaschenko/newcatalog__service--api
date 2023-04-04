@@ -42,7 +42,7 @@ router.post('/', async (req, res, next) => {
   try {
     let ratings = new Ratings();
     result = await ratings.createRating({
-      token: req.cookies[$config.users.cookieToken] || '',
+      token: req.cookies[$config['users'].cookieToken] || '',
       ...req.body,
     });
   } catch (error) {
@@ -65,7 +65,7 @@ router.put('/:ratingId', async (req, res, next) => {
 
     let ratings = new Ratings();
     result = await ratings.editRating({
-      token: req.cookies[$config.users.cookieToken] || '',
+      token: req.cookies[$config['users'].cookieToken] || '',
       ...req.body,
     });
   } catch (error) {

@@ -1,6 +1,5 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
-let fse = require('fs-extra');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 
 class Sections {
   // Создать раздел
@@ -14,9 +13,7 @@ class Sections {
 
     if (ratingsCount) {
       throw {
-        errors: [
-          { path: 'section', message: $errors['You can not delete a section that has ratings'] },
-        ],
+        errors: [{ path: 'section', message: $t('You can not delete a section that has ratings') }],
       };
     }
 

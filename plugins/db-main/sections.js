@@ -1,6 +1,6 @@
 let { M_Sections, name: tableName } = require('./models/sections');
 let striptags = require('striptags');
-let { $errors } = require(global.ROOT_PATH + '/plugins/errors');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 
 module.exports = {
   tableName,
@@ -18,7 +18,7 @@ module.exports = {
   async deleteSection({ sectionId }) {
     let result = await M_Sections.destroy({ where: { sectionId } });
     if (result) return true;
-    throw Error($errors['There is no such id']);
+    throw Error($t('There is no such id'));
   },
 
   // Изменить раздел

@@ -1,12 +1,3 @@
-// not to calculate localesObject every time
-let locales = ['ua', 'ru'];
-let localesObject = (() => {
-  return locales.reduce((total, key) => {
-    total[key] = '';
-    return total;
-  }, {});
-})();
-
 let $config = {
   // translations
   translations: {
@@ -17,7 +8,7 @@ let $config = {
     },
     maxRecordsPerPage: 20,
   },
-  // These settings will be replaced with the settings from the database
+  // These settings will be replaced with the settings from the database (These are initialization values, for "get"/"set" operations only "plugins/translations" should be used)
   settings: {
     'site-lang-default': 'en',
     'site-langs': ['en'],
@@ -51,12 +42,6 @@ let $config = {
     'refresh-incorrect': 7,
     'refresh-log-out': 8,
     'check-auth-error': 9,
-  },
-  // lang
-  lang: {
-    default: 'ua',
-    locales,
-    localesObject,
   },
   // label
   label: {
