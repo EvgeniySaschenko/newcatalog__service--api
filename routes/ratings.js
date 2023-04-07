@@ -5,7 +5,7 @@ let Cache = require(global.ROOT_PATH + '/class/cache');
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
-// Получить все рейтинги пользователя
+// Get all user ratings
 router.get('/', async (req, res, next) => {
   let result;
 
@@ -13,14 +13,14 @@ router.get('/', async (req, res, next) => {
     let ratings = new Ratings();
     result = await ratings.getRatings(req);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
   res.send(result);
 });
 
-// Получить рейтинг
+// Get rating
 router.get('/:ratingId', async (req, res, next) => {
   let result;
 
@@ -28,14 +28,14 @@ router.get('/:ratingId', async (req, res, next) => {
     let ratings = new Ratings();
     result = await ratings.getRating(req.params);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
   res.send(result);
 });
 
-// Добавить рейтинг
+// Add rating
 router.post('/', async (req, res, next) => {
   let result;
 
@@ -46,14 +46,14 @@ router.post('/', async (req, res, next) => {
       ...req.body,
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
   res.send(result);
 });
 
-// Редактировать рейтинг
+// Edit rating
 router.put('/:ratingId', async (req, res, next) => {
   let result;
 
@@ -69,14 +69,14 @@ router.put('/:ratingId', async (req, res, next) => {
       ...req.body,
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
   res.send(result);
 });
 
-// Удалить рейтинг
+// Delete the rating
 router.delete('/:ratingId', async (req, res, next) => {
   let result;
   try {
@@ -85,7 +85,7 @@ router.delete('/:ratingId', async (req, res, next) => {
     let ratings = new Ratings();
     result = await ratings.deleteRating(req.body);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }

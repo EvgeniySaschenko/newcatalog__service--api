@@ -228,7 +228,6 @@ class Sites {
           alexaRank,
           dateDomainCreate,
         });
-        console.log({ siteId, dateDomainCreate, host });
         this.sitesAlexaRankEmpty.pop();
         this.isSitesAlexaRankProcessing = false;
       }

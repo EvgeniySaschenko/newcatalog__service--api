@@ -6,44 +6,54 @@ let langsMap = require('langs');
 class Settings {
   // Init settings default
   async initSettingsDefault() {
-    for await (let [name, value] of Object.entries($config['settings'])) {
-      let result = await this.createSetting({ name, value });
-      /*
-        Save language settings in "$translations"
-        The "type" match is checked by the "set..." function
-      */
-      $translations.setLangDefault({ type: result.name, lang: result.value });
-      $translations.setLans({ type: result.name, langs: result.value });
+    for await (let [type, value] of Object.entries($config['settings'])) {
+      let result = await this.createSetting({ type, value });
+      // Lang
+      if (
+        result.type === $config['settings-enum'].siteLang ||
+        result.type === $config['settings-enum'].adminLang
+      ) {
+        $translations.setLangDefault({ type: result.type, lang: result.value });
+      }
+      // Langs
+      if (
+        result.type === $config['settings-enum'].siteLangs ||
+        result.type === $config['settings-enum'].adminLangs
+      ) {
+        $translations.setLans({ type: result.type, langs: result.value });
+      }
     }
   }
 
   // Create setting
-  async createSetting({ name, value }) {
-    let setting = await $dbMain['settings'].getSettingByName({ name });
+  async createSetting({ type, value }) {
+    let setting = await $dbMain['settings'].getSettingByType({ type });
     if (!setting) {
-      setting = await $dbMain['settings'].createSetting({ name, value });
+      setting = await $dbMain['settings'].createSetting({ type, value });
     }
 
     return setting;
   }
 
   // Edit lang default
-  async editLangDefault({ name, lang }) {
+  async editLangDefault({ type, lang }) {
     // not valid lang
     if (!langsMap.has('1', lang)) {
       throw { server: $t('Server error') };
     }
 
     // check in list langs
-    switch (name) {
-      case 'site-lang-default': {
-        let langs = await $dbMain['settings'].getSettingByName({ name: 'site-langs' });
+    switch (type) {
+      case $config['settings-enum'].siteLang: {
+        let langs = await $dbMain['settings'].getSettingByType({
+          type: $config['settings-enum'].siteLangs,
+        });
         let isExistLang = langs.value.includes(lang);
         if (!isExistLang) {
           throw {
             errors: [
               {
-                path: 'site-lang-default',
+                path: $config['settings-enum'].siteLang,
                 message: $t('First you need to add the language to the general list'),
               },
             ],
@@ -51,14 +61,16 @@ class Settings {
         }
         break;
       }
-      case 'admin-lang-default': {
-        let langs = await $dbMain['settings'].getSettingByName({ name: 'admin-langs' });
+      case $config['settings-enum'].adminLang: {
+        let langs = await $dbMain['settings'].getSettingByType({
+          type: $config['settings-enum'].adminLangs,
+        });
         let isExistLang = langs.value.includes(lang);
         if (!isExistLang) {
           throw {
             errors: [
               {
-                path: 'admin-lang-default',
+                path: $config['settings-enum'].adminLang,
                 message: $t('First you need to add the language to the general list'),
               },
             ],
@@ -71,8 +83,8 @@ class Settings {
       }
     }
 
-    let result = await $dbMain['settings'].editSettingByName({ name, value: lang });
-    $translations.setLangDefault({ type: name, lang });
+    let result = await $dbMain['settings'].editSettingByType({ type, value: lang });
+    $translations.setLangDefault({ type, lang });
 
     if (!result) {
       throw { server: $t('Server error') };
@@ -81,7 +93,7 @@ class Settings {
   }
 
   // Edit langs list
-  async editLangsList({ name, langs }) {
+  async editLangsList({ type, langs }) {
     // not valid lang
     for (let lang of langs) {
       if (!langsMap.has('1', lang)) {
@@ -90,15 +102,17 @@ class Settings {
     }
 
     // check in list langs
-    switch (name) {
-      case 'site-langs': {
-        let lang = await $dbMain['settings'].getSettingByName({ name: 'site-lang-default' });
+    switch (type) {
+      case $config['settings-enum'].siteLangs: {
+        let lang = await $dbMain['settings'].getSettingByType({
+          type: $config['settings-enum'].siteLang,
+        });
         let isExistLang = langs.includes(lang.value);
         if (!isExistLang) {
           throw {
             errors: [
               {
-                path: 'site-langs',
+                path: $config['settings-enum'].siteLangs,
                 message: $t('The list should include the default language'),
               },
             ],
@@ -106,14 +120,16 @@ class Settings {
         }
         break;
       }
-      case 'admin-langs': {
-        let lang = await $dbMain['settings'].getSettingByName({ name: 'admin-lang-default' });
+      case $config['settings-enum'].adminLangs: {
+        let lang = await $dbMain['settings'].getSettingByType({
+          type: $config['settings-enum'].adminLang,
+        });
         let isExistLang = langs.includes(lang.value);
         if (!isExistLang) {
           throw {
             errors: [
               {
-                path: 'admin-langs',
+                path: $config['settings-enum'].adminLangs,
                 message: $t('The list should include the default language'),
               },
             ],
@@ -126,8 +142,8 @@ class Settings {
       }
     }
 
-    let result = await $dbMain['settings'].editSettingByName({ name, value: langs });
-    $translations.setLans({ type: name, langs });
+    let result = await $dbMain['settings'].editSettingByType({ type, value: langs });
+    $translations.setLans({ type, langs });
 
     if (!result) {
       throw { server: $t('Server error') };
@@ -140,8 +156,8 @@ class Settings {
   async getSettings() {
     let result = await $dbMain['settings'].getSettings();
     let settings = {};
-    for (let { name, value } of result) {
-      settings[name] = value;
+    for (let { type, value } of result) {
+      settings[type] = value;
     }
 
     let langsIso = langsMap.all().map((el) => {

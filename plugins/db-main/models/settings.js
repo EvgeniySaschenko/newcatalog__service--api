@@ -8,7 +8,7 @@ let Scheme = function () {
       primaryKey: true,
       autoIncrement: true,
     },
-    name: {
+    type: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,

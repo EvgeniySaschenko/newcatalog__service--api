@@ -1,15 +1,13 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
+let { $translations } = require(global.ROOT_PATH + '/plugins/translations');
 let fse = require('fs-extra');
 let path = require('path');
 
 class Translations {
   // Regexps from search $t("text")
   regexpsTranslations = $regexp.translations;
-
-  // Path root
-  pathRoot = './';
 
   // Paths exclude
   pathsExclude = {
@@ -46,29 +44,30 @@ class Translations {
   // Translations
   translations = {};
 
-  // Type (for db)
-  typeTranslition = '';
-
   // Create translitiosn for service + delete no used
-  async runCreateTranslitions({ pathRoot, pathsExclude = {}, filesExtensionAllowed = {}, type }) {
-    this.pathRoot = pathRoot;
-    this.typeTranslition = type;
+  async runCreateTranslations({
+    serviceRootRath = './',
+    pathsExclude = {},
+    filesExtensionAllowed = {},
+    serviceType,
+  }) {
     Object.assign(this.pathsExclude, pathsExclude);
     Object.assign(this.filesExtensionAllowed, filesExtensionAllowed);
-    await this.prepareFilesPathsList();
+    await this.prepareFilesPathsList({ serviceRootRath });
     await this.prepareTranslationsList();
-    await this.createTranslationsKeys();
-    await this.deleteNoUsedTranslitionsKeys();
+    await this.createTranslationsKeys({ serviceType });
+    await this.deleteNoUsedTranslationsKeys({ serviceType });
+    await this.setTranslationsListServiceApi();
     return true;
   }
 
   // Prepare files paths list
-  async prepareFilesPathsList() {
-    let pathsList = await fse.readdir(this.pathRoot);
+  async prepareFilesPathsList({ serviceRootRath }) {
+    let pathsList = await fse.readdir(serviceRootRath);
 
     for await (let item of pathsList) {
       if (this.pathsExclude[item]) continue;
-      let pathCurrent = `${this.pathRoot}/${item}`;
+      let pathCurrent = `${serviceRootRath}/${item}`;
 
       let isDirectory = fse.statSync(pathCurrent).isDirectory();
 
@@ -78,7 +77,7 @@ class Translations {
           pathsList.push(`${item}/${itemInside}`);
         }
       } else {
-        let pathFile = `${this.pathRoot}/${item}`;
+        let pathFile = `${serviceRootRath}/${item}`;
         let extname = path.extname(pathFile).replace('.', '');
         if (!this.filesExtensionAllowed[extname]) continue;
         this.filesPathsList.push(pathFile);
@@ -104,23 +103,24 @@ class Translations {
   }
 
   // Add translations keys to db
-  async createTranslationsKeys() {
-    let type = this.typeTranslition;
+  async createTranslationsKeys({ serviceType }) {
     for await (let key of Object.keys(this.translations)) {
-      let result = await $dbMain['translations'].getTranslationByKeyAndType({ key, type });
+      let result = await $dbMain['translations'].getTranslationByKeyAndType({
+        key,
+        serviceType,
+      });
       if (!result) {
-        await $dbMain['translations'].createTranslationKey({ key, type });
+        await $dbMain['translations'].createTranslationKey({ key, serviceType });
       }
     }
     return true;
   }
 
-  // Delete no used translitions keys
-  async deleteNoUsedTranslitionsKeys() {
-    let type = this.typeTranslition;
-    let count = await $dbMain['translations'].getTranslationsCountByType({ type });
+  // Delete no used translations keys
+  async deleteNoUsedTranslationsKeys({ serviceType }) {
+    let count = await $dbMain['translations'].getTranslationsCountByType({ serviceType });
     let translationsDb = await this.getTranslationsForService({
-      type,
+      serviceType,
       maxRecordsPerPage: count,
       page: 1,
     });
@@ -132,24 +132,27 @@ class Translations {
           tableId: item.translationId,
           tableRecord: item,
         });
-        await $dbMain['translations'].deleteTranslationByKeyAndType({ key: item.key, type });
+        await $dbMain['translations'].deleteTranslationByKeyAndType({
+          key: item.key,
+          serviceType,
+        });
       }
     }
   }
 
   // Get translations service
   async getTranslationsForService({
-    type,
+    serviceType,
     maxRecordsPerPage = $config['translations'].maxRecordsPerPage,
     page = 1,
   }) {
     let offset = (page - 1) * maxRecordsPerPage;
 
     let count = await $dbMain['translations'].getTranslationsCountByType({
-      type,
+      serviceType,
     });
     let translations = await $dbMain['translations'].getTranslationsByType({
-      type,
+      serviceType,
       limit: maxRecordsPerPage,
       offset,
     });
@@ -165,9 +168,45 @@ class Translations {
     };
   }
 
+  // Get translations for "service" to be used by the translation function "$t"
+  async getTranslationsForFunctionTranslate({ serviceTypeName }) {
+    let { settingNameLangs, type } = $config['services'][serviceTypeName];
+    let translations = {};
+    let count = await $dbMain['translations'].getTranslationsCountByType({ serviceType: type });
+    let translationsDb = await this.getTranslationsForService({
+      serviceType: type,
+      maxRecordsPerPage: count,
+      page: 1,
+    });
+    let langs = $translations.getLans({ type: settingNameLangs });
+    for (let lang of langs) {
+      translations[lang] = {};
+    }
+
+    if (!translationsDb?.items) return translations;
+
+    for (let { text, key } of translationsDb.items) {
+      for (let lang of langs) {
+        translations[lang][key] = text[lang] || '';
+      }
+    }
+
+    return translations;
+  }
+
+  // Set translations for service api (Fired during initialization and when updating translations of any service)
+  async setTranslationsListServiceApi() {
+    let translations = await this.getTranslationsForFunctionTranslate({
+      serviceTypeName: $config['services-enum'].api,
+    });
+    $translations.setTranslationsList({ translations });
+    return translations;
+  }
+
   // Update text for translation
   async updateText({ translationId, text }) {
     await $dbMain['translations'].updateTextById({ translationId, text });
+    await this.setTranslationsListServiceApi();
     return true;
   }
 }

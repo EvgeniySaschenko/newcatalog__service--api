@@ -1,55 +1,76 @@
 let langsMap = require('langs');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
+let keySiteLang = $config['settings-enum'].siteLang;
+let keyAdminLang = $config['settings-enum'].adminLang;
+let keySiteLangs = $config['settings-enum'].siteLangs;
+let keyAdminLangs = $config['settings-enum'].adminLangs;
 
 let langsTypes = {
-  'site-langs': $config['settings']['site-langs'],
-  'admin-langs': $config['settings']['admin-langs'],
+  [keySiteLangs]: $config['settings'][keySiteLangs],
+  [keyAdminLangs]: $config['settings'][keyAdminLangs],
 };
 
 let langsDefaultTypes = {
-  'site-lang-default': $config['settings']['site-lang-default'],
-  'admin-lang-default': $config['settings']['admin-lang-default'],
+  [keySiteLang]: $config['settings'][keySiteLang],
+  [keyAdminLang]: $config['settings'][keyAdminLang],
+};
+/*
+   This function does not translate text, it is only used for parsing.
+   This is done because if you do a translation based on cookies, you will need to pass the language as an additional parameter, and this is problematic
+   Translations for the api-server, now only used for errors, so the desired function can be placed in the error class
+*/
+let $t = (text) => {
+  return text;
 };
 
-let $t = (str) => {
-  return str;
-};
+let translationsList = {};
 
 module.exports = {
-  // Function translate
   $t,
   // Utils
   $translations: {
+    setTranslationsList({ translations }) {
+      translationsList = translations;
+    },
+
+    // Translation function
+    t({ text, lang }) {
+      let langDefault = this.getLangDefault({ type: $config['settings-enum'].adminLang });
+      let langs = this.getLans({ type: $config['settings-enum'].adminLangs });
+      lang = lang || langDefault;
+      let isLang = langs.includes(lang);
+      if (!isLang) {
+        lang = langDefault;
+      }
+
+      if (!translationsList[lang]) return text;
+      return translationsList[lang][text] || text;
+    },
+
     // Get lang default
     getLangDefault({ type }) {
-      if (!langsDefaultTypes[type]) return false;
       return langsDefaultTypes[type];
     },
 
     // Set lang default
     setLangDefault({ type, lang }) {
-      if (!langsDefaultTypes[type]) return false;
       langsDefaultTypes[type] = lang;
       return true;
     },
 
     // Get langs
     getLans({ type }) {
-      console.log(langsMap.codes('1'));
-      if (!langsTypes[type]) return false;
       return langsTypes[type];
     },
 
     // Set langs
     setLans({ type, langs }) {
-      if (!langsTypes[type]) return false;
       langsTypes[type] = langs;
       return true;
     },
 
     // Get langs object
     getLansObject({ type }) {
-      if (!langsTypes[type]) return false;
       let obj = {};
       for (let lang of langsTypes[type]) {
         obj[lang] = '';

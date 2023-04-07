@@ -1,14 +1,25 @@
-let { $t } = require(global.ROOT_PATH + '/plugins/translations');
+let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
+let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
 class ErrorsMessage {
-  // Создать сообщение об ошибке
+  constructor(request) {
+    try {
+      this.lang = request.cookies[$config['translations'].cookieLang] || '';
+    } catch (error) {
+      console.error(request);
+    }
+  }
+
+  lang = '';
+
+  // Create a bug report
   createMessage(data) {
     let result = {};
     let isMessage = false;
     let status = 400;
     if (data.errors) {
       for (let item of data.errors) {
-        // Условие для того чтобы не показывать ошибку которую не должен видить фронт
+        // Condition for not showing an error that the front should not see
         if (item.origin !== 'CORE' && item.origin !== 'DB') {
           isMessage = true;
           result[item.path] = item.message;
@@ -20,11 +31,16 @@ class ErrorsMessage {
       console.error(data);
     }
 
-    // Дефолтное сообщение об ошибке
+    // Default error message
     if (!isMessage) {
       status = 500;
       result = { server: $t('Server error') };
     }
+
+    for (let key in result) {
+      result[key] = $translations.t({ text: result[key], lang: this.lang });
+    }
+
     return { status, errors: result };
   }
 }
