@@ -19,7 +19,7 @@ router.put('/login', async (req, res, next) => {
     });
     result = true;
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -40,7 +40,7 @@ router.put('/log-out', async (req, res, next) => {
     });
     result = true;
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
   }
   res.status(401);
@@ -58,7 +58,7 @@ router.put('/auth-refresh', async (req, res, next) => {
       ip: req?.headers['x-forwarded-for'] || '',
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     result.status = 401;
     res.status(result.status);
@@ -81,7 +81,7 @@ router.put('/password', async (req, res, next) => {
       password: req?.body?.password,
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -100,7 +100,7 @@ router.put('/email', async (req, res, next) => {
       email: req?.body?.email,
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }

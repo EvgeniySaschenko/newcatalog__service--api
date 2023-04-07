@@ -1,6 +1,7 @@
 let { Model, DataTypes } = require('sequelize');
 let { $db } = require('./_db');
 let { $translations } = require(global.ROOT_PATH + '/plugins/translations');
+let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
 let Scheme = function () {
   return {
@@ -22,9 +23,9 @@ let Scheme = function () {
           });
         },
       },
-      defaultValue: $translations.getLansObject({ type: 'site-langs' }),
+      defaultValue: $translations.getLansObject({ type: $config['settings-enum'].siteLangs }),
     },
-    type: {
+    serviceType: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

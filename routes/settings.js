@@ -10,7 +10,7 @@ router.get('/', async (req, res, next) => {
     let settings = new Settings();
     result = await settings.getSettings();
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -24,7 +24,7 @@ router.put('/lang-default', async (req, res, next) => {
     let settings = new Settings();
     result = await settings.editLangDefault(req.body);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -38,7 +38,7 @@ router.put('/langs-list', async (req, res, next) => {
     let settings = new Settings();
     result = await settings.editLangsList(req.body);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }

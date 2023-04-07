@@ -12,7 +12,7 @@ router.get('/:siteId', async (req, res, next) => {
     let sites = new Sites();
     result = await sites.getSiteBySiteId({ siteId });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -28,7 +28,7 @@ router.get('/screenshots/:ratingId', async (req, res, next) => {
 
     result = await sitesScreenshots.getItemsReadyScrenshotsNotLogo({ ratingId });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -44,7 +44,7 @@ router.get('/screenshots-errors/:ratingId', async (req, res, next) => {
 
     result = await sitesScreenshots.getItemsScrenshotsErrors({ ratingId });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -61,7 +61,7 @@ router.post('/screenshot-create', async (req, res, next) => {
 
     result = await sitesScreenshots.addSiteToProcessing({ siteId, url });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -79,7 +79,7 @@ router.post('/screenshot-custom', async (req, res, next) => {
       siteId: +siteId,
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -94,7 +94,7 @@ router.put('/logo-create', async (req, res, next) => {
     let sites = new Sites();
     result = await sites.runLogoCreate(req.body);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -109,7 +109,7 @@ router.put('/logo-recreate', async (req, res, next) => {
     let sites = new Sites();
     result = await sites.runRecreateLogo({ siteId });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -124,7 +124,7 @@ router.put('/color', async (req, res, next) => {
     let sites = new Sites();
     result = await sites.editSitesColor({ siteScreenshotId, color });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -139,7 +139,7 @@ router.get('/images-site-check/:domain', async (req, res, next) => {
     let sites = new Sites();
     result = await sites.checkImagesForSite({ host: domain });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -154,7 +154,7 @@ router.put('/images-domain-to-subdomain', async (req, res, next) => {
     let sites = new Sites();
     result = await sites.linkDomainImagesToSubdomain({ domainSiteId, subdomainSiteId });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }

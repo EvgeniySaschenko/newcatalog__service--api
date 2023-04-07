@@ -4,6 +4,7 @@ let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
 let UserLogin = require(global.ROOT_PATH + '/class/user-login');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
+// Check auth user
 router.use(async (req, res, next) => {
   let isAuth = false;
   try {
@@ -16,7 +17,7 @@ router.use(async (req, res, next) => {
     });
     isAuth = true;
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     errorsMessage.createMessage(error);
   }
 

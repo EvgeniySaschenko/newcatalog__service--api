@@ -14,7 +14,7 @@ router.post('/rating/:ratingId', async (req, res, next) => {
       result = await cache.setCacheId();
     }
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -32,7 +32,7 @@ router.delete('/rating/:ratingId', async (req, res, next) => {
       result = await cache.setCacheId();
     }
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -50,7 +50,7 @@ router.post('/reset-all', async (req, res, next) => {
       result = await cache.setCacheId();
     }
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -68,7 +68,7 @@ router.delete('/clear-all', async (req, res, next) => {
     //   result = await cache.setCacheId();
     // }
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }
@@ -86,7 +86,7 @@ router.post('/sections', async (req, res, next) => {
       result = await cache.setCacheId();
     }
   } catch (error) {
-    let errorsMessage = new ErrorsMessage();
+    let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
     res.status(result.status);
   }

@@ -28,7 +28,7 @@ let Scheme = function () {
           });
         },
       },
-      defaultValue: $translations.getLansObject({ type: 'site-langs' }),
+      defaultValue: $translations.getLansObject({ type: $config['settings-enum'].siteLangs }),
     },
     // Description
     descr: {
@@ -42,7 +42,7 @@ let Scheme = function () {
           });
         },
       },
-      defaultValue: $translations.getLansObject({ type: 'site-langs' }),
+      defaultValue: $translations.getLansObject({ type: $config['settings-enum'].siteLangs }),
     },
     // Indicates that the rating is hidden
     isHiden: {

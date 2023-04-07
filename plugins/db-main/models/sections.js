@@ -25,7 +25,7 @@ let Scheme = function () {
           });
         },
       },
-      defaultValue: $translations.getLansObject({ type: 'site-langs' }),
+      defaultValue: $translations.getLansObject({ type: $config['settings-enum'].siteLangs }),
     },
     priority: {
       type: DataTypes.INTEGER,

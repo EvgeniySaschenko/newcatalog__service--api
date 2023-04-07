@@ -1,20 +1,52 @@
+let settingsEnum = {
+  siteLang: 'site-lang-default',
+  siteLangs: 'site-langs',
+  adminLang: 'admin-lang-default',
+  adminLangs: 'admin-langs',
+};
+
+let servicesEnum = {
+  api: 'service--api',
+  admin: 'service--admin',
+  site: 'service--site',
+};
+
 let $config = {
+  // services
+  'services-enum': servicesEnum,
+  services: {
+    [servicesEnum.api]: {
+      name: servicesEnum.api,
+      type: 1,
+      rootPath: './',
+      settingNameLangs: settingsEnum.adminLangs,
+    },
+    [servicesEnum.admin]: {
+      name: servicesEnum.admin,
+      type: 2,
+      rootPath: `symlinks/${servicesEnum.admin}`,
+      settingNameLangs: settingsEnum.adminLangs,
+    },
+    [servicesEnum.site]: {
+      name: servicesEnum.site,
+      type: 3,
+      rootPath: `symlinks/${servicesEnum.site}`,
+      settingNameLangs: settingsEnum.siteLangs,
+    },
+  },
   // translations
   translations: {
-    types: {
-      'service--api': { name: 'service--api', type: 1, pathRoot: './' },
-      'service--admin': { name: 'service--admin', type: 2, pathRoot: 'symlinks/service--admin' },
-      'service--site': { name: 'service--site', type: 3, pathRoot: 'symlinks/service--site' },
-    },
     maxRecordsPerPage: 20,
+    cookieLang: 'lang',
   },
   // These settings will be replaced with the settings from the database (These are initialization values, for "get"/"set" operations only "plugins/translations" should be used)
   settings: {
-    'site-lang-default': 'en',
-    'site-langs': ['en'],
-    'admin-lang-default': 'en',
-    'admin-langs': ['en'],
+    [settingsEnum.siteLang]: 'en',
+    [settingsEnum.siteLangs]: ['en'],
+    [settingsEnum.adminLang]: 'en',
+    [settingsEnum.adminLangs]: ['en'],
   },
+  'settings-enum': settingsEnum,
   // users
   users: {
     emailLengthMin: 3,
@@ -101,10 +133,10 @@ let $config = {
     userAgent:
       'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36',
     extraHTTPHeaders: {
-      'Accept-Language': 'ua',
+      'Accept-Language': 'en',
     },
     launch: {
-      args: ['--lang=uk-UA,uk', '--no-sandbox'],
+      args: ['--lang=en-US,en', '--no-sandbox'],
     },
     defaultNavigationTimeout: 60000,
     // Sets the interval for checking for new entries in the database or the minimum interval between screenshots.

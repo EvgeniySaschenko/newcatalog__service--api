@@ -3,36 +3,36 @@ let { M_Translations, name: tableName } = require('./models/translations');
 module.exports = {
   tableName,
   // Create translation
-  async createTranslationKey({ key, type }) {
-    let result = await M_Translations.create({ key, type });
+  async createTranslationKey({ key, serviceType }) {
+    let result = await M_Translations.create({ key, serviceType });
     return result.get({ plain: true });
   },
 
   // Get translation by key and type
-  async getTranslationByKeyAndType({ key, type }) {
+  async getTranslationByKeyAndType({ key, serviceType }) {
     return await M_Translations.findOne({
       where: {
         key,
-        type,
+        serviceType,
       },
     });
   },
 
-  // Get translations count by type
-  async getTranslationsCountByType({ type }) {
+  // Get translations count by serviceType
+  async getTranslationsCountByType({ serviceType }) {
     let result = await M_Translations.count({
       where: {
-        type,
+        serviceType,
       },
     });
     return result;
   },
 
-  // Get translation by type
-  async getTranslationsByType({ type, offset, limit }) {
+  // Get translation by serviceType
+  async getTranslationsByType({ serviceType, offset, limit }) {
     let result = await M_Translations.findAll({
       where: {
-        type,
+        serviceType,
       },
       order: [['key', 'ASC']],
       offset,
@@ -52,8 +52,8 @@ module.exports = {
     return result[0];
   },
 
-  // Delete translation by key and type
-  async deleteTranslationByKeyAndType({ key, type }) {
-    return await M_Translations.destroy({ where: { key, type } });
+  // Delete translation by key and serviceType
+  async deleteTranslationByKeyAndType({ key, serviceType }) {
+    return await M_Translations.destroy({ where: { key, serviceType } });
   },
 };

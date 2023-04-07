@@ -2,12 +2,12 @@ let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 
 class Sections {
-  // Создать раздел
+  // Create section
   async createSection({ name }) {
     return await $dbMain['sections'].createSection({ name });
   }
 
-  // Удалить раздел
+  // Delete section
   async deleteSection({ sectionId }) {
     let ratingsCount = await $dbMain['ratings'].getRatingCountBySectionId({ sectionId });
 
@@ -27,12 +27,12 @@ class Sections {
     return await $dbMain['sections'].deleteSection({ sectionId });
   }
 
-  // Изменить раздел
+  // Edit section
   async editSection(section = {}) {
     return await $dbMain['sections'].editSection(section);
   }
 
-  // Получить все разделы
+  // Get all sections
   async getSections() {
     return await $dbMain['sections'].getSections();
   }
