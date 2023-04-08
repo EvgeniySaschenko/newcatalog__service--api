@@ -157,10 +157,10 @@ module.exports = {
       let site = el.site;
       let { siteScreenshotId, siteLogoId, dateLogoCreate } = site;
       let { domain, hostname, isSubdomain } = $utils['common'].urlInfo(el.url);
-      let resetCashe = dateLogoCreate ? new Date(dateLogoCreate).getTime() : '';
+      let resetCache = dateLogoCreate ? new Date(dateLogoCreate).getTime() : '';
       el.logoImg = $resourcesPath.fileUrlSiteLogo({
         siteLogoId,
-        resetCashe,
+        resetCache,
       });
       el.screenshotImg = $resourcesPath.fileUrlScreenshot({ siteScreenshotId });
       el.isSubdomain = isSubdomain;

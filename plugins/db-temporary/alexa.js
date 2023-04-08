@@ -13,7 +13,7 @@ let prefixes = JSON.parse(DB_TEMPORARY__DB_ALEXA_PREFIXES);
 
 module.exports = {
   // Create database AlexaRank
-  async createDataDaseCasheAlexaRank() {
+  async createDataDaseCacheAlexaRank() {
     await client.connect();
     let isAlexaRankData = await client.get('isAlexaRankData');
     if (!isAlexaRankData) {
