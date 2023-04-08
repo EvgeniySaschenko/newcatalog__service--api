@@ -32,6 +32,7 @@ let $config = {
       type: 3,
       rootPath: `symlinks/${servicesEnum.site}`,
       settingNameLangs: settingsEnum.siteLangs,
+      settingNameLang: settingsEnum.siteLang,
     },
   },
   // translations

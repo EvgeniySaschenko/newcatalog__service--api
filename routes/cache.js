@@ -92,4 +92,22 @@ router.post('/sections', async (req, res, next) => {
   }
   res.send(result);
 });
+
+// Create cache translations + langs site
+router.post('/translations-and-langs-site', async (req, res, next) => {
+  let result = true;
+  try {
+    let cache = new Cache();
+    await cache.deleteCacheId();
+    result = await cache.createCacheTranslationsAndLangsSite();
+    if (result) {
+      result = await cache.setCacheId();
+    }
+  } catch (error) {
+    let errorsMessage = new ErrorsMessage(req);
+    result = errorsMessage.createMessage(error);
+    res.status(result.status);
+  }
+  res.send(result);
+});
 module.exports = router;
