@@ -7,6 +7,8 @@ let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 let Scheme = function () {
+  let serviceSite = $config['services'].site;
+
   return {
     ratingItemId: {
       type: DataTypes.INTEGER,
@@ -51,7 +53,7 @@ let Scheme = function () {
           });
         },
       },
-      defaultValue: $translations.getLansObject({ type: $config['settings-enum'].siteLangs }),
+      defaultValue: $translations.getLansObject({ type: serviceSite.settingNameLangs }),
     },
     labelsIds: {
       type: DataTypes.JSONB,

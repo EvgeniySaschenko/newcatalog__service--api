@@ -4,6 +4,8 @@ let { $translations } = require(global.ROOT_PATH + '/plugins/translations');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
 let Scheme = function () {
+  let serviceSite = $config['services'].site;
+
   return {
     translationId: {
       type: DataTypes.INTEGER,
@@ -23,7 +25,7 @@ let Scheme = function () {
           });
         },
       },
-      defaultValue: $translations.getLansObject({ type: $config['settings-enum'].siteLangs }),
+      defaultValue: $translations.getLansObject({ type: serviceSite.settingNameLangs }),
     },
     serviceType: {
       type: DataTypes.INTEGER,

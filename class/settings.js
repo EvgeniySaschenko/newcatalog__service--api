@@ -8,18 +8,17 @@ class Settings {
   async initSettingsDefault() {
     for await (let [type, value] of Object.entries($config['settings'])) {
       let result = await this.createSetting({ type, value });
-      // Lang
+      let serviceAdmin = $config['services'].admin;
+      let serviceSite = $config['services'].site;
+      // Lang default
       if (
-        result.type === $config['settings-enum'].siteLang ||
-        result.type === $config['settings-enum'].adminLang
+        result.type === serviceAdmin.settingNameLangDefault ||
+        result.type === serviceSite.settingNameLangDefault
       ) {
         $translations.setLangDefault({ type: result.type, lang: result.value });
       }
       // Langs
-      if (
-        result.type === $config['settings-enum'].siteLangs ||
-        result.type === $config['settings-enum'].adminLangs
-      ) {
+      if (result.type === serviceAdmin.siteLangs || result.type === serviceSite.adminLangs) {
         $translations.setLans({ type: result.type, langs: result.value });
       }
     }
@@ -42,18 +41,21 @@ class Settings {
       throw { server: $t('Server error') };
     }
 
+    let serviceAdmin = $config['services'].admin;
+    let serviceSite = $config['services'].site;
+
     // check in list langs
     switch (type) {
-      case $config['settings-enum'].siteLang: {
+      case serviceSite.settingNameLangDefault: {
         let langs = await $dbMain['settings'].getSettingByType({
-          type: $config['settings-enum'].siteLangs,
+          type: serviceSite.settingNameLangs,
         });
         let isExistLang = langs.value.includes(lang);
         if (!isExistLang) {
           throw {
             errors: [
               {
-                path: $config['settings-enum'].siteLang,
+                path: serviceSite.settingNameLangDefault,
                 message: $t('First you need to add the language to the general list'),
               },
             ],
@@ -61,16 +63,16 @@ class Settings {
         }
         break;
       }
-      case $config['settings-enum'].adminLang: {
+      case serviceAdmin.settingNameLangDefault: {
         let langs = await $dbMain['settings'].getSettingByType({
-          type: $config['settings-enum'].adminLangs,
+          type: serviceAdmin.settingNameLangs,
         });
         let isExistLang = langs.value.includes(lang);
         if (!isExistLang) {
           throw {
             errors: [
               {
-                path: $config['settings-enum'].adminLang,
+                path: serviceAdmin.settingNameLangDefault,
                 message: $t('First you need to add the language to the general list'),
               },
             ],
@@ -94,6 +96,9 @@ class Settings {
 
   // Edit langs list
   async editLangsList({ type, langs }) {
+    let serviceAdmin = $config['services'].admin;
+    let serviceSite = $config['services'].site;
+
     // not valid lang
     for (let lang of langs) {
       if (!langsMap.has('1', lang)) {
@@ -103,16 +108,16 @@ class Settings {
 
     // check in list langs
     switch (type) {
-      case $config['settings-enum'].siteLangs: {
+      case serviceSite.settingNameLangs: {
         let lang = await $dbMain['settings'].getSettingByType({
-          type: $config['settings-enum'].siteLang,
+          type: serviceSite.settingNameLangDefault,
         });
         let isExistLang = langs.includes(lang.value);
         if (!isExistLang) {
           throw {
             errors: [
               {
-                path: $config['settings-enum'].siteLangs,
+                path: serviceSite.settingNameLangs,
                 message: $t('The list should include the default language'),
               },
             ],
@@ -120,16 +125,16 @@ class Settings {
         }
         break;
       }
-      case $config['settings-enum'].adminLangs: {
+      case serviceAdmin.settingNameLangs: {
         let lang = await $dbMain['settings'].getSettingByType({
-          type: $config['settings-enum'].adminLang,
+          type: serviceAdmin.settingNameLangDefault,
         });
         let isExistLang = langs.includes(lang.value);
         if (!isExistLang) {
           throw {
             errors: [
               {
-                path: $config['settings-enum'].adminLangs,
+                path: serviceAdmin.settingNameLangs,
                 message: $t('The list should include the default language'),
               },
             ],

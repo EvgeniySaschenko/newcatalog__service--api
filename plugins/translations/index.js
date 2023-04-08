@@ -1,18 +1,16 @@
 let langsMap = require('langs');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
-let keySiteLang = $config['settings-enum'].siteLang;
-let keyAdminLang = $config['settings-enum'].adminLang;
-let keySiteLangs = $config['settings-enum'].siteLangs;
-let keyAdminLangs = $config['settings-enum'].adminLangs;
+let serviceSite = $config['services'].site;
+let serviceAdmin = $config['services'].admin;
 
 let langsTypes = {
-  [keySiteLangs]: $config['settings'][keySiteLangs],
-  [keyAdminLangs]: $config['settings'][keyAdminLangs],
+  [serviceSite.settingNameLangs]: $config['settings'][serviceSite.settingNameLangs],
+  [serviceAdmin.settingNameLangs]: $config['settings'][serviceAdmin.settingNameLangs],
 };
 
 let langsDefaultTypes = {
-  [keySiteLang]: $config['settings'][keySiteLang],
-  [keyAdminLang]: $config['settings'][keyAdminLang],
+  [serviceSite.settingNameLangDefault]: $config['settings'][serviceSite.settingNameLangDefault],
+  [serviceAdmin.settingNameLangDefault]: $config['settings'][serviceAdmin.settingNameLangDefault],
 };
 /*
    This function does not translate text, it is only used for parsing.
@@ -35,8 +33,8 @@ module.exports = {
 
     // Translation function
     t({ text, lang }) {
-      let langDefault = this.getLangDefault({ type: $config['settings-enum'].adminLang });
-      let langs = this.getLans({ type: $config['settings-enum'].adminLangs });
+      let langDefault = this.getLangDefault({ type: serviceSite.settingNameLangDefault });
+      let langs = this.getLans({ type: serviceAdmin.settingNameLangs });
       lang = lang || langDefault;
       let isLang = langs.includes(lang);
       if (!isLang) {

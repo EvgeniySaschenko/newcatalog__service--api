@@ -5,6 +5,8 @@ let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { $translations, $t } = require(global.ROOT_PATH + '/plugins/translations');
 
 let Scheme = function () {
+  let serviceSite = $config['services'].site;
+
   return {
     ratingId: {
       type: DataTypes.INTEGER,
@@ -28,7 +30,7 @@ let Scheme = function () {
           });
         },
       },
-      defaultValue: $translations.getLansObject({ type: $config['settings-enum'].siteLangs }),
+      defaultValue: $translations.getLansObject({ type: serviceSite.settingNameLangs }),
     },
     // Description
     descr: {
@@ -42,7 +44,7 @@ let Scheme = function () {
           });
         },
       },
-      defaultValue: $translations.getLansObject({ type: $config['settings-enum'].siteLangs }),
+      defaultValue: $translations.getLansObject({ type: serviceSite.settingNameLangs }),
     },
     // Indicates that the rating is hidden
     isHiden: {

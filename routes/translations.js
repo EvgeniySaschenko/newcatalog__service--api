@@ -7,11 +7,13 @@ let { $config } = require(global.ROOT_PATH + '/plugins/config');
 // Get part translations for service
 router.get('/part-list', async (req, res, next) => {
   let result;
-  let serviceTypeName = req.query.serviceTypeName;
+  let serviceName = req.query.serviceName;
   try {
     let translations = new Translations();
+    let { serviceType } = $config['services'][serviceName];
+
     result = await translations.getTranslationsForService({
-      serviceType: $config['services'][serviceTypeName].type,
+      serviceType,
       page: Number(req.query.page) || 1,
     });
   } catch (error) {
@@ -25,10 +27,15 @@ router.get('/part-list', async (req, res, next) => {
 // Get translations for function translate
 router.get('/function-translate', async (req, res, next) => {
   let result;
-  let serviceTypeName = req.query.serviceTypeName;
+  let serviceName = req.query.serviceName;
   try {
     let translations = new Translations();
-    result = await translations.getTranslationsForFunctionTranslate({ serviceTypeName });
+    let { settingNameLangs, serviceType } = $config['services'][serviceName];
+
+    result = await translations.getTranslationsForFunctionTranslate({
+      settingNameLangs,
+      serviceType,
+    });
   } catch (error) {
     let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);
@@ -40,13 +47,14 @@ router.get('/function-translate', async (req, res, next) => {
 // Create translations for service
 router.post('/create-for-service', async (req, res, next) => {
   let result;
-  let serviceTypeName = req.body.serviceTypeName;
+  let serviceName = req.body.serviceName;
 
   try {
     let translations = new Translations();
+    let { serviceRootPath, serviceType } = $config['services'][serviceName];
     result = await translations.runCreateTranslations({
-      serviceRootRath: $config['services'][serviceTypeName].rootPath,
-      serviceType: $config['services'][serviceTypeName].type,
+      serviceRootPath,
+      serviceType,
     });
   } catch (error) {
     let errorsMessage = new ErrorsMessage(req);

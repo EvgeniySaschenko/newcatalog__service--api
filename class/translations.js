@@ -169,12 +169,11 @@ class Translations {
   }
 
   // Get translations for "service" to be used by the translation function "$t"
-  async getTranslationsForFunctionTranslate({ serviceTypeName }) {
-    let { settingNameLangs, type } = $config['services'][serviceTypeName];
+  async getTranslationsForFunctionTranslate({ settingNameLangs, serviceType }) {
     let translations = {};
-    let count = await $dbMain['translations'].getTranslationsCountByType({ serviceType: type });
+    let count = await $dbMain['translations'].getTranslationsCountByType({ serviceType });
     let translationsDb = await this.getTranslationsForService({
-      serviceType: type,
+      serviceType,
       maxRecordsPerPage: count,
       page: 1,
     });
@@ -196,8 +195,10 @@ class Translations {
 
   // Set translations for service api (Fired during initialization and when updating translations of any service)
   async setTranslationsListServiceApi() {
+    let { settingNameLangs, serviceType } = $config['services'].api;
     let translations = await this.getTranslationsForFunctionTranslate({
-      serviceTypeName: $config['services-enum'].api,
+      settingNameLangs,
+      serviceType,
     });
     $translations.setTranslationsList({ translations });
     return translations;

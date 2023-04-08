@@ -346,13 +346,12 @@ class Cache {
 
   // Create cache translations + langs site
   async createCacheTranslationsAndLangsSite() {
-    let serviceTypeName = $config['services-enum'].site;
-    let { settingNameLang, settingNameLangs, type } = $config['services'][serviceTypeName];
+    let { settingNameLangDefault, settingNameLangs, serviceType } = $config['services'].site;
     let translations = {};
-    let count = await $dbMain['translations'].getTranslationsCountByType({ serviceType: type });
+    let count = await $dbMain['translations'].getTranslationsCountByType({ serviceType });
 
     let translationsDb = await $dbMain['translations'].getTranslationsByType({
-      serviceType: type,
+      serviceType,
       limit: count,
       offset: 1,
     });
@@ -370,7 +369,7 @@ class Cache {
       }
     }
 
-    let lang = $translations.getLangDefault({ type: settingNameLang });
+    let lang = $translations.getLangDefault({ type: settingNameLangDefault });
 
     let isSuccesTranslations = await $dbTemporary['content'].add({
       prefix: dbTemporaryPrefixes['translations-site'],

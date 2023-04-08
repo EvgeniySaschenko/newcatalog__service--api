@@ -1,38 +1,27 @@
-let settingsEnum = {
-  siteLang: 'site-lang-default',
-  siteLangs: 'site-langs',
-  adminLang: 'admin-lang-default',
-  adminLangs: 'admin-langs',
-};
-
-let servicesEnum = {
-  api: 'service--api',
-  admin: 'service--admin',
-  site: 'service--site',
-};
+let { ADMIN__SERVICE, SITE__SERVICE } = process.env;
 
 let $config = {
-  // services
-  'services-enum': servicesEnum,
   services: {
-    [servicesEnum.api]: {
-      name: servicesEnum.api,
-      type: 1,
-      rootPath: './',
-      settingNameLangs: settingsEnum.adminLangs,
+    api: {
+      serviceName: 'api',
+      serviceType: 1,
+      serviceRootPath: './',
+      settingNameLangs: 'admin-langs',
+      settingNameLangDefault: 'admin-lang-default',
     },
-    [servicesEnum.admin]: {
-      name: servicesEnum.admin,
-      type: 2,
-      rootPath: `symlinks/${servicesEnum.admin}`,
-      settingNameLangs: settingsEnum.adminLangs,
+    admin: {
+      serviceName: 'admin',
+      serviceType: 2,
+      serviceRootPath: `symlinks/${ADMIN__SERVICE}`,
+      settingNameLangs: 'admin-langs',
+      settingNameLangDefault: 'admin-lang-default',
     },
-    [servicesEnum.site]: {
-      name: servicesEnum.site,
-      type: 3,
-      rootPath: `symlinks/${servicesEnum.site}`,
-      settingNameLangs: settingsEnum.siteLangs,
-      settingNameLang: settingsEnum.siteLang,
+    site: {
+      serviceName: 'site',
+      serviceType: 3,
+      serviceRootPath: `symlinks/${SITE__SERVICE}`,
+      settingNameLangs: 'site-langs',
+      settingNameLangDefault: 'site-lang-default',
     },
   },
   // translations
@@ -42,12 +31,11 @@ let $config = {
   },
   // These settings will be replaced with the settings from the database (These are initialization values, for "get"/"set" operations only "plugins/translations" should be used)
   settings: {
-    [settingsEnum.siteLang]: 'en',
-    [settingsEnum.siteLangs]: ['en'],
-    [settingsEnum.adminLang]: 'en',
-    [settingsEnum.adminLangs]: ['en'],
+    'site-lang-default': 'en',
+    'site-langs': ['en'],
+    'admin-lang-default': 'en',
+    'admin-langs': ['en'],
   },
-  'settings-enum': settingsEnum,
   // users
   users: {
     emailLengthMin: 3,
