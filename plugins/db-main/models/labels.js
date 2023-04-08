@@ -3,8 +3,11 @@ let { $db } = require('./_db');
 let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
 let { $translations, $t } = require(global.ROOT_PATH + '/plugins/translations');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 let Scheme = function () {
+  let serviceSite = $config['services'].site;
+
   return {
     labelId: {
       type: DataTypes.INTEGER,
@@ -22,7 +25,9 @@ let Scheme = function () {
           });
         },
       },
-      defaultValue: $translations.getLansObject({ type: $config['settings-enum'].siteLangs }),
+      defaultValue: $translations.getLansObject({
+        type: serviceSite.settingNameLangs,
+      }),
     },
     color: {
       type: DataTypes.STRING(7),
