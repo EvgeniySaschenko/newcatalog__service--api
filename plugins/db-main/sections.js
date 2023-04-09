@@ -4,7 +4,7 @@ let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 
 module.exports = {
   tableName,
-  // Создать раздел
+  // Create section
   async createSection({ name }) {
     for (let key in name) {
       name[key] = striptags(name[key]);
@@ -14,14 +14,14 @@ module.exports = {
     return result.get({ plain: true });
   },
 
-  // Удалить раздел
+  // Delete section
   async deleteSection({ sectionId }) {
     let result = await M_Sections.destroy({ where: { sectionId } });
     if (result) return true;
     throw Error($t('There is no such id'));
   },
 
-  // Изменить раздел
+  // Edit section
   async editSection({ sectionId, name, priority = 0, isHiden }) {
     for (let key in name) {
       name[key] = striptags(name[key]);
@@ -31,7 +31,7 @@ module.exports = {
     return result;
   },
 
-  // Получить все разделы
+  // Get all sections
   async getSections() {
     let result = await M_Sections.findAll({
       attributes: ['sectionId', 'name', 'priority', 'isHiden', 'dateCreate'],
@@ -43,7 +43,7 @@ module.exports = {
     return result;
   },
 
-  // Получить раздел по id
+  // Get section by SectionId
   async getSectionBySectionId({ sectionId }) {
     let result = await M_Sections.findOne({
       where: {
@@ -51,5 +51,17 @@ module.exports = {
       },
     });
     return result;
+  },
+
+  // This function can have any content - it is for tests or some kind of edits in the data meringue
+  async test() {
+    let all = await M_Sections.findAll();
+
+    for await (let item of all) {
+      let ua = item.name['ua'];
+      item.name['uk'] = ua;
+      delete item.name['ua'];
+      await M_Sections.update({ name: item.name }, { where: { sectionId: item.sectionId } });
+    }
   },
 };

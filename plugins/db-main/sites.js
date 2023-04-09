@@ -4,14 +4,14 @@ let striptags = require('striptags');
 
 module.exports = {
   tableName,
-  // Создать запись для новой картинки (если такого домена никогда еще небыло)
+  // Create an entry for a new sat (if such a domain has never existed before)
   async createSite({ host }) {
     let result = await M_Sites.create({ host });
     return result.get({ plain: true });
   },
 
-  // Обновить информацию о логотипе
-  async updateLogoInfo({ color, siteScreenshotId, dateLogoCreate }) {
+  // Edit logo information
+  async editLogoInfo({ color, siteScreenshotId, dateLogoCreate }) {
     let result = await M_Sites.update(
       {
         siteLogoId: siteScreenshotId,
@@ -23,7 +23,7 @@ module.exports = {
     return result[0];
   },
 
-  // Редактировать цвет сайтов
+  // Edit site colors
   async editSitesColor({ siteScreenshotId, color }) {
     let result = await M_Sites.update(
       {
@@ -34,8 +34,8 @@ module.exports = {
     return result[0];
   },
 
-  // Обновить информацию о скриншоте
-  async updateScreenshotInfo({ siteId, siteScreenshotId }) {
+  // Edit screenshot information
+  async editScreenshotInfo({ siteId, siteScreenshotId }) {
     let result = await M_Sites.update(
       {
         siteScreenshotId,
@@ -45,8 +45,8 @@ module.exports = {
     return result[0];
   },
 
-  // Обновить информацию об изображении полностью
-  async updateImageInfo({ siteId, color, siteScreenshotId, siteLogoId, dateLogoCreate }) {
+  // Update image information completely
+  async editImageInfo({ siteId, color, siteScreenshotId, siteLogoId, dateLogoCreate }) {
     let result = await M_Sites.update(
       {
         color: color ? striptags(color).toLocaleLowerCase() : null,
@@ -86,7 +86,7 @@ module.exports = {
     return result[0];
   },
 
-  // Получить запись о картинке по "siteId"
+  // Get image record by "siteId"
   async getSiteBySiteId({ siteId }) {
     return await M_Sites.findOne({
       attributes: ['siteId', 'siteScreenshotId', 'siteLogoId', 'color', 'dateLogoCreate'],
@@ -96,7 +96,7 @@ module.exports = {
     });
   },
 
-  // Получить запись о картинке по "host"
+  // Get image record by "host"
   async getSiteByHost({ host }) {
     return await M_Sites.findOne({
       attributes: ['siteId', 'siteScreenshotId', 'siteLogoId', 'color'],
@@ -106,7 +106,7 @@ module.exports = {
     });
   },
 
-  // Получить сайты где нет Alexa Rank (используется для добавления Alexa Rank / даты регистрации домена)
+  // Get sites that don't have Alexa Rank (used to add Alexa Rank / domain registration date)
   async getSitesAlexaRankEmpty() {
     return await M_Sites.findAll({
       attributes: ['siteId', 'host'],
@@ -119,8 +119,8 @@ module.exports = {
     });
   },
 
-  // Обновить информацию о картинке
-  async updateDomainAndAlexaInfo({ siteId, alexaRank, dateDomainCreate }) {
+  // Edit image information
+  async editDomainAndAlexaInfo({ siteId, alexaRank, dateDomainCreate }) {
     let result = await M_Sites.update(
       {
         alexaRank,
@@ -141,12 +141,6 @@ module.exports = {
     });
   },
 
-  async updateSitesDateDomainCreateEmpty({ dateDomainCreate, siteId }) {
-    await M_Sites.update(
-      {
-        dateDomainCreate,
-      },
-      { where: { siteId } }
-    );
-  },
+  // This function can have any content - it is for tests or some kind of edits in the data meringue
+  async test() {},
 };

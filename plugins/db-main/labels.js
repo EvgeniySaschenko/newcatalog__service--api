@@ -5,7 +5,7 @@ let { Op } = require('sequelize');
 
 module.exports = {
   tableName,
-  // Создать ярлык
+  // Create label
   async createLabel({ ratingId, name, color }) {
     for (let key in name) {
       name[key] = striptags(name[key]);
@@ -18,7 +18,7 @@ module.exports = {
     return result.get({ plain: true });
   },
 
-  // Изменить ярлык
+  // Edit label
   async editLabel({ labelId, name, color }) {
     for (let key in name) {
       name[key] = striptags(name[key]);
@@ -30,7 +30,7 @@ module.exports = {
     return result;
   },
 
-  // Получить ярлыки рейтинга
+  // Get labels rating
   async getLabelsRating({ ratingId }) {
     let result = await M_Labels.findAll({
       attributes: ['labelId', 'name', 'color'],
@@ -42,7 +42,7 @@ module.exports = {
     return result;
   },
 
-  // Получить ярлык по id
+  // Get label by LabelId
   async getLabelByLabelId({ labelId }) {
     let result = await M_Labels.findOne({
       where: {
@@ -52,7 +52,7 @@ module.exports = {
     return result;
   },
 
-  // Получить ярлык по имени
+  // Get rating label by name
   async getLabelRatingByName({ labelId = null, name, ratingId, lang }) {
     let result = await M_Labels.findOne({
       attributes: ['labelId', 'name', 'color'],
@@ -67,8 +67,20 @@ module.exports = {
     return result;
   },
 
-  // Удалить ярлык
+  // Вelete label
   async deleteLabel({ labelId }) {
     return await M_Labels.destroy({ where: { labelId } });
+  },
+
+  // This function can have any content - it is for tests or some kind of edits in the data meringue
+  async test() {
+    let all = await M_Labels.findAll();
+
+    for await (let item of all) {
+      let ua = item.name['ua'];
+      item.name['uk'] = ua;
+      delete item.name['ua'];
+      await M_Labels.update({ name: item.name }, { where: { labelId: item.labelId } });
+    }
   },
 };

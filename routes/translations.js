@@ -68,7 +68,7 @@ router.put('/text/:translationId', async (req, res, next) => {
   let result;
   try {
     let translations = new Translations();
-    result = await translations.updateText(req.body);
+    result = await translations.editText(req.body);
   } catch (error) {
     let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);

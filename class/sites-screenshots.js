@@ -84,7 +84,7 @@ class SitesScreenshots {
       await $dbMain['sites-screenshots'].editScreenshotCreatedSuccess({
         siteScreenshotId,
       });
-      await $dbMain['sites'].updateScreenshotInfo({ siteId, siteScreenshotId });
+      await $dbMain['sites'].editScreenshotInfo({ siteId, siteScreenshotId });
     } catch (error) {
       await $dbMain['sites-screenshots'].editErrorScreenshotCreate({
         siteScreenshotId,
@@ -164,16 +164,16 @@ class SitesScreenshots {
         siteScreenshotId,
       });
       // Update site
-      await $dbMain['sites'].updateScreenshotInfo({ siteId, siteScreenshotId });
+      await $dbMain['sites'].editScreenshotInfo({ siteId, siteScreenshotId });
     } catch (error) {
       // Restore
-      await $dbMain['sites'].updateLogoInfo({
+      await $dbMain['sites'].editLogoInfo({
         siteId,
         color: siteInfoPrev.color,
         siteLogoId: siteInfoPrev.siteLogoId,
         dateLogoCreate: siteInfoPrev.dateLogoCreate,
       });
-      await $dbMain['sites-screenshots'].updateScreenshotInfo({
+      await $dbMain['sites'].editScreenshotInfo({
         siteId,
         siteScreenshotId: siteInfoPrev.siteScreenshotId || null,
       });

@@ -4,7 +4,7 @@ let { Op } = require('sequelize');
 
 module.exports = {
   tableName,
-  // Создать рейтинг
+  // Create rating
   async createRating({
     userId,
     name,
@@ -33,7 +33,7 @@ module.exports = {
     return result.get({ plain: true });
   },
 
-  // Редактировать рейтинг
+  // Edit rating
   async editRating({
     userId,
     ratingId,
@@ -69,7 +69,7 @@ module.exports = {
     return result;
   },
 
-  // Получить рейтинг
+  // Get rating
   async getRating({ ratingId }) {
     let result = await M_Ratings.findOne({
       where: {
@@ -79,7 +79,7 @@ module.exports = {
     return result;
   },
 
-  // Получить количество рейтингов в разделе
+  // Get the number of ratings in a section
   async getRatingCountBySectionId({ sectionId }) {
     let result = await M_Ratings.count({
       where: {
@@ -91,7 +91,7 @@ module.exports = {
     return result;
   },
 
-  // Получить количество опубликованых рейтингов в разделе
+  // Get the number of published ratings in a section
   async getRatingPublishedCountBySectionId({ sectionId }) {
     let result = await M_Ratings.count({
       where: {
@@ -106,7 +106,7 @@ module.exports = {
     return result;
   },
 
-  // Получить все рейтинги
+  // Get all ratings
   async getRatings() {
     // let maxLimit = 200;
     // offset = offset || 0;
@@ -121,12 +121,12 @@ module.exports = {
     return result;
   },
 
-  // Удалить рейтинг
+  // Delete rating
   async deleteRating({ ratingId }) {
     return await M_Ratings.destroy({ where: { ratingId } });
   },
 
-  // Установить дату первой публикации (определяет последовательность вывода на сайте)
+  // Set the date of the first publication (determines the sequence of output on the site)
   async editDateFirstPublication({ ratingId }) {
     return await M_Ratings.update(
       {
@@ -137,7 +137,7 @@ module.exports = {
       }
     );
   },
-  //   Двта создания кеша
+  // Cache creation date
   async editCacheCreation({ ratingId, dateCacheCreation, sectionsIdsCache }) {
     return await M_Ratings.update(
       {
@@ -148,5 +148,17 @@ module.exports = {
         where: { ratingId },
       }
     );
+  },
+
+  // This function can have any content - it is for tests or some kind of edits in the data meringue
+  async test() {
+    let all = await M_Ratings.findAll();
+
+    for await (let item of all) {
+      let ua = item.descr['ua'];
+      item.descr['uk'] = ua;
+      delete item.descr['ua'];
+      await M_Ratings.update({ descr: item.descr }, { where: { ratingId: item.ratingId } });
+    }
   },
 };
