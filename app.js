@@ -1,6 +1,7 @@
 let isInitAppReady = false;
 global.ROOT_PATH = require('app-root-path');
-let { $resourcesPath } = require('./plugins/resources-path');
+global.$config = require('./config');
+let { $utils } = require('./plugins/utils');
 let express = require('express');
 let path = require('path');
 let cookieParser = require('cookie-parser');
@@ -8,7 +9,7 @@ let logger = require('morgan');
 let routesAuth = require('./routes/auth');
 let routes = require('./routes');
 let fileUpload = require('express-fileupload');
-let initApp = require(global.ROOT_PATH + '/init-app');
+let AppManage = require(global.ROOT_PATH + '/class/app-manage');
 let app = express();
 
 app.use(logger('dev'));
@@ -20,15 +21,16 @@ app.use(
   })
 );
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, $resourcesPath.dataFilesPublicPath)));
+app.use(express.static(path.join(__dirname, $utils['paths'].dataFilesPublicPath)));
 
 // Init
 (async function () {
-  await initApp.init();
+  let appManage = new AppManage();
+  await appManage.init();
   isInitAppReady = true;
 })();
 
-// Checking app readiness
+// Checking app readiness (Until the api server is fully ready, where the user will get status 202)
 app.use((req, res, next) => {
   if (isInitAppReady) {
     next();

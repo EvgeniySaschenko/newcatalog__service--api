@@ -1,12 +1,10 @@
 let { Model, DataTypes } = require('sequelize');
 let { $db } = require('./_db');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
 let { $translations, $t } = require(global.ROOT_PATH + '/plugins/translations');
-let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 let Scheme = function () {
-  let serviceSite = $config['services'].site;
+  let serviceSite = global.$config['services'].site;
 
   return {
     labelId: {
@@ -20,8 +18,8 @@ let Scheme = function () {
         checkJSON: (langs) => {
           $translations.validateLansObject({
             langs,
-            lengthMin: $config['label'].nameLengthMin,
-            lengthMax: $config['label'].nameLengthMax,
+            lengthMin: global.$config['label'].nameLengthMin,
+            lengthMax: global.$config['label'].nameLengthMax,
           });
         },
       },

@@ -1,6 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
 let { $db } = require('./_db');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 
 // Пользователи
@@ -18,9 +17,9 @@ let Scheme = function () {
       validate: {
         isEmail: { msg: $t('Value must be e-mail') },
         len: {
-          args: [$config['users'].emailLengthMin, $config['users'].emailLengthMax],
+          args: [global.$config['users'].emailLengthMin, global.$config['users'].emailLengthMax],
           msg: `${$t('The number of characters in a string must be in the range:')} 
-          ${$config['users'].emailLengthMin} - ${$config['users'].emailLengthMax}`,
+          ${global.$config['users'].emailLengthMin} - ${global.$config['users'].emailLengthMax}`,
         },
       },
     },
@@ -41,7 +40,7 @@ let Scheme = function () {
       type: DataTypes.INTEGER,
       validate: {
         max: {
-          args: [$config['users'].loginAttemptMaxCount],
+          args: [global.$config['users'].loginAttemptMaxCount],
           msg: $t('Exceeded number of login attempts. Authorization temporarily blocked'),
         },
       },

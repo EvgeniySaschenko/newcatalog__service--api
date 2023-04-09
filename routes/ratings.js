@@ -3,7 +3,6 @@ let router = express.Router();
 let Ratings = require(global.ROOT_PATH + '/class/ratings');
 let Cache = require(global.ROOT_PATH + '/class/cache');
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
 // Get all user ratings
 router.get('/', async (req, res, next) => {
@@ -42,7 +41,7 @@ router.post('/', async (req, res, next) => {
   try {
     let ratings = new Ratings();
     result = await ratings.createRating({
-      token: req.cookies[$config['users'].cookieToken] || '',
+      token: req.cookies[global.$config['users'].cookieToken] || '',
       ...req.body,
     });
   } catch (error) {
@@ -65,7 +64,7 @@ router.put('/:ratingId', async (req, res, next) => {
 
     let ratings = new Ratings();
     result = await ratings.editRating({
-      token: req.cookies[$config['users'].cookieToken] || '',
+      token: req.cookies[global.$config['users'].cookieToken] || '',
       ...req.body,
     });
   } catch (error) {

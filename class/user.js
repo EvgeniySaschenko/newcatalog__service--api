@@ -1,14 +1,13 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 class User {
   // Create user - Only 1 user is created now
   async createUserDefault() {
     let result;
-    let email = $config['users'].emailDefault;
-    let password = $config['users'].passwordDefault;
+    let email = global.$config['users'].emailDefault;
+    let password = global.$config['users'].passwordDefault;
     password = $utils['users'].encryptPassword(password);
     let user = await $dbMain['users'].getUserByEmail({ email });
     if (!user) {

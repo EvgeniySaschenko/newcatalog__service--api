@@ -1,4 +1,3 @@
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let path = require('path');
 let { v4: uuidv4 } = require('uuid');
 
@@ -7,9 +6,9 @@ const isDev = process.env.NODE_ENV === 'development';
 const dataFilesPath = `${global.ROOT_PATH}/data`;
 const folderEnv = isDev ? 'dev' : 'prod';
 const siteLogoUrlDefault = `${host}/images/site-logo-default.jpg`;
-const { screenshotFileExtension, logoFileExtension } = $config['sites'];
+const { screenshotFileExtension, logoFileExtension } = global.$config['sites'];
 
-let $resourcesPath = {
+module.exports = {
   // Public resources
   dataFilesPublicPath: `data/${folderEnv}`,
   // URL screenshot
@@ -49,8 +48,4 @@ let $resourcesPath = {
   saveTmpFile(fileName) {
     return this.filePathTmp(`${uuidv4()}${path.extname(fileName) || ''}`);
   },
-};
-
-module.exports = {
-  $resourcesPath,
 };

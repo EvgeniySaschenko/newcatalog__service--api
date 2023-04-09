@@ -1,7 +1,6 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
 let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { DB_TEMPORARY__DB_CONTENT_PREFIXES } = process.env;
 let dbTemporaryPrefixes = JSON.parse(DB_TEMPORARY__DB_CONTENT_PREFIXES);
 let { v4: uuidv4 } = require('uuid');
@@ -346,7 +345,7 @@ class Cache {
 
   // Create cache translations + langs site
   async createCacheTranslationsAndLangsSite() {
-    let { settingNameLangDefault, settingNameLangs, serviceType } = $config['services'].site;
+    let { settingNameLangDefault, settingNameLangs, serviceType } = global.$config['services'].site;
     let translations = {};
     let count = await $dbMain['translations'].getTranslationsCountByType({ serviceType });
 

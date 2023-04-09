@@ -1,15 +1,14 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
 let langsMap = require('langs');
 
 class Settings {
   // Init settings default
   async initSettingsDefault() {
-    for await (let [type, value] of Object.entries($config['settings'])) {
+    for await (let [type, value] of Object.entries(global.$config['settings'])) {
       let result = await this.createSetting({ type, value });
-      let serviceAdmin = $config['services'].admin;
-      let serviceSite = $config['services'].site;
+      let serviceAdmin = global.$config['services'].admin;
+      let serviceSite = global.$config['services'].site;
       // Lang default
       if (
         result.type === serviceAdmin.settingNameLangDefault ||
@@ -41,8 +40,8 @@ class Settings {
       throw { server: $t('Server error') };
     }
 
-    let serviceAdmin = $config['services'].admin;
-    let serviceSite = $config['services'].site;
+    let serviceAdmin = global.$config['services'].admin;
+    let serviceSite = global.$config['services'].site;
 
     // check in list langs
     switch (type) {
@@ -96,8 +95,8 @@ class Settings {
 
   // Edit langs list
   async editLangsList({ type, langs }) {
-    let serviceAdmin = $config['services'].admin;
-    let serviceSite = $config['services'].site;
+    let serviceAdmin = global.$config['services'].admin;
+    let serviceSite = global.$config['services'].site;
 
     // not valid lang
     for (let lang of langs) {

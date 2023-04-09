@@ -1,10 +1,9 @@
 let { Model, DataTypes } = require('sequelize');
 let { $db } = require('./_db');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $translations } = require(global.ROOT_PATH + '/plugins/translations');
 
 let Scheme = function () {
-  let serviceSite = $config['services'].site;
+  let serviceSite = global.$config['services'].site;
 
   return {
     sectionId: {
@@ -22,8 +21,8 @@ let Scheme = function () {
         checkJSON: (langs) => {
           $translations.validateLansObject({
             langs,
-            lengthMin: $config['sections'].nameLengthMin,
-            lengthMax: $config['sections'].nameLengthMax,
+            lengthMin: global.$config['sections'].nameLengthMin,
+            lengthMax: global.$config['sections'].nameLengthMax,
           });
         },
       },

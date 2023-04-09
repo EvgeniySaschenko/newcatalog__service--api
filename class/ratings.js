@@ -3,7 +3,7 @@ let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 class Ratings {
-  // Создать рейтинг
+  // Create Rating
   async createRating({
     token,
     name,
@@ -28,7 +28,7 @@ class Ratings {
     });
   }
 
-  // Редактировать рейтинг
+  // Edit Rating
   async editRating({
     token,
     ratingId,
@@ -56,7 +56,7 @@ class Ratings {
     });
   }
 
-  // Получить рейтинг
+  // Get Rating
   async getRating({ ratingId }) {
     let rating = await $dbMain['ratings'].getRating({ ratingId });
     let countRatingItemsVisible = await $dbMain['ratings-items'].getCountItemsRatingByIsHiden({
@@ -72,12 +72,12 @@ class Ratings {
     return rating;
   }
 
-  // Получить рейтинги
+  // Get Ratings
   async getRatings() {
     return await $dbMain['ratings'].getRatings();
   }
 
-  // Удалить рейтинг
+  // Delete Rating
   async deleteRating({ ratingId }) {
     let ratingItems = await $dbMain['ratings-items'].getItemsRating({ ratingId });
     let ratingLabels = await $dbMain['labels'].getLabelsRating({ ratingId });

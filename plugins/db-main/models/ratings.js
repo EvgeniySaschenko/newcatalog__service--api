@@ -1,11 +1,10 @@
 let { Model, DataTypes } = require('sequelize');
 let { $db } = require('./_db');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { $translations, $t } = require(global.ROOT_PATH + '/plugins/translations');
 
 let Scheme = function () {
-  let serviceSite = $config['services'].site;
+  let serviceSite = global.$config['services'].site;
 
   return {
     ratingId: {
@@ -25,8 +24,8 @@ let Scheme = function () {
         checkJSON: (langs) => {
           $translations.validateLansObject({
             langs,
-            lengthMin: $config['ratings'].nameLengthMin,
-            lengthMax: $config['ratings'].nameLengthMax,
+            lengthMin: global.$config['ratings'].nameLengthMin,
+            lengthMax: global.$config['ratings'].nameLengthMax,
           });
         },
       },
@@ -39,8 +38,8 @@ let Scheme = function () {
         checkJSON: (langs) => {
           $translations.validateLansObject({
             langs,
-            lengthMin: $config['ratings'].descrLengthMin,
-            lengthMax: $config['ratings'].descrLengthMax,
+            lengthMin: global.$config['ratings'].descrLengthMin,
+            lengthMax: global.$config['ratings'].descrLengthMax,
           });
         },
       },
@@ -57,7 +56,7 @@ let Scheme = function () {
       allowNull: false,
       validate: {
         isType: (type) => {
-          if (!Object.values($config['ratings'].typeRating).includes(+type)) {
+          if (!Object.values(global.$config['ratings'].typeRating).includes(+type)) {
             throw new Error($t('Wrong data format'));
           }
         },
@@ -69,7 +68,7 @@ let Scheme = function () {
       allowNull: false,
       validate: {
         isType: (type) => {
-          if (!Object.values($config['ratings'].typeSort).includes(+type)) {
+          if (!Object.values(global.$config['ratings'].typeSort).includes(+type)) {
             throw new Error($t('Wrong data format'));
           }
         },
@@ -81,7 +80,7 @@ let Scheme = function () {
       allowNull: false,
       validate: {
         isType: (type) => {
-          if (!Object.values($config['ratings'].typeDisplay).includes(+type)) {
+          if (!Object.values(global.$config['ratings'].typeDisplay).includes(+type)) {
             throw new Error($t('Wrong data format'));
           }
         },
@@ -92,7 +91,7 @@ let Scheme = function () {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (sectionsIds) => {
-          let { sectionsIdsMin, sectionsIdsMax } = $config['ratings'];
+          let { sectionsIdsMin, sectionsIdsMax } = global.$config['ratings'];
           $utils['common'].validateDependencyIds({
             ids: sectionsIds,
             numberMin: sectionsIdsMin,
