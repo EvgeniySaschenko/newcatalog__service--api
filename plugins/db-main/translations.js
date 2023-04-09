@@ -42,7 +42,7 @@ module.exports = {
   },
 
   // Update translation by id
-  async updateTextById({ translationId, text }) {
+  async editTextById({ translationId, text }) {
     let result = await M_Translations.update(
       {
         text,
@@ -55,5 +55,20 @@ module.exports = {
   // Delete translation by key and serviceType
   async deleteTranslationByKeyAndType({ key, serviceType }) {
     return await M_Translations.destroy({ where: { key, serviceType } });
+  },
+
+  // This function can have any content - it is for tests or some kind of edits in the data meringue
+  async test() {
+    let all = await M_Translations.findAll();
+
+    for await (let item of all) {
+      let ua = item.text['ua'];
+      item.text['uk'] = ua;
+      delete item.text['ua'];
+      await M_Translations.update(
+        { text: item.text },
+        { where: { translationId: item.translationId } }
+      );
+    }
   },
 };

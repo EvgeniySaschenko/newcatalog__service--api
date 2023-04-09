@@ -101,4 +101,7 @@ module.exports = {
     );
     return result[0];
   },
+
+  // This function can have any content - it is for tests or some kind of edits in the data meringue
+  async test() {},
 };

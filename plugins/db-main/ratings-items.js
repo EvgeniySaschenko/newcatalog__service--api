@@ -6,7 +6,7 @@ let { Op } = require('sequelize');
 
 module.exports = {
   tableName,
-  // Создать елемент рейтинга
+  // Create item
   async createItem({ ratingId, url, siteId, name, host, labelsIds, priority, isHidden }) {
     let result = await M_RatingsItems.create({
       ratingId,
@@ -21,7 +21,7 @@ module.exports = {
     return result.get({ plain: true });
   },
 
-  // Редактировать елемент рейтинга
+  // Edit item
   async editItem({ ratingItemId, name, labelsIds, priority, isHiden }) {
     let result = await M_RatingsItems.update(
       {
@@ -35,13 +35,13 @@ module.exports = {
     return result;
   },
 
-  // Удалить елемент
+  // Delete item
   async deleteItem({ ratingItemId }) {
     let result = await M_RatingsItems.destroy({ where: { ratingItemId } });
     return result;
   },
 
-  // Получить сайт по url и ratingId (для проверки на уникальность)
+  // Get site by url and ratingId (to check for uniqueness)
   async getItemRatingByUrl({ ratingId, url }) {
     let result = await M_RatingsItems.findOne({
       attributes: ['ratingItemId'],
@@ -53,7 +53,7 @@ module.exports = {
     return result;
   },
 
-  // Получить все елементы рейтинга по labelId - (нужны для проверки label при удалении)
+  // Get all rating items by labelId - (Needed to check label when removed)
   async getItemsRatingByLabelId({ labelId }) {
     let result = await M_RatingsItems.findAll({
       attributes: ['ratingItemId', 'labelsIds'],
@@ -64,7 +64,7 @@ module.exports = {
     return result;
   },
 
-  // Получить елемент по id
+  // Get item by ratingItemId
   async getItemByRatingItemId({ ratingItemId }) {
     let result = await M_RatingsItems.findOne({
       where: {
@@ -74,7 +74,7 @@ module.exports = {
     return result;
   },
 
-  // Обновляем ярлыки для элементов рейтнга (используется при удалении ярлыка)
+  // Update labels for rating elements (used when deleting a label)
   async editItemsRatingLabel({ ratingItemId, labelsIds }) {
     await M_RatingsItems.update(
       { labelsIds },
@@ -86,7 +86,7 @@ module.exports = {
     );
   },
 
-  // Получить все елементы рейтинга
+  // Get all rating items
   async getItemsRating({ ratingId, typeSort = global.$config['ratings'].typeSort['alexa'] }) {
     let [sortKey, sortValue] = Object.entries(global.$config['ratings'].typeSort).find(
       (item) => item[1] === +typeSort
@@ -260,5 +260,20 @@ module.exports = {
       }
       return total;
     }, []);
+  },
+
+  // This function can have any content - it is for tests or some kind of edits in the data meringue
+  async test() {
+    let all = await M_RatingsItems.findAll();
+
+    for await (let item of all) {
+      let ua = item.name['ua'];
+      item.name['uk'] = ua;
+      delete item.name['ua'];
+      await M_RatingsItems.update(
+        { name: item.name },
+        { where: { ratingItemId: item.ratingItemId } }
+      );
+    }
   },
 };

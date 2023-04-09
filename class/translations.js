@@ -204,8 +204,8 @@ class Translations {
   }
 
   // Update text for translation
-  async updateText({ translationId, text }) {
-    await $dbMain['translations'].updateTextById({ translationId, text });
+  async editText({ translationId, text }) {
+    await $dbMain['translations'].editTextById({ translationId, text });
     await this.setTranslationsListServiceApi();
     return true;
   }

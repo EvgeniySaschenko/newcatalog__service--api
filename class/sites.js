@@ -31,7 +31,7 @@ class Sites {
     if (!screenshot || !screenshot.dateScreenshotCreated) throw Error($t('Server error'));
 
     await this.createLogo({ siteScreenshotId, logoScreenshotParams });
-    await $dbMain['sites'].updateLogoInfo({ color, siteScreenshotId, dateLogoCreate: new Date() });
+    await $dbMain['sites'].editLogoInfo({ color, siteScreenshotId, dateLogoCreate: new Date() });
     return true;
   }
 
@@ -173,7 +173,7 @@ class Sites {
 
     let { color, siteScreenshotId, siteLogoId, dateLogoCreate } = result;
 
-    await $dbMain['sites'].updateImageInfo({
+    await $dbMain['sites'].editImageInfo({
       siteId: subdomainSiteId,
       color,
       siteScreenshotId,
@@ -185,29 +185,6 @@ class Sites {
 
   // Запустить процесс который будет обновлять alexaRank и dateDomainCreate для сайтов у которых alexaRank = 0
   async initProccessSitesInfoUpdate() {
-    // let items = await $dbMain['sites'].getSitesDateDomainCreateEmpty();
-    // for await (let { siteId, host } of items) {
-    //   await $dbMain['sites'].updateSitesDateDomainCreateEmpty({ siteId });
-    // }
-    // let items = await $dbMain['sites'].getSitesDateDomainCreateEmpty();
-    // console.log(items);
-    // for await (let { siteId, host } of items) {
-    //   let fileApi = fse.existsSync(global.ROOT_PATH + `/data/whois-api/${siteId}.json`);
-    //   let fileConsole = fse.existsSync(global.ROOT_PATH + `/data/whois-console/${siteId}.json`);
-    //   if (fileConsole) {
-    //     // let who = JSON.parse(
-    //     //   fse.readFileSync(global.ROOT_PATH + `/data/whois-api/${siteId}.json`, 'utf8')
-    //     // );
-    //     let who = JSON.parse(
-    //       fse.readFileSync(global.ROOT_PATH + `/data/whois-console/${siteId}.json`, 'utf8')
-    //     );
-    //     let dateDomainCreate = this.getDomainDateCreate({ whoisConsole: who, whoisApi: {} });
-    //     console.log({ siteId, dateDomainCreate, host });
-    //     if (dateDomainCreate) {
-    //       await $dbMain['sites'].updateSitesDateDomainCreateEmpty({ dateDomainCreate, siteId });
-    //     }
-    //   }
-    // }
     setInterval(async () => {
       // Get sites
       if (!this.sitesAlexaRankEmpty.length) {
@@ -221,7 +198,7 @@ class Sites {
         let dateDomainCreate = this.getDomainDateCreate({ whoisConsole, whoisApi });
         await this.createWhoisFile({ whois: whoisConsole, siteId, type: 'console' });
         await this.createWhoisFile({ whois: whoisApi, siteId, type: 'api' });
-        await $dbMain['sites'].updateDomainAndAlexaInfo({
+        await $dbMain['sites'].editDomainAndAlexaInfo({
           siteId,
           alexaRank,
           dateDomainCreate,
