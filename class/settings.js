@@ -17,7 +17,10 @@ class Settings {
         $translations.setLangDefault({ type: result.type, lang: result.value });
       }
       // Langs
-      if (result.type === serviceAdmin.siteLangs || result.type === serviceSite.adminLangs) {
+      if (
+        result.type === serviceAdmin.settingNameLangs ||
+        result.type === serviceSite.settingNameLangs
+      ) {
         $translations.setLans({ type: result.type, langs: result.value });
       }
     }

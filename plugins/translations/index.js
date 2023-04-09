@@ -13,6 +13,7 @@ let langsDefaultTypes = {
   [serviceAdmin.settingNameLangDefault]:
     global.$config['settings'][serviceAdmin.settingNameLangDefault],
 };
+
 /*
    This function does not translate text, it is only used for parsing.
    This is done because if you do a translation based on cookies, you will need to pass the language as an additional parameter, and this is problematic
