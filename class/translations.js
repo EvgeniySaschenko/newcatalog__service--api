@@ -45,14 +45,14 @@ class Translations {
 
   // Create translitiosn for service + delete no used
   async runCreateTranslations({
-    serviceRootRath = './',
+    serviceRootPath = './',
     pathsExclude = {},
     filesExtensionAllowed = {},
     serviceType,
   }) {
     Object.assign(this.pathsExclude, pathsExclude);
     Object.assign(this.filesExtensionAllowed, filesExtensionAllowed);
-    await this.prepareFilesPathsList({ serviceRootRath });
+    await this.prepareFilesPathsList({ serviceRootPath });
     await this.prepareTranslationsList();
     await this.createTranslationsKeys({ serviceType });
     await this.deleteNoUsedTranslationsKeys({ serviceType });
@@ -61,12 +61,12 @@ class Translations {
   }
 
   // Prepare files paths list
-  async prepareFilesPathsList({ serviceRootRath }) {
-    let pathsList = await fse.readdir(serviceRootRath);
+  async prepareFilesPathsList({ serviceRootPath }) {
+    let pathsList = await fse.readdir(serviceRootPath);
 
     for await (let item of pathsList) {
       if (this.pathsExclude[item]) continue;
-      let pathCurrent = `${serviceRootRath}/${item}`;
+      let pathCurrent = `${serviceRootPath}/${item}`;
 
       let isDirectory = fse.statSync(pathCurrent).isDirectory();
 
@@ -76,7 +76,7 @@ class Translations {
           pathsList.push(`${item}/${itemInside}`);
         }
       } else {
-        let pathFile = `${serviceRootRath}/${item}`;
+        let pathFile = `${serviceRootPath}/${item}`;
         let extname = path.extname(pathFile).replace('.', '');
         if (!this.filesExtensionAllowed[extname]) continue;
         this.filesPathsList.push(pathFile);
