@@ -3,7 +3,7 @@ let striptags = require('striptags');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 
 class Labels {
-  // Создать ярлык
+  // Create label
   async createLabel({ ratingId, name, color }) {
     for (let key in name) {
       name[key] = striptags(name[key]);
@@ -13,7 +13,7 @@ class Labels {
     return result;
   }
 
-  // Изменить ярлык
+  // Edit label
   async editLabel({ labelId, name, color, ratingId }) {
     for (let key in name) {
       name[key] = striptags(name[key]);
@@ -23,7 +23,7 @@ class Labels {
     return result;
   }
 
-  // Удалить ярлык + удаляется у элементов
+  // Remove label + removed from items
   async deleteLabel({ labelId }) {
     let ratingItems = await $dbMain['ratings-items'].getItemsRatingByLabelId({
       labelId,
@@ -40,7 +40,7 @@ class Labels {
     throw Error($t('There is no such id'));
   }
 
-  // Проверяем наличие ярлыка в рейтинге с таким же названием
+  // Checking for a label in the rating with the same name
   async checkLabelExist({ labelId, name, ratingId }) {
     let isExist;
     for await (let lang of Object.keys(name)) {
@@ -59,7 +59,7 @@ class Labels {
       };
   }
 
-  // Обновляем ярлыки для элементов рейтнга (удаляем ярлык)
+  // Update labels for rating items (delete label)
   async editRatingItemsLabel({ ratingItems, labelId }) {
     for await (let item of ratingItems) {
       delete item.labelsIds[labelId];
@@ -70,7 +70,7 @@ class Labels {
     }
   }
 
-  // Получить все ярлыки ярлыки
+  // Get all labels labels
   async getLabelsRating({ ratingId }) {
     let result = await $dbMain['labels'].getLabelsRating({ ratingId });
     return result;

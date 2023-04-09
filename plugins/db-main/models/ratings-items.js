@@ -3,11 +3,10 @@ let { $db } = require('./_db');
 let { M_Sites } = require('./sites');
 let { M_SitesScreenshots } = require('./sites-screenshots');
 let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 let Scheme = function () {
-  let serviceSite = $config['services'].site;
+  let serviceSite = global.$config['services'].site;
 
   return {
     ratingItemId: {
@@ -48,8 +47,8 @@ let Scheme = function () {
         checkJSON: (langs) => {
           $translations.validateLansObject({
             langs,
-            lengthMin: $config['ratings-items'].nameLengthMin,
-            lengthMax: $config['ratings-items'].nameLengthMax,
+            lengthMin: global.$config['ratings-items'].nameLengthMin,
+            lengthMax: global.$config['ratings-items'].nameLengthMax,
           });
         },
       },
@@ -60,7 +59,7 @@ let Scheme = function () {
       validate: {
         // example { 1: 1 }
         checkJSON: (labelsIds) => {
-          let { labelsIdsMin, labelsIdsMax } = $config['ratings-items'];
+          let { labelsIdsMin, labelsIdsMax } = global.$config['ratings-items'];
           $utils['common'].validateDependencyIds({
             ids: labelsIds,
             numberMin: labelsIdsMin,

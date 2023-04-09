@@ -1,6 +1,5 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { v4: uuidv4 } = require('uuid');
 
@@ -253,7 +252,7 @@ class UserLogin {
     let dateEntryMs = new Date(dateEntry).getTime();
     let dateCurrent = new Date().getTime();
 
-    if (dateCurrent - dateEntryMs < $config['users'].sessionMaxAge * 1000) {
+    if (dateCurrent - dateEntryMs < global.$config['users'].sessionMaxAge * 1000) {
       return true;
     }
     return false;
@@ -291,7 +290,7 @@ class UserLogin {
 
   // Update count login attempt
   async editUserLoginAttempt({ userId, countLoginAttempt, dateLoginAttempt }) {
-    const loginAttempTimaut = $config['users'].loginAttempTimaut * 1000;
+    const loginAttempTimaut = global.$config['users'].loginAttempTimaut * 1000;
     let dateCurrent = new Date().getTime();
     let dateLoginAttemptMs = dateLoginAttempt ? new Date(dateLoginAttempt).getTime() : 0;
 
@@ -321,9 +320,9 @@ class UserLogin {
   async setAuthCookies({ sessionId, userId, response }) {
     let token = await $utils['users'].createToken({
       data: { sessionId, userId },
-      expiresIn: $config['users'].sessionMaxAge,
+      expiresIn: global.$config['users'].sessionMaxAge,
     });
-    response.cookie($config['users'].cookieToken, token, {
+    response.cookie(global.$config['users'].cookieToken, token, {
       maxAge: 3600 * 48 * 1000,
       httpOnly: true,
       secure: true,
@@ -332,7 +331,7 @@ class UserLogin {
 
   // Clear cookies
   clearAuthCookies({ response }) {
-    response.cookie($config['users'].cookieToken, '', {
+    response.cookie(global.$config['users'].cookieToken, '', {
       maxAge: 0,
     });
   }

@@ -1,16 +1,17 @@
 let langsMap = require('langs');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
-let serviceSite = $config['services'].site;
-let serviceAdmin = $config['services'].admin;
+let serviceSite = global.$config['services'].site;
+let serviceAdmin = global.$config['services'].admin;
 
 let langsTypes = {
-  [serviceSite.settingNameLangs]: $config['settings'][serviceSite.settingNameLangs],
-  [serviceAdmin.settingNameLangs]: $config['settings'][serviceAdmin.settingNameLangs],
+  [serviceSite.settingNameLangs]: global.$config['settings'][serviceSite.settingNameLangs],
+  [serviceAdmin.settingNameLangs]: global.$config['settings'][serviceAdmin.settingNameLangs],
 };
 
 let langsDefaultTypes = {
-  [serviceSite.settingNameLangDefault]: $config['settings'][serviceSite.settingNameLangDefault],
-  [serviceAdmin.settingNameLangDefault]: $config['settings'][serviceAdmin.settingNameLangDefault],
+  [serviceSite.settingNameLangDefault]:
+    global.$config['settings'][serviceSite.settingNameLangDefault],
+  [serviceAdmin.settingNameLangDefault]:
+    global.$config['settings'][serviceAdmin.settingNameLangDefault],
 };
 /*
    This function does not translate text, it is only used for parsing.

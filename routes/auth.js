@@ -2,7 +2,6 @@ let express = require('express');
 let router = express.Router();
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
 let UserLogin = require(global.ROOT_PATH + '/class/user-login');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
 // Check auth user
 router.use(async (req, res, next) => {
@@ -11,7 +10,7 @@ router.use(async (req, res, next) => {
     let userLogin = new UserLogin();
 
     await userLogin.checkAuth({
-      token: req.cookies[$config['users'].cookieToken] || '',
+      token: req.cookies[global.$config['users'].cookieToken] || '',
       userAgent: req.headers['user-agent'] || '',
       ip: req.headers['x-forwarded-for'] || '',
     });

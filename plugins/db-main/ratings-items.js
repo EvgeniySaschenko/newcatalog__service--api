@@ -1,8 +1,6 @@
 let { M_RatingsItems, name: tableName } = require('./models/ratings-items');
 let { M_Sites } = require('./models/sites');
 let { M_SitesScreenshots } = require('./models/sites-screenshots');
-let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { Op } = require('sequelize');
 
@@ -89,8 +87,8 @@ module.exports = {
   },
 
   // Получить все елементы рейтинга
-  async getItemsRating({ ratingId, typeSort = $config['ratings'].typeSort['alexa'] }) {
-    let [sortKey, sortValue] = Object.entries($config['ratings'].typeSort).find(
+  async getItemsRating({ ratingId, typeSort = global.$config['ratings'].typeSort['alexa'] }) {
+    let [sortKey, sortValue] = Object.entries(global.$config['ratings'].typeSort).find(
       (item) => item[1] === +typeSort
     );
 
@@ -158,11 +156,11 @@ module.exports = {
       let { siteScreenshotId, siteLogoId, dateLogoCreate } = site;
       let { domain, hostname, isSubdomain } = $utils['common'].urlInfo(el.url);
       let resetCache = dateLogoCreate ? new Date(dateLogoCreate).getTime() : '';
-      el.logoImg = $resourcesPath.fileUrlSiteLogo({
+      el.logoImg = $utils['paths'].fileUrlSiteLogo({
         siteLogoId,
         resetCache,
       });
-      el.screenshotImg = $resourcesPath.fileUrlScreenshot({ siteScreenshotId });
+      el.screenshotImg = $utils['paths'].fileUrlScreenshot({ siteScreenshotId });
       el.isSubdomain = isSubdomain;
       el.domain = domain;
       el.hostname = hostname;
@@ -219,7 +217,7 @@ module.exports = {
         total.push({
           siteScreenshotId,
           host,
-          screenshotImg: $resourcesPath.fileUrlScreenshot({ siteScreenshotId }),
+          screenshotImg: $utils['paths'].fileUrlScreenshot({ siteScreenshotId }),
         });
       }
       return total;

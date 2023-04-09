@@ -5,7 +5,7 @@ let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 class RatingsItems {
-  // Создать елемент рейтинга
+  // Create rating item
   async createItem({ ratingId, url, name, labelsIds, priority, isHidden }) {
     url = striptags(url);
 
@@ -14,7 +14,7 @@ class RatingsItems {
     let { isSubdomain, hostname, domain } = $utils['common'].urlInfo(url);
 
     let { siteId } = await this.checkSiteExist({ hostname, url, isSubdomain, domain });
-    let page = await this.getPage(url); // получить заголовок страницы
+    let page = await this.getPage(url); // get page title
 
     for (let key in name) {
       name[key] = striptags(name[key] || page.name);
@@ -34,7 +34,7 @@ class RatingsItems {
     return result;
   }
 
-  // Ппроверяем существует ли такой url в рейтинге
+  // Check if such url exists in the ranking
   async checkRatingUrlExist({ ratingId, url }) {
     let itemRatingByUrl = await $dbMain['ratings-items'].getItemRatingByUrl({
       ratingId,
@@ -50,13 +50,13 @@ class RatingsItems {
   }
 
   /*
-    Добавляет сайт если его нет в таблице сайтов + ставит в очередб на создание скриншота
-    Субдомены в очередь не довляются
+    Adds a site if it is not in the site table + puts it in the queue for taking a screenshot
+    Subdomains are not queued
   */
   async checkSiteExist({ hostname, url, isSubdomain, domain }) {
     let { siteId, isCreateSite } = await this.createSite({ hostname });
 
-    // Для доменов
+    // For domains
     if (!isSubdomain && isCreateSite) {
       await $dbMain['sites-screenshots'].addSiteToProcessing({
         url,
@@ -64,11 +64,11 @@ class RatingsItems {
       });
     }
 
-    // Если это "субдомен" создаём запись для "домена" - если записи не существует
+    // If it is a "subdomain" create an entry for the "domain" - if the entry does not exist
     if (isSubdomain) {
       let { siteId, isCreateSite } = await this.createSite({ hostname: domain });
 
-      // Проверяем доступность добмена по https или http - если удалось получить страницу делаем скриншот
+      // We check the availability of the domain via https or http - if we managed to get the page, we take a screenshot
       if (isCreateSite) {
         let url = `https://${domain}`;
         let result = await this.getPage(url);
@@ -90,7 +90,7 @@ class RatingsItems {
     return { siteId };
   }
 
-  // Создать сайт в таблице сайтов если его нет, или вернуть существующий
+  // Create a site in the site table if there is none, or return an existing one
   async createSite({ hostname }) {
     let isCreateSite = false;
     let site = await $dbMain['sites'].getSiteByHost({ host: hostname });
@@ -102,7 +102,7 @@ class RatingsItems {
     return { siteId: site.siteId, isCreateSite };
   }
 
-  // Редактировать елемент рейтинга
+  // Edit Rating Item
   async editItem({ ratingItemId, name, url, labelsIds, priority, isHiden }) {
     let page;
     let isTextName = false;
@@ -129,7 +129,7 @@ class RatingsItems {
     return result;
   }
 
-  // Получить страницу
+  // Get Page
   async getPage(url) {
     try {
       let result = await axios.get(url);
@@ -143,7 +143,7 @@ class RatingsItems {
     }
   }
 
-  // Парсинг HTML
+  // Parse Page HTML (search title)
   parsePageHTML(html) {
     let titleResult = /<title[^>]*>(.*?)<\/title>/gi.exec(html.replace(/\r?\n/g, ''));
     return {
@@ -152,12 +152,12 @@ class RatingsItems {
     };
   }
 
-  // Получить все елементы рейтинга
+  // Get all rating items
   async getItemsRating({ ratingId, typeSort }) {
     return await $dbMain['ratings-items'].getItemsRating({ ratingId, typeSort });
   }
 
-  // Удалить елемент
+  // Delete item
   async deleteItem({ ratingItemId }) {
     let tableRecord = await $dbMain['ratings-items'].getItemByRatingItemId({ ratingItemId });
     await $dbMain['records-deleted'].createRecords({

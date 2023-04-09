@@ -2,7 +2,6 @@ let express = require('express');
 let router = express.Router();
 let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
 let Translations = require(global.ROOT_PATH + '/class/translations');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
 // Get part translations for service
 router.get('/part-list', async (req, res, next) => {
@@ -10,7 +9,7 @@ router.get('/part-list', async (req, res, next) => {
   let serviceName = req.query.serviceName;
   try {
     let translations = new Translations();
-    let { serviceType } = $config['services'][serviceName];
+    let { serviceType } = global.$config['services'][serviceName];
 
     result = await translations.getTranslationsForService({
       serviceType,
@@ -30,7 +29,7 @@ router.get('/function-translate', async (req, res, next) => {
   let serviceName = req.query.serviceName;
   try {
     let translations = new Translations();
-    let { settingNameLangs, serviceType } = $config['services'][serviceName];
+    let { settingNameLangs, serviceType } = global.$config['services'][serviceName];
 
     result = await translations.getTranslationsForFunctionTranslate({
       settingNameLangs,
@@ -51,7 +50,7 @@ router.post('/create-for-service', async (req, res, next) => {
 
   try {
     let translations = new Translations();
-    let { serviceRootPath, serviceType } = $config['services'][serviceName];
+    let { serviceRootPath, serviceType } = global.$config['services'][serviceName];
     result = await translations.runCreateTranslations({
       serviceRootPath,
       serviceType,

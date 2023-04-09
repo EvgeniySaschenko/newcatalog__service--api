@@ -1,10 +1,9 @@
 let { Model, DataTypes } = require('sequelize');
 let { $db } = require('./_db');
 let { $translations } = require(global.ROOT_PATH + '/plugins/translations');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
 let Scheme = function () {
-  let serviceSite = $config['services'].site;
+  let serviceSite = global.$config['services'].site;
 
   return {
     translationId: {

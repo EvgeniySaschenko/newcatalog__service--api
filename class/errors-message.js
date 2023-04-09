@@ -1,10 +1,9 @@
 let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 
 class ErrorsMessage {
   constructor(request) {
     try {
-      this.lang = request.cookies[$config['translations'].cookieLang] || '';
+      this.lang = request.cookies[global.$config['translations'].cookieLang] || '';
     } catch (error) {
       console.error(request);
     }

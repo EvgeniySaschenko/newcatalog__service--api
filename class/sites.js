@@ -8,8 +8,6 @@ let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
-let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 class Sites {
   sitesAlexaRankEmpty = [];
   isSitesAlexaRankProcessing = false;
@@ -52,11 +50,11 @@ class Sites {
   // Create file logo
   async createLogo({ siteScreenshotId, logoScreenshotParams }) {
     let { cutHeight, cutWidth, imgHeight, imgWidth, left, top } = logoScreenshotParams;
-    const maxHeight = $config['sites'].logoMaxHeight;
-    const maxWidth = $config['sites'].logoMaxWidth;
+    const maxHeight = global.$config['sites'].logoMaxHeight;
+    const maxWidth = global.$config['sites'].logoMaxWidth;
 
     // Make screenshot the same size as frontend (ZOOM)
-    let file = await sharp($resourcesPath.filePathScreenshot({ siteScreenshotId }))
+    let file = await sharp($utils['paths'].filePathScreenshot({ siteScreenshotId }))
       .resize({
         width: imgWidth,
         height: imgHeight,
@@ -81,7 +79,7 @@ class Sites {
         height: Math.floor(logo.height),
       })
       .jpeg({ mozjpeg: true })
-      .toFile($resourcesPath.filePathSiteLogo({ siteLogoId: siteScreenshotId }));
+      .toFile($utils['paths'].filePathSiteLogo({ siteLogoId: siteScreenshotId }));
   }
 
   // Get site whois info
@@ -119,7 +117,7 @@ class Sites {
   async createWhoisFile({ whois, siteId, type }) {
     try {
       if (Object.keys(whois).length) {
-        await fse.writeJson($resourcesPath.filePathWhoisSiteInfo({ type, siteId }), whois);
+        await fse.writeJson($utils['paths'].filePathWhoisSiteInfo({ type, siteId }), whois);
       }
     } catch (error) {
       console.error(error);
@@ -155,8 +153,8 @@ class Sites {
       };
     }
 
-    let logoImg = siteLogoId ? $resourcesPath.fileUrlSiteLogo({ siteLogoId }) : null;
-    let screenshotImg = $resourcesPath.fileUrlScreenshot({ siteScreenshotId });
+    let logoImg = siteLogoId ? $utils['paths'].fileUrlSiteLogo({ siteLogoId }) : null;
+    let screenshotImg = $utils['paths'].fileUrlScreenshot({ siteScreenshotId });
 
     // If exist logo or screenshot
     return {
@@ -231,14 +229,14 @@ class Sites {
         this.sitesAlexaRankEmpty.pop();
         this.isSitesAlexaRankProcessing = false;
       }
-    }, $config['sites'].timeIntervalProcessSitesInfoUpdate);
+    }, global.$config['sites'].timeIntervalProcessSitesInfoUpdate);
   }
 
   // Get Alexa Rank
   async getAlexaRank(host) {
     let { domain } = $utils['common'].urlInfo(host);
     let alexaRank = await $dbTemporary['alexa'].getAlexaRank(domain);
-    return alexaRank || $config['sites'].defaultAlexaRank;
+    return alexaRank || global.$config['sites'].defaultAlexaRank;
   }
 
   // Get domain date create (return "date" or "null")

@@ -1,7 +1,5 @@
 let puppeteer = require('puppeteer');
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
-let { $resourcesPath } = require(global.ROOT_PATH + '/plugins/resources-path');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let sharp = require('sharp');
@@ -23,7 +21,7 @@ class SitesScreenshots {
           await this.createScreenshot({ url, siteScreenshotId, siteId });
         }
       }
-    }, $config['puppeteer'].timeIntervalScreenshotCreate);
+    }, global.$config['puppeteer'].timeIntervalScreenshotCreate);
   }
 
   stop() {
@@ -67,21 +65,21 @@ class SitesScreenshots {
 
     try {
       this.isProcessing = true;
-      browser = await puppeteer.launch($config['puppeteer'].launch);
+      browser = await puppeteer.launch(global.$config['puppeteer'].launch);
       page = await browser.newPage();
-      await page.setExtraHTTPHeaders($config['puppeteer'].extraHTTPHeaders);
+      await page.setExtraHTTPHeaders(global.$config['puppeteer'].extraHTTPHeaders);
 
-      await page.setDefaultNavigationTimeout($config['puppeteer'].defaultNavigationTimeout);
+      await page.setDefaultNavigationTimeout(global.$config['puppeteer'].defaultNavigationTimeout);
 
       await page.setViewport({
-        width: $config['puppeteer'].viewportWidth,
-        height: $config['puppeteer'].viewportHeight,
+        width: global.$config['puppeteer'].viewportWidth,
+        height: global.$config['puppeteer'].viewportHeight,
       });
-      await page.setUserAgent($config['puppeteer'].userAgent);
+      await page.setUserAgent(global.$config['puppeteer'].userAgent);
       await page.goto(url);
       await page.screenshot({
-        path: $resourcesPath.filePathScreenshot({ siteScreenshotId }),
-        type: $config['sites'].screenshotFileExtension,
+        path: $utils['paths'].filePathScreenshot({ siteScreenshotId }),
+        type: global.$config['sites'].screenshotFileExtension,
       });
       await $dbMain['sites-screenshots'].editScreenshotCreatedSuccess({
         siteScreenshotId,
@@ -111,8 +109,8 @@ class SitesScreenshots {
 
   // Upload screenshot
   async uploadCustomScreenshot({ fileImg }) {
-    let isMimeType = $config['sites'].screenshotMimeTypes.includes(fileImg.mimetype);
-    let tmpFileName = $resourcesPath.saveTmpFile(fileImg.name);
+    let isMimeType = global.$config['sites'].screenshotMimeTypes.includes(fileImg.mimetype);
+    let tmpFileName = $utils['paths'].saveTmpFile(fileImg.name);
     if (!isMimeType) {
       throw {
         errors: [{ path: 'screenshot', message: $t('Invalid file') }],
@@ -126,7 +124,7 @@ class SitesScreenshots {
   // Create custom screenshot
   async createCustomScreenshot({ filename, siteId }) {
     let siteInfoPrev;
-    let tmpFilePath = $resourcesPath.filePathTmp(filename);
+    let tmpFilePath = $utils['paths'].filePathTmp(filename);
     await this.checkSiteProcessing({ siteId });
     let siteScreenshotId;
     let tmpFileMeta = await sharp(tmpFilePath).metadata();
@@ -148,8 +146,8 @@ class SitesScreenshots {
       let screenshot = $utils['common'].сalcmMaxDimensionsImage({
         height: tmpFileMeta.height,
         width: tmpFileMeta.width,
-        maxHeight: $config['puppeteer'].viewportHeight,
-        maxWidth: $config['puppeteer'].viewportWidth,
+        maxHeight: global.$config['puppeteer'].viewportHeight,
+        maxWidth: global.$config['puppeteer'].viewportWidth,
       });
 
       // Save screenshot
@@ -159,7 +157,7 @@ class SitesScreenshots {
           height: Math.floor(screenshot.height),
         })
         .webp()
-        .toFile($resourcesPath.filePathScreenshot({ siteScreenshotId }));
+        .toFile($utils['paths'].filePathScreenshot({ siteScreenshotId }));
 
       // Remove screenshot from process
       await $dbMain['sites-screenshots'].editScreenshotCreatedSuccess({

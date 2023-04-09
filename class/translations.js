@@ -1,5 +1,4 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
-let { $config } = require(global.ROOT_PATH + '/plugins/config');
 let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
 let { $translations } = require(global.ROOT_PATH + '/plugins/translations');
 let fse = require('fs-extra');
@@ -143,7 +142,7 @@ class Translations {
   // Get translations service
   async getTranslationsForService({
     serviceType,
-    maxRecordsPerPage = $config['translations'].maxRecordsPerPage,
+    maxRecordsPerPage = global.$config['translations'].maxRecordsPerPage,
     page = 1,
   }) {
     let offset = (page - 1) * maxRecordsPerPage;
@@ -195,7 +194,7 @@ class Translations {
 
   // Set translations for service api (Fired during initialization and when updating translations of any service)
   async setTranslationsListServiceApi() {
-    let { settingNameLangs, serviceType } = $config['services'].api;
+    let { settingNameLangs, serviceType } = global.$config['services'].api;
     let translations = await this.getTranslationsForFunctionTranslate({
       settingNameLangs,
       serviceType,
