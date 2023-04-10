@@ -3,13 +3,14 @@ let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
 class ErrorsMessage {
   constructor(request) {
     try {
-      this.lang = request.cookies[global.$config['translations'].cookieLang] || '';
+      this.langDefault =
+        request.cookies[global.$config['translations'].cookieNameLangDefault] || '';
     } catch (error) {
       console.error(request);
     }
   }
 
-  lang = '';
+  langDefault = '';
 
   // Create a bug report
   createMessage(data) {
@@ -37,7 +38,7 @@ class ErrorsMessage {
     }
 
     for (let key in result) {
-      result[key] = $translations.t({ text: result[key], lang: this.lang });
+      result[key] = $translations.t({ text: result[key], lang: this.langDefault });
     }
 
     return { status, errors: result };

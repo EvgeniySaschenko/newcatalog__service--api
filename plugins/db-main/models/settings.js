@@ -8,12 +8,15 @@ let Scheme = function () {
       primaryKey: true,
       autoIncrement: true,
     },
-    type: {
+    settingName: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
-    value: {
+    serviceType: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    settingValue: {
       type: DataTypes.JSONB,
     },
     dateCreate: {

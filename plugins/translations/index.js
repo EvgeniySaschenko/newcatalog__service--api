@@ -3,13 +3,13 @@ let serviceSite = global.$config['services'].site;
 let serviceAdmin = global.$config['services'].admin;
 
 let langsTypes = {
-  [serviceSite.serviceName]: global.$config['settings'][serviceSite.settingNameLangs],
-  [serviceAdmin.serviceName]: global.$config['settings'][serviceAdmin.settingNameLangs],
+  [serviceSite.serviceName]: global.$config['settings'].langs[serviceSite.serviceName],
+  [serviceAdmin.serviceName]: global.$config['settings'].langs[serviceAdmin.serviceName],
 };
 
 let langsDefaultTypes = {
-  [serviceSite.serviceName]: global.$config['settings'][serviceSite.settingNameLangDefault],
-  [serviceAdmin.serviceName]: global.$config['settings'][serviceAdmin.settingNameLangDefault],
+  [serviceSite.serviceName]: global.$config['settings'].langDefault[serviceSite.serviceName],
+  [serviceAdmin.serviceName]: global.$config['settings'].langDefault[serviceAdmin.serviceName],
 };
 
 /*
@@ -52,9 +52,9 @@ module.exports = {
     },
 
     // Set lang default
-    setLangDefault({ serviceName, lang }) {
-      langsDefaultTypes[serviceName] = lang;
-      return true;
+    setLangDefault({ serviceName, langDefault }) {
+      langsDefaultTypes[serviceName] = langDefault;
+      return langsDefaultTypes[serviceName];
     },
 
     // Get langs
@@ -65,7 +65,7 @@ module.exports = {
     // Set langs
     setLangs({ serviceName, langs }) {
       langsTypes[serviceName] = langs;
-      return true;
+      return langsTypes[serviceName];
     },
 
     // Get langs object

@@ -1,40 +1,61 @@
 let { ADMIN__SERVICE, SITE__SERVICE } = process.env;
+let services = {
+  api: {
+    serviceName: 'api',
+    serviceType: 1,
+    serviceRootPath: './',
+    settingNameLangs: 'admin--langs',
+    settingNameLangDefault: 'admin--lang-default',
+  },
+  admin: {
+    serviceName: 'admin',
+    serviceType: 2,
+    serviceRootPath: `symlinks/${ADMIN__SERVICE}`,
+    settingNameLangs: 'admin--langs',
+    settingNameLangDefault: 'admin--lang-default',
+  },
+  site: {
+    serviceName: 'site',
+    serviceType: 3,
+    serviceRootPath: `symlinks/${SITE__SERVICE}`,
+    settingNameLangs: 'site--langs',
+    settingNameLangDefault: 'site--lang-default',
+  },
+};
 
 let $config = {
   services: {
-    api: {
-      serviceName: 'api',
-      serviceType: 1,
-      serviceRootPath: './',
-      settingNameLangs: 'admin--langs',
-      settingNameLangDefault: 'admin--lang-default',
-    },
-    admin: {
-      serviceName: 'admin',
-      serviceType: 2,
-      serviceRootPath: `symlinks/${ADMIN__SERVICE}`,
-      settingNameLangs: 'admin--langs',
-      settingNameLangDefault: 'admin--lang-default',
-    },
-    site: {
-      serviceName: 'site',
-      serviceType: 3,
-      serviceRootPath: `symlinks/${SITE__SERVICE}`,
-      settingNameLangs: 'site--langs',
-      settingNameLangDefault: 'site--lang-default',
-    },
+    api: services['api'],
+    admin: services['admin'],
+    site: services['site'],
+  },
+  'services-types': {
+    1: services['api'],
+    2: services['admin'],
+    3: services['site'],
   },
   // translations
   translations: {
     maxRecordsPerPage: 20,
-    cookieLang: 'lang',
+    cookieNameLangDefault: 'langDefault',
   },
   // These settings will be replaced with the settings from the database (These are initialization values, for "get"/"set" operations only "plugins/translations" should be used)
+
   settings: {
-    'site--lang-default': 'en',
-    'site--langs': ['en'],
-    'admin--lang-default': 'en',
-    'admin--langs': ['en'],
+    langDefault: {
+      //api: 'en',
+      admin: 'en',
+      site: 'en',
+    },
+    langs: {
+      //api: ['en'],
+      admin: ['en'],
+      site: ['en'],
+    },
+  },
+  'settings-names': {
+    langDefault: 'langDefault',
+    langs: 'langs',
   },
   // users
   users: {
