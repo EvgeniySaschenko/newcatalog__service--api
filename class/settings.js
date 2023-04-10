@@ -5,109 +5,118 @@ let langsMap = require('langs');
 class Settings {
   // Init settings default
   async initSettingsDefault() {
-    for await (let [type, value] of Object.entries(global.$config['settings'])) {
-      let result = await this.createSetting({ type, value });
-      let serviceAdmin = global.$config['services'].admin;
-      let serviceSite = global.$config['services'].site;
-      // Lang default admin
-      if (result.type === serviceAdmin.settingNameLangDefault) {
-        $translations.setLangDefault({ serviceName: serviceAdmin.serviceName, lang: result.value });
-      }
+    let settings = global.$config['settings'];
+    let settingsNames = global.$config['settings-names'];
+    let services = global.$config['services'];
+    // Lang default
+    for await (let [serviceName, settingValue] of Object.entries(settings.langDefault)) {
+      let serviceType = services[serviceName].serviceType;
+      let settingName = settingsNames.langDefault;
+      let result = await this.createSetting({ settingName, serviceType, settingValue });
+      $translations.setLangDefault({ serviceName, langDefault: result.settingValue });
+    }
 
-      // Lang default site
-      if (result.type === serviceSite.settingNameLangDefault) {
-        $translations.setLangDefault({ serviceName: serviceSite.serviceName, lang: result.value });
-      }
-
-      // Langs admin
-      if (result.type === serviceAdmin.settingNameLangs) {
-        $translations.setLangs({ serviceName: serviceAdmin.serviceName, langs: result.value });
-      }
-
-      // Langs site
-      if (result.type === serviceSite.settingNameLangs) {
-        $translations.setLangs({ serviceName: serviceSite.serviceName, langs: result.value });
-      }
+    // Langs
+    for await (let [serviceName, settingValue] of Object.entries(settings.langs)) {
+      let serviceType = services[serviceName].serviceType;
+      let settingName = settingsNames.langs;
+      let result = await this.createSetting({ settingName, serviceType, settingValue });
+      $translations.setLangs({ serviceName, langs: result.settingValue });
     }
   }
 
   // Create setting
-  async createSetting({ type, value }) {
-    let setting = await $dbMain['settings'].getSettingByType({ type });
+  async createSetting({ settingName, serviceType, settingValue }) {
+    let setting = await $dbMain['settings'].getSettingBySettingNameAndServiceType({
+      settingName,
+      serviceType,
+    });
     if (!setting) {
-      setting = await $dbMain['settings'].createSetting({ type, value });
+      setting = await $dbMain['settings'].createSetting({ settingName, serviceType, settingValue });
     }
-
     return setting;
   }
 
-  // Edit lang default
-  async editLangDefault({ type, lang }) {
-    // not valid lang
-    if (!langsMap.has('1', lang)) {
-      throw { server: $t('Server error') };
-    }
-    let serviceName;
-    let serviceAdmin = global.$config['services'].admin;
-    let serviceSite = global.$config['services'].site;
+  // Edit setting
+  async editSetting({ settingName, serviceName, settingValue }) {
+    let settingsNames = global.$config['settings-names'];
+    let services = global.$config['services'];
+    let serviceType = services[serviceName].serviceType;
 
-    // check in list langs
-    switch (type) {
-      case serviceSite.settingNameLangDefault: {
-        serviceName = serviceSite.serviceName;
-        let langs = await $dbMain['settings'].getSettingByType({
-          type: serviceSite.settingNameLangs,
-        });
-        let isExistLang = langs.value.includes(lang);
-        if (!isExistLang) {
-          throw {
-            errors: [
-              {
-                path: serviceSite.settingNameLangDefault,
-                message: $t('First you need to add the language to the general list'),
-              },
-            ],
-          };
-        }
+    switch (settingName) {
+      // lang default
+      case settingsNames.langDefault: {
+        let langDefault = settingValue;
+        await this.editLangDefault({ settingName, serviceType, langDefault });
         break;
       }
-      case serviceAdmin.settingNameLangDefault: {
-        serviceName = serviceAdmin.serviceName;
-        let langs = await $dbMain['settings'].getSettingByType({
-          type: serviceAdmin.settingNameLangs,
-        });
-        let isExistLang = langs.value.includes(lang);
-        if (!isExistLang) {
-          throw {
-            errors: [
-              {
-                path: serviceAdmin.settingNameLangDefault,
-                message: $t('First you need to add the language to the general list'),
-              },
-            ],
-          };
-        }
+
+      // langs
+      case settingsNames.langs: {
+        let langs = settingValue;
+        await this.editLangs({ settingName, serviceType, langs });
         break;
       }
+
       default: {
         throw { server: $t('Server error') };
       }
     }
 
-    let result = await $dbMain['settings'].editSettingByType({ type, value: lang });
-    $translations.setLangDefault({ serviceName, lang });
-
-    if (!result) {
-      throw { server: $t('Server error') };
-    }
     return true;
   }
 
+  // Edit lang default
+  async editLangDefault({ settingName, serviceType, langDefault }) {
+    let settingsNames = global.$config['settings-names'];
+    let servicesTypes = global.$config['services-types'];
+
+    // not valid lang
+    if (!langsMap.has('1', langDefault)) {
+      throw { server: $t('Server error') };
+    }
+
+    // Get langs for service
+    let sttingLangs = await $dbMain['settings'].getSettingBySettingNameAndServiceType({
+      settingName: settingsNames.langs,
+      serviceType,
+    });
+
+    if (!sttingLangs) {
+      throw { server: $t('Server error') };
+    }
+
+    // Check in list langs
+    let isExistLang = sttingLangs.settingValue.includes(langDefault);
+    if (!isExistLang) {
+      throw {
+        errors: [
+          {
+            path: `${servicesTypes[serviceType].serviceName}--${settingsNames.langDefault}`,
+            message: $t('First you need to add the language to the general list'),
+          },
+        ],
+      };
+    }
+
+    let reusult = await $dbMain['settings'].editSetting({
+      settingName,
+      serviceType,
+      settingValue: langDefault,
+    });
+
+    if (!reusult) {
+      throw { server: $t('Server error') };
+    }
+
+    let serviceName = servicesTypes[serviceType].serviceName;
+    return $translations.setLangDefault({ serviceName, langDefault });
+  }
+
   // Edit langs list
-  async editLangsList({ type, langs }) {
-    let serviceName;
-    let serviceAdmin = global.$config['services'].admin;
-    let serviceSite = global.$config['services'].site;
+  async editLangs({ settingName, serviceType, langs }) {
+    let settingsNames = global.$config['settings-names'];
+    let servicesTypes = global.$config['services-types'];
 
     // not valid lang
     for (let lang of langs) {
@@ -116,65 +125,57 @@ class Settings {
       }
     }
 
-    // check in list langs
-    switch (type) {
-      case serviceSite.settingNameLangs: {
-        serviceName = serviceSite.serviceName;
-        let lang = await $dbMain['settings'].getSettingByType({
-          type: serviceSite.settingNameLangDefault,
-        });
-        let isExistLang = langs.includes(lang.value);
-        if (!isExistLang) {
-          throw {
-            errors: [
-              {
-                path: serviceSite.settingNameLangs,
-                message: $t('The list should include the default language'),
-              },
-            ],
-          };
-        }
-        break;
-      }
-      case serviceAdmin.settingNameLangs: {
-        serviceName = serviceAdmin.serviceName;
-        let lang = await $dbMain['settings'].getSettingByType({
-          type: serviceAdmin.settingNameLangDefault,
-        });
-        let isExistLang = langs.includes(lang.value);
-        if (!isExistLang) {
-          throw {
-            errors: [
-              {
-                path: serviceAdmin.settingNameLangs,
-                message: $t('The list should include the default language'),
-              },
-            ],
-          };
-        }
-        break;
-      }
-      default: {
-        throw { server: $t('Server error') };
-      }
-    }
+    // Get langs for service
+    let settingLangDefault = await $dbMain['settings'].getSettingBySettingNameAndServiceType({
+      settingName: settingsNames.langDefault,
+      serviceType,
+    });
 
-    let result = await $dbMain['settings'].editSettingByType({ type, value: langs });
-    $translations.setLangs({ serviceName, langs });
-
-    if (!result) {
+    if (!settingLangDefault) {
       throw { server: $t('Server error') };
     }
 
-    return true;
+    // Check in list langs
+    let isExistLang = langs.includes(settingLangDefault.settingValue);
+    if (!isExistLang) {
+      throw {
+        errors: [
+          {
+            path: `${servicesTypes[serviceType].serviceName}--${settingsNames.langs}`,
+            message: $t('The list should include the default language'),
+          },
+        ],
+      };
+    }
+
+    let reusult = await $dbMain['settings'].editSetting({
+      settingName,
+      serviceType,
+      settingValue: langs,
+    });
+
+    if (!reusult) {
+      throw { server: $t('Server error') };
+    }
+
+    let serviceName = servicesTypes[serviceType].serviceName;
+    return $translations.setLangs({ serviceName, langs });
   }
 
   // Get settings
   async getSettings() {
-    let result = await $dbMain['settings'].getSettings();
-    let settings = {};
-    for (let { type, value } of result) {
-      settings[type] = value;
+    let servicesTypes = global.$config['services-types'];
+    let settings = await $dbMain['settings'].getSettings();
+
+    let result = {};
+
+    for (let { settingName, serviceType, settingValue } of settings) {
+      let serviceName = servicesTypes[serviceType].serviceName;
+      if (!result[settingName]) {
+        result[settingName] = {};
+      }
+
+      result[settingName][serviceName] = settingValue;
     }
 
     let langsIso = langsMap.all().map((el) => {
@@ -185,7 +186,7 @@ class Settings {
     });
 
     return {
-      settings,
+      settings: result,
       langsIso,
     };
   }

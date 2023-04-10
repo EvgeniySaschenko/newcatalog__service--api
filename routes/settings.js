@@ -17,26 +17,12 @@ router.get('/', async (req, res, next) => {
   res.send(result);
 });
 
-// Edit lang default
-router.put('/lang-default', async (req, res, next) => {
+// Edit setting
+router.put('/:settingName', async (req, res, next) => {
   let result;
   try {
     let settings = new Settings();
-    result = await settings.editLangDefault(req.body);
-  } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
-  }
-  res.send(result);
-});
-
-// Edit langs list
-router.put('/langs-list', async (req, res, next) => {
-  let result;
-  try {
-    let settings = new Settings();
-    result = await settings.editLangsList(req.body);
+    result = await settings.editSetting(req.body);
   } catch (error) {
     let errorsMessage = new ErrorsMessage(req);
     result = errorsMessage.createMessage(error);

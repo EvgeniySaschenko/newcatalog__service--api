@@ -3,27 +3,28 @@ let { M_Settings, name: tableName } = require('./models/settings');
 module.exports = {
   tableName,
   //  Create setting
-  async createSetting({ type, value }) {
-    let result = await M_Settings.create({ type, value });
+  async createSetting({ settingName, serviceType, settingValue }) {
+    let result = await M_Settings.create({ settingName, serviceType, settingValue });
     return result.get({ plain: true });
   },
 
-  // Edit setting
-  async editSettingByType({ type, value }) {
+  // Edit setting (editSettingByType)
+  async editSetting({ settingName, serviceType, settingValue }) {
     let result = await M_Settings.update(
       {
-        value,
+        settingValue,
       },
-      { where: { type } }
+      { where: { settingName, serviceType } }
     );
     return result[0];
   },
 
-  // Get setting by name
-  async getSettingByType({ type }) {
+  // Get setting by name (getSettingByType)
+  async getSettingBySettingNameAndServiceType({ settingName, serviceType }) {
     let result = await M_Settings.findOne({
       where: {
-        type,
+        settingName,
+        serviceType,
       },
     });
     return result;
@@ -32,7 +33,7 @@ module.exports = {
   // Get all settings
   async getSettings() {
     let result = await M_Settings.findAll({
-      order: [['type', 'DESC']],
+      order: [['settingName', 'DESC']],
     });
     return result;
   },
