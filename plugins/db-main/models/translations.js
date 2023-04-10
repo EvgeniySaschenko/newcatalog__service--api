@@ -19,12 +19,12 @@ let Scheme = function () {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (langs) => {
-          $translations.validateLansObject({
+          $translations.validateLangsObject({
             langs,
           });
         },
       },
-      defaultValue: $translations.getLansObject({ type: serviceSite.settingNameLangs }),
+      defaultValue: $translations.getLangsObject({ serviceName: serviceSite.serviceName }),
     },
     serviceType: {
       type: DataTypes.INTEGER,

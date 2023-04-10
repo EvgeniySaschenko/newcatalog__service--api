@@ -16,15 +16,15 @@ let Scheme = function () {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (langs) => {
-          $translations.validateLansObject({
+          $translations.validateLangsObject({
             langs,
             lengthMin: global.$config['label'].nameLengthMin,
             lengthMax: global.$config['label'].nameLengthMax,
           });
         },
       },
-      defaultValue: $translations.getLansObject({
-        type: serviceSite.settingNameLangs,
+      defaultValue: $translations.getLangsObject({
+        serviceName: serviceSite.serviceName,
       }),
     },
     color: {

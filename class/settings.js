@@ -9,19 +9,24 @@ class Settings {
       let result = await this.createSetting({ type, value });
       let serviceAdmin = global.$config['services'].admin;
       let serviceSite = global.$config['services'].site;
-      // Lang default
-      if (
-        result.type === serviceAdmin.settingNameLangDefault ||
-        result.type === serviceSite.settingNameLangDefault
-      ) {
-        $translations.setLangDefault({ type: result.type, lang: result.value });
+      // Lang default admin
+      if (result.type === serviceAdmin.settingNameLangDefault) {
+        $translations.setLangDefault({ serviceName: serviceAdmin.serviceName, lang: result.value });
       }
-      // Langs
-      if (
-        result.type === serviceAdmin.settingNameLangs ||
-        result.type === serviceSite.settingNameLangs
-      ) {
-        $translations.setLans({ type: result.type, langs: result.value });
+
+      // Lang default site
+      if (result.type === serviceSite.settingNameLangDefault) {
+        $translations.setLangDefault({ serviceName: serviceSite.serviceName, lang: result.value });
+      }
+
+      // Langs admin
+      if (result.type === serviceAdmin.settingNameLangs) {
+        $translations.setLangs({ serviceName: serviceAdmin.serviceName, langs: result.value });
+      }
+
+      // Langs site
+      if (result.type === serviceSite.settingNameLangs) {
+        $translations.setLangs({ serviceName: serviceSite.serviceName, langs: result.value });
       }
     }
   }
@@ -42,13 +47,14 @@ class Settings {
     if (!langsMap.has('1', lang)) {
       throw { server: $t('Server error') };
     }
-
+    let serviceName;
     let serviceAdmin = global.$config['services'].admin;
     let serviceSite = global.$config['services'].site;
 
     // check in list langs
     switch (type) {
       case serviceSite.settingNameLangDefault: {
+        serviceName = serviceSite.serviceName;
         let langs = await $dbMain['settings'].getSettingByType({
           type: serviceSite.settingNameLangs,
         });
@@ -66,6 +72,7 @@ class Settings {
         break;
       }
       case serviceAdmin.settingNameLangDefault: {
+        serviceName = serviceAdmin.serviceName;
         let langs = await $dbMain['settings'].getSettingByType({
           type: serviceAdmin.settingNameLangs,
         });
@@ -88,7 +95,7 @@ class Settings {
     }
 
     let result = await $dbMain['settings'].editSettingByType({ type, value: lang });
-    $translations.setLangDefault({ type, lang });
+    $translations.setLangDefault({ serviceName, lang });
 
     if (!result) {
       throw { server: $t('Server error') };
@@ -98,6 +105,7 @@ class Settings {
 
   // Edit langs list
   async editLangsList({ type, langs }) {
+    let serviceName;
     let serviceAdmin = global.$config['services'].admin;
     let serviceSite = global.$config['services'].site;
 
@@ -111,6 +119,7 @@ class Settings {
     // check in list langs
     switch (type) {
       case serviceSite.settingNameLangs: {
+        serviceName = serviceSite.serviceName;
         let lang = await $dbMain['settings'].getSettingByType({
           type: serviceSite.settingNameLangDefault,
         });
@@ -128,6 +137,7 @@ class Settings {
         break;
       }
       case serviceAdmin.settingNameLangs: {
+        serviceName = serviceAdmin.serviceName;
         let lang = await $dbMain['settings'].getSettingByType({
           type: serviceAdmin.settingNameLangDefault,
         });
@@ -150,7 +160,7 @@ class Settings {
     }
 
     let result = await $dbMain['settings'].editSettingByType({ type, value: langs });
-    $translations.setLans({ type, langs });
+    $translations.setLangs({ serviceName, langs });
 
     if (!result) {
       throw { server: $t('Server error') };

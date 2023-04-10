@@ -22,28 +22,28 @@ let Scheme = function () {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (langs) => {
-          $translations.validateLansObject({
+          $translations.validateLangsObject({
             langs,
             lengthMin: global.$config['ratings'].nameLengthMin,
             lengthMax: global.$config['ratings'].nameLengthMax,
           });
         },
       },
-      defaultValue: $translations.getLansObject({ type: serviceSite.settingNameLangs }),
+      defaultValue: $translations.getLangsObject({ serviceName: serviceSite.serviceName }),
     },
     // Description
     descr: {
       type: DataTypes.JSONB,
       validate: {
         checkJSON: (langs) => {
-          $translations.validateLansObject({
+          $translations.validateLangsObject({
             langs,
             lengthMin: global.$config['ratings'].descrLengthMin,
             lengthMax: global.$config['ratings'].descrLengthMax,
           });
         },
       },
-      defaultValue: $translations.getLansObject({ type: serviceSite.settingNameLangs }),
+      defaultValue: $translations.getLangsObject({ serviceName: serviceSite.serviceName }),
     },
     // Indicates that the rating is hidden
     isHiden: {
