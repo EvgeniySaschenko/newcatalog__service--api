@@ -345,7 +345,7 @@ class Cache {
 
   // Create cache translations + langs site
   async createCacheTranslationsAndLangsSite() {
-    let { settingNameLangDefault, settingNameLangs, serviceType } = global.$config['services'].site;
+    let { serviceName, serviceType } = global.$config['services'].site;
     let translations = {};
     let count = await $dbMain['translations'].getTranslationsCountByType({ serviceType });
 
@@ -355,7 +355,7 @@ class Cache {
       offset: 1,
     });
 
-    let langs = $translations.getLans({ type: settingNameLangs });
+    let langs = $translations.getLangs({ serviceName });
     for (let lang of langs) {
       translations[lang] = {};
     }
@@ -368,7 +368,7 @@ class Cache {
       }
     }
 
-    let lang = $translations.getLangDefault({ type: settingNameLangDefault });
+    let lang = $translations.getLangDefault({ serviceName });
 
     let isSuccesTranslations = await $dbTemporary['content'].add({
       prefix: dbTemporaryPrefixes['translations-site'],

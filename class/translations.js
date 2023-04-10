@@ -168,7 +168,7 @@ class Translations {
   }
 
   // Get translations for "service" to be used by the translation function "$t"
-  async getTranslationsForFunctionTranslate({ settingNameLangs, serviceType }) {
+  async getTranslationsForFunctionTranslate({ serviceName, serviceType }) {
     let translations = {};
     let count = await $dbMain['translations'].getTranslationsCountByType({ serviceType });
     let translationsDb = await this.getTranslationsForService({
@@ -176,7 +176,7 @@ class Translations {
       maxRecordsPerPage: count,
       page: 1,
     });
-    let langs = $translations.getLans({ type: settingNameLangs });
+    let langs = $translations.getLangs({ serviceName });
     for (let lang of langs) {
       translations[lang] = {};
     }
@@ -194,9 +194,10 @@ class Translations {
 
   // Set translations for service api (Fired during initialization and when updating translations of any service)
   async setTranslationsListServiceApi() {
-    let { settingNameLangs, serviceType } = global.$config['services'].api;
+    let { serviceType } = global.$config['services'].api;
+    let { serviceName } = global.$config['services'].admin;
     let translations = await this.getTranslationsForFunctionTranslate({
-      settingNameLangs,
+      serviceName,
       serviceType,
     });
     $translations.setTranslationsList({ translations });

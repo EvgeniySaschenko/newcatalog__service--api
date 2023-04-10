@@ -3,15 +3,13 @@ let serviceSite = global.$config['services'].site;
 let serviceAdmin = global.$config['services'].admin;
 
 let langsTypes = {
-  [serviceSite.settingNameLangs]: global.$config['settings'][serviceSite.settingNameLangs],
-  [serviceAdmin.settingNameLangs]: global.$config['settings'][serviceAdmin.settingNameLangs],
+  [serviceSite.serviceName]: global.$config['settings'][serviceSite.settingNameLangs],
+  [serviceAdmin.serviceName]: global.$config['settings'][serviceAdmin.settingNameLangs],
 };
 
 let langsDefaultTypes = {
-  [serviceSite.settingNameLangDefault]:
-    global.$config['settings'][serviceSite.settingNameLangDefault],
-  [serviceAdmin.settingNameLangDefault]:
-    global.$config['settings'][serviceAdmin.settingNameLangDefault],
+  [serviceSite.serviceName]: global.$config['settings'][serviceSite.settingNameLangDefault],
+  [serviceAdmin.serviceName]: global.$config['settings'][serviceAdmin.settingNameLangDefault],
 };
 
 /*
@@ -35,8 +33,9 @@ module.exports = {
 
     // Translation function
     t({ text, lang }) {
-      let langDefault = this.getLangDefault({ type: serviceSite.settingNameLangDefault });
-      let langs = this.getLans({ type: serviceAdmin.settingNameLangs });
+      let { serviceName } = serviceAdmin;
+      let langDefault = this.getLangDefault({ serviceName });
+      let langs = this.getLangs({ serviceName });
       lang = lang || langDefault;
       let isLang = langs.includes(lang);
       if (!isLang) {
@@ -48,43 +47,43 @@ module.exports = {
     },
 
     // Get lang default
-    getLangDefault({ type }) {
-      return langsDefaultTypes[type];
+    getLangDefault({ serviceName }) {
+      return langsDefaultTypes[serviceName];
     },
 
     // Set lang default
-    setLangDefault({ type, lang }) {
-      langsDefaultTypes[type] = lang;
+    setLangDefault({ serviceName, lang }) {
+      langsDefaultTypes[serviceName] = lang;
       return true;
     },
 
     // Get langs
-    getLans({ type }) {
-      return langsTypes[type];
+    getLangs({ serviceName }) {
+      return langsTypes[serviceName];
     },
 
     // Set langs
-    setLans({ type, langs }) {
-      langsTypes[type] = langs;
+    setLangs({ serviceName, langs }) {
+      langsTypes[serviceName] = langs;
       return true;
     },
 
     // Get langs object
-    getLansObject({ type }) {
+    getLangsObject({ serviceName }) {
       let obj = {};
-      for (let lang of langsTypes[type]) {
+      for (let lang of langsTypes[serviceName]) {
         obj[lang] = '';
       }
       return obj;
     },
 
     /*
-    langs - Data. Must be passed in the format of an object whose keys match "$translations.getLans({ type })" 
+    langs - Data. Must be passed in the format of an object whose keys match "$translations.getLangs({ serviceName })" 
     lengthMin - minimum text length,
     lengthMax = maximum text length
     locales = keys locales from compare
   */
-    validateLansObject: ({ langs, lengthMin = 0, lengthMax = Infinity }) => {
+    validateLangsObject: ({ langs, lengthMin = 0, lengthMax = Infinity }) => {
       if (!langs) throw Error($t('Wrong data format')); // is empty
       if (typeof langs !== 'object') throw Error($t('Wrong data format')); // is wrong type
       if (Array.isArray(langs)) throw Error($t('Wrong data format')); // is wrong type

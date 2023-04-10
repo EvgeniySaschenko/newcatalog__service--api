@@ -26,13 +26,12 @@ router.get('/part-list', async (req, res, next) => {
 // Get translations for function translate
 router.get('/function-translate', async (req, res, next) => {
   let result;
-  let serviceName = req.query.serviceName;
   try {
     let translations = new Translations();
-    let { settingNameLangs, serviceType } = global.$config['services'][serviceName];
+    let { serviceName, serviceType } = global.$config['services'][req.query.serviceName];
 
     result = await translations.getTranslationsForFunctionTranslate({
-      settingNameLangs,
+      serviceName,
       serviceType,
     });
   } catch (error) {
