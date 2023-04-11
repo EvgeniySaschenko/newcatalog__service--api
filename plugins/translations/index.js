@@ -23,7 +23,7 @@ let $t = (text) => {
 
 let translationsList = {};
 
-module.exports = {
+let $translations = {
   $t,
   // Utils
   $translations: {
@@ -78,19 +78,26 @@ module.exports = {
     },
 
     /*
-    langs - Data. Must be passed in the format of an object whose keys match "$translations.getLangs({ serviceName })" 
+    translations - Data. Must be passed in the format of an object whose keys match "$translations.getLangs({ serviceName })" 
     lengthMin - minimum text length,
     lengthMax = maximum text length
-    locales = keys locales from compare
+    langs = keys langs from compare (aray)
   */
-    validateLangsObject: ({ langs, lengthMin = 0, lengthMax = Infinity }) => {
-      if (!langs) throw Error($t('Wrong data format')); // is empty
-      if (typeof langs !== 'object') throw Error($t('Wrong data format')); // is wrong type
-      if (Array.isArray(langs)) throw Error($t('Wrong data format')); // is wrong type
+    validateLangsObject({ translations, lengthMin = 0, lengthMax = Infinity, langs }) {
+      if (!langs) {
+        langs = this.getLangs({ serviceName: serviceSite.serviceName });
+      }
+      if (!translations) throw Error($t('Wrong data format')); // is empty
+      if (typeof translations !== 'object') throw Error($t('Wrong data format')); // is wrong type
+      if (Array.isArray(translations)) throw Error($t('Wrong data format')); // is wrong type
 
-      // keys locales compare
-      for (let key in langs) {
-        if (langs[key].length < lengthMin || langs[key].length > lengthMax) {
+      // keys langs compare
+      for (let key of langs) {
+        if (!translations[key]) {
+          translations[key] = ''; // Fields may be optional
+        }
+
+        if (translations[key].length < lengthMin || translations[key].length > lengthMax) {
           // eslint-disable-next-line prettier/prettier
           throw Error(`${$t('The number of characters in a string must be in the range:')}  ${lengthMin} - ${lengthMax}`);
         }
@@ -101,3 +108,5 @@ module.exports = {
     },
   },
 };
+
+module.exports = $translations;

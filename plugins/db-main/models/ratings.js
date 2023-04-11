@@ -21,9 +21,9 @@ let Scheme = function () {
     name: {
       type: DataTypes.JSONB,
       validate: {
-        checkJSON: (langs) => {
+        checkJSON: (translations) => {
           $translations.validateLangsObject({
-            langs,
+            translations,
             lengthMin: global.$config['ratings'].nameLengthMin,
             lengthMax: global.$config['ratings'].nameLengthMax,
           });
@@ -35,9 +35,9 @@ let Scheme = function () {
     descr: {
       type: DataTypes.JSONB,
       validate: {
-        checkJSON: (langs) => {
+        checkJSON: (translations) => {
           $translations.validateLangsObject({
-            langs,
+            translations,
             lengthMin: global.$config['ratings'].descrLengthMin,
             lengthMax: global.$config['ratings'].descrLengthMax,
           });
