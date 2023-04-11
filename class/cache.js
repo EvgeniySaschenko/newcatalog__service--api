@@ -352,7 +352,7 @@ class Cache {
     let translationsDb = await $dbMain['translations'].getTranslationsByType({
       serviceType,
       limit: count,
-      offset: 1,
+      offset: 0,
     });
 
     let langs = $translations.getLangs({ serviceName });

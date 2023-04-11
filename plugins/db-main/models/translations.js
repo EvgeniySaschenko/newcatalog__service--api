@@ -18,9 +18,9 @@ let Scheme = function () {
     text: {
       type: DataTypes.JSONB,
       validate: {
-        checkJSON: (langs) => {
+        checkJSON: (translations) => {
           $translations.validateLangsObject({
-            langs,
+            translations,
           });
         },
       },

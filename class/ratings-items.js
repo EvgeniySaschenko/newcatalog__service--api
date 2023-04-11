@@ -117,7 +117,7 @@ class RatingsItems {
     }
 
     for (let key in name) {
-      name[key] = striptags(name[key] || page.name);
+      name[key] = striptags(name[key] || page?.name || '');
     }
     let result = await $dbMain['ratings-items'].editItem({
       ratingItemId,

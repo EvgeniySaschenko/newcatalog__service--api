@@ -15,9 +15,9 @@ let Scheme = function () {
     name: {
       type: DataTypes.JSONB,
       validate: {
-        checkJSON: (langs) => {
+        checkJSON: (translations) => {
           $translations.validateLangsObject({
-            langs,
+            translations,
             lengthMin: global.$config['label'].nameLengthMin,
             lengthMax: global.$config['label'].nameLengthMax,
           });
