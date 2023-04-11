@@ -195,11 +195,12 @@ class Translations {
   // Set translations for service api (Fired during initialization and when updating translations of any service)
   async setTranslationsListServiceApi() {
     let { serviceType } = global.$config['services'].api;
-    let { serviceName } = global.$config['services'].admin;
+    let { serviceName } = global.$config['services'].admin; // admin - because $translations.getLangs({ serviceName });
     let translations = await this.getTranslationsForFunctionTranslate({
       serviceName,
       serviceType,
     });
+
     $translations.setTranslationsList({ translations });
     return translations;
   }
@@ -207,7 +208,15 @@ class Translations {
   // Update text for translation
   async editText({ translationId, text }) {
     await $dbMain['translations'].editTextById({ translationId, text });
-    await this.setTranslationsListServiceApi();
+    return true;
+  }
+
+  // Run edit text - This wrapper is needed to store API translations in Node.js memory
+  async runEditText({ translationId, text, serviceName }) {
+    await this.editText({ translationId, text });
+    if (global.$config['services'].api.serviceName === serviceName) {
+      await this.setTranslationsListServiceApi();
+    }
     return true;
   }
 }

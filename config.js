@@ -4,22 +4,16 @@ let services = {
     serviceName: 'api',
     serviceType: 1,
     serviceRootPath: './',
-    settingNameLangs: 'admin--langs',
-    settingNameLangDefault: 'admin--lang-default',
   },
   admin: {
     serviceName: 'admin',
     serviceType: 2,
     serviceRootPath: `symlinks/${ADMIN__SERVICE}`,
-    settingNameLangs: 'admin--langs',
-    settingNameLangDefault: 'admin--lang-default',
   },
   site: {
     serviceName: 'site',
     serviceType: 3,
     serviceRootPath: `symlinks/${SITE__SERVICE}`,
-    settingNameLangs: 'site--langs',
-    settingNameLangDefault: 'site--lang-default',
   },
 };
 
@@ -48,7 +42,6 @@ let $config = {
       site: 'en',
     },
     langs: {
-      //api: ['en'],
       admin: ['en'],
       site: ['en'],
     },
