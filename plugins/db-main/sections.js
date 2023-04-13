@@ -9,16 +9,13 @@ module.exports = {
     for (let key in name) {
       name[key] = striptags(name[key]);
     }
-
     let result = await M_Sections.create({ name });
     return result.get({ plain: true });
   },
 
   // Delete section
   async deleteSection({ sectionId }) {
-    let result = await M_Sections.destroy({ where: { sectionId } });
-    if (result) return true;
-    throw Error($t('There is no such id'));
+    return await M_Sections.destroy({ where: { sectionId } });
   },
 
   // Edit section
@@ -28,7 +25,7 @@ module.exports = {
     }
 
     let result = await M_Sections.update({ name, priority, isHiden }, { where: { sectionId } });
-    return result;
+    return result[0];
   },
 
   // Get all sections

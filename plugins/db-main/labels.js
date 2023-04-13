@@ -27,13 +27,12 @@ module.exports = {
       { name, color: striptags(color).toLocaleLowerCase() },
       { where: { labelId } }
     );
-    return result;
+    return result[0];
   },
 
   // Get labels rating
   async getLabelsRating({ ratingId }) {
     let result = await M_Labels.findAll({
-      attributes: ['labelId', 'name', 'color'],
       where: {
         ratingId,
       },

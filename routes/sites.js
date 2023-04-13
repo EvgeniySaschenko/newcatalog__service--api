@@ -1,164 +1,154 @@
 let express = require('express');
 let router = express.Router();
-let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let SitesScreenshots = require(global.ROOT_PATH + '/class/sites-screenshots');
 let Sites = require(global.ROOT_PATH + '/class/sites');
 
 // Get site
-router.get('/:siteId', async (req, res, next) => {
+router.get('/:siteId', async (request, response, next) => {
   let result;
   try {
-    let { siteId } = req.params;
+    let { siteId } = request.params;
     let sites = new Sites();
     result = await sites.getSiteBySiteId({ siteId });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Get sites with screenshots for creating logos
-router.get('/screenshots/:ratingId', async (req, res, next) => {
+router.get('/screenshots/:ratingId', async (request, response, next) => {
   let result;
   try {
-    let { ratingId } = req.params;
+    let { ratingId } = request.params;
     let sitesScreenshots = new SitesScreenshots();
 
     result = await sitesScreenshots.getItemsReadyScrenshotsNotLogo({ ratingId });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Get sites with screenshot error
-router.get('/screenshots-errors/:ratingId', async (req, res, next) => {
+router.get('/screenshots-errors/:ratingId', async (request, response, next) => {
   let result;
   try {
-    let { ratingId } = req.params;
+    let { ratingId } = request.params;
     let sitesScreenshots = new SitesScreenshots();
 
     result = await sitesScreenshots.getItemsScrenshotsErrors({ ratingId });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Create new screenshot
-router.post('/screenshot-create', async (req, res, next) => {
+router.post('/screenshot-create', async (request, response, next) => {
   let result;
 
   try {
-    let { siteId, url } = req.body;
+    let { siteId, url } = request.body;
     let sitesScreenshots = new SitesScreenshots();
 
     result = await sitesScreenshots.addSiteToProcessing({ siteId, url });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Create custom screenshot
-router.post('/screenshot-custom', async (req, res, next) => {
+router.post('/screenshot-custom', async (request, response, next) => {
   let result;
   try {
-    let { siteId } = req.body;
+    let { siteId } = request.body;
     let sitesScreenshots = new SitesScreenshots();
     result = await sitesScreenshots.runCustomScreenshotCreate({
-      fileImg: req.files.screenshotFile,
+      fileImg: request.files.screenshotFile,
       siteId: +siteId,
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Create logo site
-router.put('/logo-create', async (req, res, next) => {
+router.put('/logo-create', async (request, response, next) => {
   let result;
 
   try {
     let sites = new Sites();
-    result = await sites.runLogoCreate(req.body);
+    result = await sites.runLogoCreate(request.body);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Logo site recreate
-router.put('/logo-recreate', async (req, res, next) => {
+router.put('/logo-recreate', async (request, response, next) => {
   let result;
   try {
-    let { siteId } = req.body;
+    let { siteId } = request.body;
     let sites = new Sites();
     result = await sites.runRecreateLogo({ siteId });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Update sites color
-router.put('/color', async (req, res, next) => {
+router.put('/color', async (request, response, next) => {
   let result;
   try {
-    let { siteScreenshotId, color } = req.body;
+    let { siteScreenshotId, color } = request.body;
     let sites = new Sites();
     result = await sites.editSitesColor({ siteScreenshotId, color });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Check for images for the site
-router.get('/images-site-check/:domain', async (req, res, next) => {
+router.get('/images-site-check/:domain', async (request, response, next) => {
   let result;
   try {
-    let { domain } = req.params;
+    let { domain } = request.params;
     let sites = new Sites();
     result = await sites.checkImagesForSite({ host: domain });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Link domain images to subdomain
-router.put('/images-domain-to-subdomain', async (req, res, next) => {
+router.put('/images-domain-to-subdomain', async (request, response, next) => {
   let result;
   try {
-    let { domainSiteId, subdomainSiteId } = req.body;
+    let { domainSiteId, subdomainSiteId } = request.body;
     let sites = new Sites();
     result = await sites.linkDomainImagesToSubdomain({ domainSiteId, subdomainSiteId });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 module.exports = router;

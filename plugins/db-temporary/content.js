@@ -18,9 +18,8 @@ module.exports = {
       return true;
     } catch (error) {
       client.quit();
-      console.error(error);
+      throw error;
     }
-    return false;
   },
 
   // get
@@ -32,9 +31,8 @@ module.exports = {
       return result ? JSON.parse(result) : false;
     } catch (error) {
       client.quit();
-      console.error(error);
+      throw error;
     }
-    return false;
   },
 
   // delete
@@ -46,9 +44,8 @@ module.exports = {
       return true;
     } catch (error) {
       client.quit();
-      console.error(error);
+      throw error;
     }
-    return false;
   },
 
   // Clear db
@@ -62,8 +59,7 @@ module.exports = {
       return true;
     } catch (error) {
       client.quit();
-      console.error(error);
-      if (error) throw error;
+      throw error;
     }
   },
 };

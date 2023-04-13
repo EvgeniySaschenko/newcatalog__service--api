@@ -2,93 +2,88 @@ let express = require('express');
 let router = express.Router();
 let Ratings = require(global.ROOT_PATH + '/class/ratings');
 let Cache = require(global.ROOT_PATH + '/class/cache');
-let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 // Get all user ratings
-router.get('/', async (req, res, next) => {
+router.get('/', async (request, response, next) => {
   let result;
 
   try {
     let ratings = new Ratings();
-    result = await ratings.getRatings(req);
+    result = await ratings.getRatings(request);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Get rating
-router.get('/:ratingId', async (req, res, next) => {
+router.get('/:ratingId', async (request, response, next) => {
   let result;
 
   try {
     let ratings = new Ratings();
-    result = await ratings.getRating(req.params);
+    result = await ratings.getRating(request.params);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Add rating
-router.post('/', async (req, res, next) => {
+router.post('/', async (request, response, next) => {
   let result;
 
   try {
     let ratings = new Ratings();
     result = await ratings.createRating({
-      token: req.cookies[global.$config['users'].cookieToken] || '',
-      ...req.body,
+      token: request.cookies[global.$config['users'].cookieToken] || '',
+      ...request.body,
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Edit rating
-router.put('/:ratingId', async (req, res, next) => {
+router.put('/:ratingId', async (request, response, next) => {
   let result;
 
   try {
-    if (req.body.isHiden) {
+    if (request.body.isHiden) {
       let cache = new Cache();
-      result = await cache.deleteCacheRating(req.body);
+      result = await cache.deleteCacheRating(request.body);
     }
 
     let ratings = new Ratings();
     result = await ratings.editRating({
-      token: req.cookies[global.$config['users'].cookieToken] || '',
-      ...req.body,
+      token: request.cookies[global.$config['users'].cookieToken] || '',
+      ...request.body,
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Delete the rating
-router.delete('/:ratingId', async (req, res, next) => {
+router.delete('/:ratingId', async (request, response, next) => {
   let result;
   try {
     let cache = new Cache();
-    result = await cache.deleteCacheRating(req.body);
+    result = await cache.deleteCacheRating(request.body);
     let ratings = new Ratings();
-    result = await ratings.deleteRating(req.body);
+    result = await ratings.deleteRating(request.body);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 module.exports = router;

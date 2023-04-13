@@ -30,6 +30,7 @@ module.exports = {
       sectionsIds,
       isHiden,
     });
+
     return result.get({ plain: true });
   },
 
@@ -66,7 +67,7 @@ module.exports = {
         where: { ratingId, userId },
       }
     );
-    return result;
+    return result[0];
   },
 
   // Get rating
@@ -128,7 +129,7 @@ module.exports = {
 
   // Set the date of the first publication (determines the sequence of output on the site)
   async editDateFirstPublication({ ratingId }) {
-    return await M_Ratings.update(
+    let result = await M_Ratings.update(
       {
         dateFirstPublication: new Date(),
       },
@@ -136,10 +137,11 @@ module.exports = {
         where: { ratingId },
       }
     );
+    return result[0];
   },
   // Cache creation date
   async editCacheCreation({ ratingId, dateCacheCreation, sectionsIdsCache }) {
-    return await M_Ratings.update(
+    let result = await M_Ratings.update(
       {
         dateCacheCreation,
         sectionsIdsCache,
@@ -148,6 +150,7 @@ module.exports = {
         where: { ratingId },
       }
     );
+    return result[0];
   },
 
   // This function can have any content - it is for tests or some kind of edits in the data meringue

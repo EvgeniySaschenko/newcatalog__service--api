@@ -1,4 +1,5 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
 let langsMap = require('langs');
 
@@ -59,7 +60,7 @@ class Settings {
       }
 
       default: {
-        throw { server: $t('Server error') };
+        $utils['errors'].serverMessage();
       }
     }
 
@@ -73,7 +74,7 @@ class Settings {
 
     // not valid lang
     if (!langsMap.has('1', langDefault)) {
-      throw { server: $t('Server error') };
+      $utils['errors'].serverMessage($t('Not valid lang'));
     }
 
     // Get langs for service
@@ -83,20 +84,16 @@ class Settings {
     });
 
     if (!sttingLangs) {
-      throw { server: $t('Server error') };
+      $utils['errors'].serverMessage($t('Not valid setting'));
     }
 
     // Check in list langs
     let isExistLang = sttingLangs.settingValue.includes(langDefault);
     if (!isExistLang) {
-      throw {
-        errors: [
-          {
-            path: `${servicesTypes[serviceType].serviceName}--${settingsNames.langDefault}`,
-            message: $t('First you need to add the language to the general list'),
-          },
-        ],
-      };
+      $utils['errors'].validationMessage({
+        path: `${servicesTypes[serviceType].serviceName}--${settingsNames.langDefault}`,
+        message: $t('First you need to add the language to the general list'),
+      });
     }
 
     let reusult = await $dbMain['settings'].editSetting({
@@ -106,7 +103,7 @@ class Settings {
     });
 
     if (!reusult) {
-      throw { server: $t('Server error') };
+      $utils['errors'].serverMessage();
     }
 
     let serviceName = servicesTypes[serviceType].serviceName;
@@ -121,7 +118,7 @@ class Settings {
     // not valid lang
     for (let lang of langs) {
       if (!langsMap.has('1', lang)) {
-        throw { server: $t('Server error') };
+        $utils['errors'].serverMessage($t('Not valid lang'));
       }
     }
 
@@ -132,20 +129,16 @@ class Settings {
     });
 
     if (!settingLangDefault) {
-      throw { server: $t('Server error') };
+      $utils['errors'].serverMessage($t('Not valid setting'));
     }
 
     // Check in list langs
     let isExistLang = langs.includes(settingLangDefault.settingValue);
     if (!isExistLang) {
-      throw {
-        errors: [
-          {
-            path: `${servicesTypes[serviceType].serviceName}--${settingsNames.langs}`,
-            message: $t('The list should include the default language'),
-          },
-        ],
-      };
+      $utils['errors'].validationMessage({
+        path: `${servicesTypes[serviceType].serviceName}--${settingsNames.langs}`,
+        message: $t('The list should include the default language'),
+      });
     }
 
     let reusult = await $dbMain['settings'].editSetting({
@@ -155,7 +148,7 @@ class Settings {
     });
 
     if (!reusult) {
-      throw { server: $t('Server error') };
+      $utils['errors'].serverMessage();
     }
 
     let serviceName = servicesTypes[serviceType].serviceName;

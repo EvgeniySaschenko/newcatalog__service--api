@@ -21,19 +21,16 @@ class User {
     let result;
     let user = await $dbMain['users'].getUserByEmail({ email });
     if (user) {
-      throw {
-        errors: [
-          {
-            path: 'email',
-            message: $t('This e-mail already exists'),
-          },
-        ],
-      };
+      $utils['errors'].validationMessage({
+        path: 'email',
+        message: $t('This e-mail already exists'),
+      });
     }
 
     let { userId } = await $utils['users'].getTokenData({ token });
     result = await $dbMain['users'].editEmail({ email, userId });
-    return result;
+    if (!result) $utils['errors'].serverMessage();
+    return true;
   }
 
   // Edit password
@@ -42,7 +39,8 @@ class User {
     let { userId } = await $utils['users'].getTokenData({ token });
     password = $utils['users'].encryptPassword(password);
     result = await $dbMain['users'].editPassword({ password, userId });
-    return result;
+    if (!result) $utils['errors'].serverMessage();
+    return true;
   }
 }
 

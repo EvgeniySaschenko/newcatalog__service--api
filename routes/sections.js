@@ -1,63 +1,59 @@
 let express = require('express');
 let router = express.Router();
 let Sections = require(global.ROOT_PATH + '/class/sections');
-let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 // Get sections
-router.get('/', async (req, res, next) => {
+router.get('/', async (request, response, next) => {
   let result;
 
   try {
     let sections = new Sections();
-    result = await sections.getSections(req.params);
+    result = await sections.getSections(request.params);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Add section
-router.post('/', async (req, res, next) => {
+router.post('/', async (request, response, next) => {
   let result;
   try {
     let sections = new Sections();
-    result = await sections.createSection(req.body);
+    result = await sections.createSection(request.body);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Delete section
-router.delete('/:sectionId', async (req, res, next) => {
+router.delete('/:sectionId', async (request, response, next) => {
   let result;
   try {
     let sections = new Sections();
-    result = await sections.deleteSection(req.body);
+    result = await sections.deleteSection(request.body);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Edit Section
-router.put('/:sectionId', async (req, res, next) => {
+router.put('/:sectionId', async (request, response, next) => {
   let result;
   try {
     let sections = new Sections();
-    result = await sections.editSection(req.body);
+    result = await sections.editSection(request.body);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 module.exports = router;

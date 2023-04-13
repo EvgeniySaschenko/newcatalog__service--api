@@ -14,7 +14,7 @@ module.exports = {
 
   // Screenshot created
   async editScreenshotCreatedSuccess({ siteScreenshotId }) {
-    await M_SitesScreenshots.update(
+    let result = await M_SitesScreenshots.update(
       { dateScreenshotCreated: new Date() },
       {
         where: {
@@ -22,11 +22,12 @@ module.exports = {
         },
       }
     );
+    return result[0];
   },
 
   // Error entry when taking a screenshot
   async editErrorScreenshotCreate({ siteScreenshotId, errorMessage }) {
-    await M_SitesScreenshots.update(
+    let result = await M_SitesScreenshots.update(
       { dateScreenshotError: new Date(), errorMessage },
       {
         where: {
@@ -34,6 +35,7 @@ module.exports = {
         },
       }
     );
+    return result[0];
   },
 
   /*

@@ -1,110 +1,105 @@
 let express = require('express');
 let router = express.Router();
-let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let User = require(global.ROOT_PATH + '/class/user');
 let UserLogin = require(global.ROOT_PATH + '/class/user-login');
 
 // Login to site
-router.put('/login', async (req, res, next) => {
+router.put('/login', async (request, response, next) => {
   let result;
   try {
     let userLogin = new UserLogin();
     await userLogin.auth({
-      email: req?.body?.email,
-      password: req?.body?.password,
-      userAgent: req?.headers['user-agent'],
-      response: res,
-      ip: req?.headers['x-forwarded-for'] || '',
+      email: request?.body?.email,
+      password: request?.body?.password,
+      userAgent: request?.headers['user-agent'],
+      response,
+      ip: request.headers['x-forwarded-for'] || '',
     });
     result = true;
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Login to site
-router.put('/log-out', async (req, res, next) => {
+router.put('/log-out', async (request, response, next) => {
   let result;
 
   try {
     let userLogin = new UserLogin();
     await userLogin.logOut({
-      token: req.cookies[global.$config['users'].cookieToken] || '',
-      userAgent: req.headers['user-agent'] || '',
-      response: res,
-      ip: req?.headers['x-forwarded-for'] || '',
+      token: request.cookies[global.$config['users'].cookieToken] || '',
+      userAgent: request.headers['user-agent'] || '',
+      response,
+      ip: request.headers['x-forwarded-for'] || '',
     });
     result = true;
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
+    result = $utils['errors'].createResponse({ request, error });
   }
-  res.status(401);
-  res.send(result);
+  response.status(401);
+  response.send(result);
 });
 
-router.put('/auth-refresh', async (req, res, next) => {
+router.put('/auth-refresh', async (request, response, next) => {
   let result;
   try {
     let userLogin = new UserLogin();
     result = await userLogin.authRefresh({
-      token: req.cookies[global.$config['users'].cookieToken] || '',
-      userAgent: req.headers['user-agent'] || '',
-      response: res,
-      ip: req?.headers['x-forwarded-for'] || '',
+      token: request.cookies[global.$config['users'].cookieToken] || '',
+      userAgent: request.headers['user-agent'] || '',
+      response,
+      ip: request?.headers['x-forwarded-for'] || '',
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
+    result = $utils['errors'].createResponse({ request, error });
     result.status = 401;
-    res.status(result.status);
+    response.status(result.status);
   }
 
   if (!result) {
-    res.status(401);
+    response.status(401);
   }
 
-  res.send(result);
+  response.send(result);
 });
 
 // Edit password
-router.put('/password', async (req, res, next) => {
+router.put('/password', async (request, response, next) => {
   let result;
   try {
     let user = new User();
     result = await user.editPassword({
-      token: req.cookies[global.$config['users'].cookieToken] || '',
-      password: req?.body?.password,
+      token: request.cookies[global.$config['users'].cookieToken] || '',
+      password: request.body?.password,
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
 
-  res.send(result);
+  response.send(result);
 });
 
 // Edit email
-router.put('/email', async (req, res, next) => {
+router.put('/email', async (request, response, next) => {
   let result;
 
   try {
     let user = new User();
     result = await user.editEmail({
-      token: req.cookies[global.$config['users'].cookieToken] || '',
-      email: req?.body?.email,
+      token: request.cookies[global.$config['users'].cookieToken] || '',
+      email: request.body?.email,
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
 
-  res.send(result);
+  response.send(result);
 });
 
 module.exports = router;

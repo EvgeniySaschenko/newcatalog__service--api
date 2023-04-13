@@ -21,30 +21,39 @@ class Sites {
   // Run process logo create
   async runLogoCreate({ siteScreenshotId, logoScreenshotParams, color }) {
     if (!color || !logoScreenshotParams.cutHeight || !siteScreenshotId) {
-      throw Error($t('Not enough data'));
+      $utils['errors'].serverMessage($t('Not enough data'));
     }
 
     let screenshot = await $dbMain['sites-screenshots'].getSiteScreenshotById({
       siteScreenshotId,
     });
 
-    if (!screenshot || !screenshot.dateScreenshotCreated) throw Error($t('Server error'));
+    if (!screenshot || !screenshot.dateScreenshotCreated) {
+      $utils['errors'].serverMessage();
+    }
 
     await this.createLogo({ siteScreenshotId, logoScreenshotParams });
-    await $dbMain['sites'].editLogoInfo({ color, siteScreenshotId, dateLogoCreate: new Date() });
+    let result = await $dbMain['sites'].editLogoInfo({
+      color,
+      siteScreenshotId,
+      dateLogoCreate: new Date(),
+    });
+    if (!result) $utils['errors'].serverMessage();
     return true;
   }
 
   // Run process logo recreate
   async runRecreateLogo({ siteId }) {
     let result = await $dbMain['sites'].removeLogoInfo({ siteId });
-    return result ? true : false;
+    if (!result) $utils['errors'].serverMessage();
+    return true;
   }
 
   // Update sites color
   async editSitesColor({ siteScreenshotId, color }) {
     let result = await $dbMain['sites'].editSitesColor({ siteScreenshotId, color });
-    return result ? true : false;
+    if (!result) $utils['errors'].serverMessage();
+    return true;
   }
 
   // Create file logo
@@ -169,21 +178,22 @@ class Sites {
   async linkDomainImagesToSubdomain({ domainSiteId, subdomainSiteId }) {
     let result = await $dbMain['sites'].getSiteBySiteId({ siteId: domainSiteId });
 
-    if (!result) throw Error($t('Server error'));
+    if (!result) $utils['errors'].serverMessage();
 
     let { color, siteScreenshotId, siteLogoId, dateLogoCreate } = result;
 
-    await $dbMain['sites'].editImageInfo({
+    let resultImageInfo = await $dbMain['sites'].editImageInfo({
       siteId: subdomainSiteId,
       color,
       siteScreenshotId,
       siteLogoId,
       dateLogoCreate,
     });
+    if (!resultImageInfo) $utils['errors'].serverMessage();
     return true;
   }
 
-  // Запустить процесс который будет обновлять alexaRank и dateDomainCreate для сайтов у которых alexaRank = 0
+  // Run a process that will update alexaRank and dateDomainCreate for sites that have alexaRank = 0
   async initProccessSitesInfoUpdate() {
     setInterval(async () => {
       // Get sites

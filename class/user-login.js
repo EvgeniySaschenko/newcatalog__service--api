@@ -6,14 +6,10 @@ let { v4: uuidv4 } = require('uuid');
 class UserLogin {
   async auth({ email, password, userAgent = '', ip, response }) {
     if (!email) {
-      throw {
-        errors: [
-          {
-            path: 'email',
-            message: $t('This field cannot be empty'),
-          },
-        ],
-      };
+      $utils['errors'].validationMessage({
+        path: 'email',
+        message: $t('This field cannot be empty'),
+      });
     }
 
     password = $utils['users'].encryptPassword(password);
@@ -32,14 +28,10 @@ class UserLogin {
         type: 'another-device',
       });
 
-      throw {
-        errors: [
-          {
-            path: 'auth',
-            message: $t('Server error'),
-          },
-        ],
-      };
+      $utils['errors'].validationMessage({
+        path: 'auth',
+        message: $t('Auth error'),
+      });
     }
 
     // Brute force protection
@@ -71,14 +63,10 @@ class UserLogin {
         type: 'incorrect',
       });
 
-      throw {
-        errors: [
-          {
-            path: 'auth',
-            message: $t('Incorrect login or password'),
-          },
-        ],
-      };
+      $utils['errors'].validationMessage({
+        path: 'auth',
+        message: $t('Incorrect login or password'),
+      });
     }
 
     let sessionId = await this.setAuthData({ userId: user.userId, userAgent, response });
@@ -110,14 +98,10 @@ class UserLogin {
         type: 'check-auth-error',
       });
 
-      throw {
-        errors: [
-          {
-            path: 'auth',
-            message: $t('Auth error'),
-          },
-        ],
-      };
+      $utils['errors'].validationMessage({
+        path: 'auth',
+        message: $t('Auth error'),
+      });
     }
 
     let dbData = await $dbMain['users'].getUserByUserId({ userId: tokenData.userId });
@@ -138,14 +122,10 @@ class UserLogin {
         type: 'check-auth-error',
       });
 
-      throw {
-        errors: [
-          {
-            path: 'auth',
-            message: $t('Auth error'),
-          },
-        ],
-      };
+      $utils['errors'].validationMessage({
+        path: 'auth',
+        message: $t('Auth error'),
+      });
     }
 
     return true;
@@ -179,14 +159,10 @@ class UserLogin {
         type: 'refresh-incorrect',
       });
 
-      throw {
-        errors: [
-          {
-            path: 'auth',
-            message: $t('Server error'),
-          },
-        ],
-      };
+      $utils['errors'].validationMessage({
+        path: 'auth',
+        message: $t('Auth error'),
+      });
     }
 
     let { userId, sessionId } = tokenData;
@@ -204,14 +180,10 @@ class UserLogin {
       });
 
       this.clearAuthCookies({ response });
-      throw {
-        errors: [
-          {
-            path: 'auth',
-            message: $t('Server error'),
-          },
-        ],
-      };
+      $utils['errors'].validationMessage({
+        path: 'auth',
+        message: $t('Auth error'),
+      });
     }
 
     // Refres session id

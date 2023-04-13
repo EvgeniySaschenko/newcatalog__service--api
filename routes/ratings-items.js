@@ -1,66 +1,62 @@
 let express = require('express');
 let router = express.Router();
 let RatingsItems = require(global.ROOT_PATH + '/class/ratings-items');
-let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 // Get all rating items
-router.get('/rating/:ratingId', async (req, res, next) => {
+router.get('/rating/:ratingId', async (request, response, next) => {
   let result;
 
   try {
-    let { typeSort } = req.query;
-    let { ratingId } = req.params;
+    let { typeSort } = request.query;
+    let { ratingId } = request.params;
     let ratingsItems = new RatingsItems();
     result = await ratingsItems.getItemsRating({ typeSort, ratingId });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Add rating item
-router.post('/', async (req, res, next) => {
+router.post('/', async (request, response, next) => {
   let result;
   try {
     let ratingsItems = new RatingsItems();
-    result = await ratingsItems.createItem(req.body);
+    result = await ratingsItems.createItem(request.body);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Edit rating item
-router.put('/:ratingItemId', async (req, res, next) => {
+router.put('/:ratingItemId', async (request, response, next) => {
   let result;
 
   try {
     let ratingsItems = new RatingsItems();
-    result = await ratingsItems.editItem(req.body);
+    result = await ratingsItems.editItem(request.body);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Delete the rating item
-router.delete('/:ratingItemId', async (req, res, next) => {
+router.delete('/:ratingItemId', async (request, response, next) => {
   let result;
   try {
     let ratingsItems = new RatingsItems();
-    result = await ratingsItems.deleteItem(req.body);
+    result = await ratingsItems.deleteItem(request.body);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 module.exports = router;
