@@ -27,8 +27,8 @@ module.exports = {
       await client.quit();
       return result || null;
     } catch (error) {
-      console.error(error);
+      await client.quit();
+      throw error;
     }
-    return null;
   },
 };

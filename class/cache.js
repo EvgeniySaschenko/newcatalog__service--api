@@ -1,6 +1,8 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
-let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
+let { $translations } = require(global.ROOT_PATH + '/plugins/translations');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { DB_TEMPORARY__DB_CONTENT_PREFIXES } = process.env;
 let dbTemporaryPrefixes = JSON.parse(DB_TEMPORARY__DB_CONTENT_PREFIXES);
 let { v4: uuidv4 } = require('uuid');
@@ -11,8 +13,11 @@ class Cache {
     // Get datap
     let ratingData = await this.getRatingData({ ratingId });
     if (!ratingData) {
-      throw { server: $t('Not enough data') };
+      $utils['errors'].serverMessage(
+        $t('There are no items in the rating to publish, or it is hidden')
+      );
     }
+
     // Add to cache
     await this.addRatingToCache(ratingData);
 
@@ -30,17 +35,21 @@ class Cache {
     // Add rating to list
     let ratingsData = [{ ratingId, dateFirstPublication }];
     await this.addRatingsListIds({ ratingsData });
+
     for await (let sectionId of Object.values(ratingData.rating.sectionsIds)) {
       await this.addSectionRatingsListIds({ sectionId, ratingsData });
     }
 
     // Update date create cache
-    await $dbMain['ratings'].editCacheCreation({
+    let result = await $dbMain['ratings'].editCacheCreation({
       ratingId,
       dateCacheCreation: new Date(),
       sectionsIdsCache: ratingData.rating.sectionsIds,
     });
 
+    await this.createCacheSections(); // There should be no sections without ratings
+
+    if (!result) $utils['errors'].serverMessage();
     return true;
   }
 
@@ -54,6 +63,7 @@ class Cache {
         typeSort: rating.typeSort,
       })
     ).filter((el) => !el.isHiden);
+
     let labels = await $dbMain['labels'].getLabelsRating({ ratingId });
 
     if (rating.isHiden) {
@@ -99,7 +109,7 @@ class Cache {
   async addRatingToCache({ rating, ratingsItems, labels }) {
     let ratingId = rating.ratingId;
 
-    let isRating = await $dbTemporary['content'].add({
+    await $dbTemporary['content'].add({
       prefix: `${dbTemporaryPrefixes['rating']}_${ratingId}`,
       data: {
         ratingId: rating.ratingId,
@@ -109,7 +119,8 @@ class Cache {
         dateFirstPublication: rating.dateFirstPublication,
       },
     });
-    let isRatingItems = await $dbTemporary['content'].add({
+
+    await $dbTemporary['content'].add({
       prefix: `${dbTemporaryPrefixes['rating-items']}_${ratingId}`,
       data: ratingsItems.map((el) => {
         return {
@@ -125,7 +136,8 @@ class Cache {
         };
       }),
     });
-    let isLabels = await $dbTemporary['content'].add({
+
+    await $dbTemporary['content'].add({
       prefix: `${dbTemporaryPrefixes['labels']}_${ratingId}`,
       data: labels.map((el) => {
         return {
@@ -135,12 +147,6 @@ class Cache {
         };
       }),
     });
-
-    if (!isRating || !isRatingItems || !isLabels) {
-      throw { server: $t('Server error') };
-    }
-
-    return true;
   }
 
   /*
@@ -181,8 +187,9 @@ class Cache {
     */
   async addSectionRatingsListIds({ sectionId, ratingsData }) {
     let sectionRatingIds = await $dbTemporary['content'].get({
-      prefix: dbTemporaryPrefixes['section-ratings'],
+      prefix: `${dbTemporaryPrefixes['section-ratings']}_${sectionId}`,
     });
+
     if (!sectionRatingIds) {
       sectionRatingIds = {
         map: {},
@@ -199,20 +206,16 @@ class Cache {
         return a[1] - b[1];
       })
       .map((el) => el[0]);
-    let result = await $dbTemporary['content'].add({
+    await $dbTemporary['content'].add({
       prefix: `${dbTemporaryPrefixes['section-ratings']}_${sectionId}`,
       data: sectionRatingIds,
     });
-
-    if (!result) throw { server: $t('Server error') };
-    return true;
   }
 
   // Delete cache rating
   async deleteCacheRating({ ratingId }) {
     let rating = await $dbMain['ratings'].getRating({ ratingId });
-    let result = await this.deleteRatingFromCache({ ratingIds: [{ ratingId }] });
-    if (!result) throw { server: $t('Server error') };
+    await this.deleteRatingFromCache({ ratingIds: [{ ratingId }] });
 
     await this.deleteSectionsRatingChange({
       sectionsIdsCache: rating.sectionsIdsCache,
@@ -225,25 +228,22 @@ class Cache {
     for await (let sectionId of Object.values(rating.sectionsIds)) {
       await this.deleteSectionRatingsListIds({ sectionId, ratingIds: [{ ratingId }] });
     }
+    await this.createCacheSections(); // There should be no sections without ratings
     return true;
   }
 
   // Delete ratings from cache
   async deleteRatingFromCache({ ratingIds }) {
     for await (let { ratingId } of ratingIds) {
-      let isRating = await $dbTemporary['content'].delete({
+      await $dbTemporary['content'].delete({
         prefix: `${dbTemporaryPrefixes['rating']}_${ratingId}`,
       });
-      let isRatingItems = await $dbTemporary['content'].delete({
+      await $dbTemporary['content'].delete({
         prefix: `${dbTemporaryPrefixes['rating-items']}_${ratingId}`,
       });
-      let isLabels = await $dbTemporary['content'].delete({
+      await $dbTemporary['content'].delete({
         prefix: `${dbTemporaryPrefixes['labels']}_${ratingId}`,
       });
-
-      if (!isRating || !isRatingItems || !isLabels) {
-        return false;
-      }
 
       await $dbMain['ratings'].editCacheCreation({
         ratingId,
@@ -251,7 +251,6 @@ class Cache {
         sectionsIdsCache: null,
       });
     }
-    return true;
   }
 
   //  For a list of ratings, remove ratings from the cache
@@ -280,7 +279,7 @@ class Cache {
   // From ratings in section, remove ratings
   async deleteSectionRatingsListIds({ sectionId, ratingIds }) {
     let sectionRatingIds = await $dbTemporary['content'].get({
-      prefix: dbTemporaryPrefixes['section-ratings'],
+      prefix: `${dbTemporaryPrefixes['section-ratings']}_${sectionId}`,
     });
 
     if (!sectionRatingIds) return;
@@ -294,13 +293,10 @@ class Cache {
         return a[1] - b[1];
       })
       .map((el) => el[0]);
-    let result = await $dbTemporary['content'].add({
+    await $dbTemporary['content'].add({
       prefix: `${dbTemporaryPrefixes['section-ratings']}_${sectionId}`,
       data: sectionRatingIds,
     });
-
-    if (!result) throw { server: $t('Server error') };
-    return true;
   }
 
   /*
@@ -335,11 +331,10 @@ class Cache {
         };
       });
 
-    let isSuccesCreated = await $dbTemporary['content'].add({
+    await $dbTemporary['content'].add({
       prefix: dbTemporaryPrefixes['sections'],
       data: sections,
     });
-    if (!isSuccesCreated) throw { server: $t('Server error') };
     return true;
   }
 
@@ -370,40 +365,32 @@ class Cache {
 
     let lang = $translations.getLangDefault({ serviceName });
 
-    let isSuccesTranslations = await $dbTemporary['content'].add({
+    await $dbTemporary['content'].add({
       prefix: dbTemporaryPrefixes['translations-site'],
       data: translations,
     });
 
-    if (!isSuccesTranslations) throw { server: $t('Server error') };
-
-    let isSuccesLangs = await $dbTemporary['content'].add({
+    await $dbTemporary['content'].add({
       prefix: dbTemporaryPrefixes['langs-site'],
       data: langs,
     });
 
-    if (!isSuccesLangs) throw { server: $t('Server error') };
-
-    let isSuccesLangDefault = await $dbTemporary['content'].add({
+    await $dbTemporary['content'].add({
       prefix: dbTemporaryPrefixes['lang-default-site'],
       data: lang,
     });
-
-    if (!isSuccesLangDefault) throw { server: $t('Server error') };
 
     return true;
   }
 
   // Create cache from all elements
-  async resetCache() {
-    await this.clearDatabase();
+  async resetCacheAll() {
+    await this.clearCacheAll();
     let ratingsAllData = await this.getRatingsAllData();
     let ratingsDataFromList = [];
     let ratingsDataFromListSections = {};
 
-    if (!ratingsAllData.length) {
-      throw { server: $t('Server error') };
-    }
+    if (!ratingsAllData.length) return true;
 
     for await (let ratingData of ratingsAllData) {
       // Add to cache
@@ -456,7 +443,7 @@ class Cache {
   }
 
   // Clear all cache
-  async clearDatabase() {
+  async clearCacheAll() {
     let ratings = await $dbMain['ratings'].getRatings({});
     for await (let { ratingId } of ratings) {
       await $dbMain['ratings'].editCacheCreation({
@@ -465,26 +452,25 @@ class Cache {
         sectionsIdsCache: null,
       });
     }
-    return await $dbTemporary['content'].clearDatabase();
+    await $dbTemporary['content'].clearDatabase();
+    return true;
   }
 
   /*
    Set id cache (this label can be used by other services to find out that the cache has changed)
   */
   async setCacheId() {
-    let result = await $dbTemporary['content'].add({
+    await $dbTemporary['content'].add({
       prefix: dbTemporaryPrefixes['cache-id'],
       data: uuidv4(),
     });
-    return result;
   }
 
   // Delete id cache (used in cache changes)
   async deleteCacheId() {
-    let result = await $dbTemporary['content'].delete({
+    await $dbTemporary['content'].delete({
       prefix: dbTemporaryPrefixes['cache-id'],
     });
-    return result;
   }
 }
 

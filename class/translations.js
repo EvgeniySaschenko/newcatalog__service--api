@@ -1,6 +1,7 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
 let { $translations } = require(global.ROOT_PATH + '/plugins/translations');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let fse = require('fs-extra');
 let path = require('path');
 
@@ -207,16 +208,16 @@ class Translations {
 
   // Update text for translation
   async editText({ translationId, text }) {
-    await $dbMain['translations'].editTextById({ translationId, text });
-    return true;
+    return await $dbMain['translations'].editTextById({ translationId, text });
   }
 
   // Run edit text - This wrapper is needed to store API translations in Node.js memory
   async runEditText({ translationId, text, serviceName }) {
-    await this.editText({ translationId, text });
+    let result = await this.editText({ translationId, text });
     if (global.$config['services'].api.serviceName === serviceName) {
       await this.setTranslationsListServiceApi();
     }
+    if (!result) $utils['errors'].serverMessage();
     return true;
   }
 }

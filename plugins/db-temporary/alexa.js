@@ -14,17 +14,22 @@ let prefixes = JSON.parse(DB_TEMPORARY__DB_ALEXA_PREFIXES);
 module.exports = {
   // Create database AlexaRank
   async createDataDaseCacheAlexaRank() {
-    await client.connect();
-    let isAlexaRankData = await client.get('isAlexaRankData');
-    if (!isAlexaRankData) {
-      let fileContent = fse.readFileSync(global.ROOT_PATH + '/data/alexa-rank.csv', 'utf8');
-      for (let item of fileContent.split('\n')) {
-        let [rank, host] = item.split(',');
-        await client.set(`${prefixes['alexa-rank']}_${host}`, rank);
+    try {
+      await client.connect();
+      let isAlexaRankData = await client.get('isAlexaRankData');
+      if (!isAlexaRankData) {
+        let fileContent = fse.readFileSync(global.ROOT_PATH + '/data/alexa-rank.csv', 'utf8');
+        for (let item of fileContent.split('\n')) {
+          let [rank, host] = item.split(',');
+          await client.set(`${prefixes['alexa-rank']}_${host}`, rank);
+        }
+        await client.set('isAlexaRankData', 'true');
       }
-      await client.set('isAlexaRankData', 'true');
+      await client.quit();
+    } catch (error) {
+      await client.quit();
+      console.error(error);
     }
-    await client.quit();
   },
 
   // Get AlexaRank
@@ -35,6 +40,7 @@ module.exports = {
       await client.quit();
       return Number(alexaRank) || null;
     } catch (error) {
+      await client.quit();
       console.error(error);
     }
     return null;

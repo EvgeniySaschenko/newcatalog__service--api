@@ -32,7 +32,7 @@ let $translations = {
     },
 
     // Translation function
-    t({ text, lang }) {
+    t(text, lang) {
       let { serviceName } = serviceAdmin;
       let langDefault = this.getLangDefault({ serviceName });
       let langs = this.getLangs({ serviceName });
@@ -87,6 +87,7 @@ let $translations = {
       if (!langs) {
         langs = this.getLangs({ serviceName: serviceSite.serviceName });
       }
+
       if (!translations) throw Error($t('Wrong data format')); // is empty
       if (typeof translations !== 'object') throw Error($t('Wrong data format')); // is wrong type
       if (Array.isArray(translations)) throw Error($t('Wrong data format')); // is wrong type

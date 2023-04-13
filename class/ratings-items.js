@@ -20,7 +20,7 @@ class RatingsItems {
       name[key] = striptags(name[key] || page.name);
     }
 
-    let result = await $dbMain['ratings-items'].createItem({
+    let { ratingItemId } = await $dbMain['ratings-items'].createItem({
       ratingId,
       url,
       siteId,
@@ -31,7 +31,7 @@ class RatingsItems {
       isHidden,
     });
 
-    return result;
+    return { ratingItemId };
   }
 
   // Check if such url exists in the ranking
@@ -42,9 +42,10 @@ class RatingsItems {
     });
 
     if (itemRatingByUrl) {
-      throw {
-        errors: [{ path: 'url', message: $t('A label with the same name already exists') }],
-      };
+      $utils['errors'].validationMessage({
+        path: 'url',
+        message: $t('A label with the same name already exists'),
+      });
     }
     return false;
   }
@@ -126,7 +127,9 @@ class RatingsItems {
       priority,
       isHiden,
     });
-    return result;
+
+    if (!result) $utils['errors'].serverMessage();
+    return true;
   }
 
   // Get Page
@@ -167,8 +170,8 @@ class RatingsItems {
     });
 
     let result = await $dbMain['ratings-items'].deleteItem({ ratingItemId });
-    if (result) return true;
-    throw Error($t('There is no such id'));
+    if (!result) $utils['errors'].serverMessage();
+    return true;
   }
 }
 

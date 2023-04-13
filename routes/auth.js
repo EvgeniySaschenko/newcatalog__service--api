@@ -1,23 +1,22 @@
 let express = require('express');
 let router = express.Router();
-let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
 let UserLogin = require(global.ROOT_PATH + '/class/user-login');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 // Check auth user
-router.use(async (req, res, next) => {
+router.use(async (request, response, next) => {
   let isAuth = false;
   try {
     let userLogin = new UserLogin();
 
     await userLogin.checkAuth({
-      token: req.cookies[global.$config['users'].cookieToken] || '',
-      userAgent: req.headers['user-agent'] || '',
-      ip: req.headers['x-forwarded-for'] || '',
+      token: request.cookies[global.$config['users'].cookieToken] || '',
+      userAgent: request.headers['user-agent'] || '',
+      ip: request.headers['x-forwarded-for'] || '',
     });
     isAuth = true;
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    errorsMessage.createMessage(error);
+    $utils['errors'].createResponse({ request, error });
   }
 
   let excludeUrl = {
@@ -25,10 +24,10 @@ router.use(async (req, res, next) => {
     '/api/user/log-out': true,
   };
 
-  if (isAuth || excludeUrl[req.url]) {
+  if (isAuth || excludeUrl[request.url]) {
     next();
   } else {
-    res.sendStatus(401);
+    response.sendStatus(401);
   }
 });
 

@@ -1,10 +1,12 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 class Sections {
   // Create section
   async createSection({ name }) {
-    return await $dbMain['sections'].createSection({ name });
+    let { sectionId } = await $dbMain['sections'].createSection({ name });
+    return { sectionId };
   }
 
   // Delete section
@@ -12,9 +14,10 @@ class Sections {
     let ratingsCount = await $dbMain['ratings'].getRatingCountBySectionId({ sectionId });
 
     if (ratingsCount) {
-      throw {
-        errors: [{ path: 'section', message: $t('You can not delete a section that has ratings') }],
-      };
+      $utils['errors'].validationMessage({
+        path: 'section',
+        message: $t('You can not delete a section that has ratings'),
+      });
     }
 
     let tableRecord = await $dbMain['sections'].getSectionBySectionId({ sectionId });
@@ -24,12 +27,16 @@ class Sections {
       tableRecord,
     });
 
-    return await $dbMain['sections'].deleteSection({ sectionId });
+    let result = await $dbMain['sections'].deleteSection({ sectionId });
+    if (!result) $utils['errors'].serverMessage();
+    return true;
   }
 
   // Edit section
   async editSection(section = {}) {
-    return await $dbMain['sections'].editSection(section);
+    let result = await $dbMain['sections'].editSection(section);
+    if (!result) $utils['errors'].serverMessage();
+    return true;
   }
 
   // Get all sections

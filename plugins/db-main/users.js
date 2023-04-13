@@ -35,7 +35,7 @@ module.exports = {
       },
       { where: { userId } }
     );
-    return result;
+    return result[0];
   },
 
   // Update user password
@@ -46,7 +46,7 @@ module.exports = {
       },
       { where: { userId } }
     );
-    return result;
+    return result[0];
   },
 
   // Get user auth

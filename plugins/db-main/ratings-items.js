@@ -32,13 +32,12 @@ module.exports = {
       },
       { where: { ratingItemId } }
     );
-    return result;
+    return result[0];
   },
 
   // Delete item
   async deleteItem({ ratingItemId }) {
-    let result = await M_RatingsItems.destroy({ where: { ratingItemId } });
-    return result;
+    return await M_RatingsItems.destroy({ where: { ratingItemId } });
   },
 
   // Get site by url and ratingId (to check for uniqueness)
@@ -76,7 +75,7 @@ module.exports = {
 
   // Update labels for rating elements (used when deleting a label)
   async editItemsRatingLabel({ ratingItemId, labelsIds }) {
-    await M_RatingsItems.update(
+    let result = await M_RatingsItems.update(
       { labelsIds },
       {
         where: {
@@ -84,6 +83,7 @@ module.exports = {
         },
       }
     );
+    return result[0];
   },
 
   // Get all rating items

@@ -1,6 +1,7 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let striptags = require('striptags');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 class Labels {
   // Create label
@@ -9,8 +10,8 @@ class Labels {
       name[key] = striptags(name[key]);
     }
     await this.checkLabelExist({ name, ratingId });
-    let result = await $dbMain['labels'].createLabel({ ratingId, name, color });
-    return result;
+    let { labelId } = await $dbMain['labels'].createLabel({ ratingId, name, color });
+    return { labelId };
   }
 
   // Edit label
@@ -20,7 +21,8 @@ class Labels {
     }
     await this.checkLabelExist({ labelId, name, ratingId });
     let result = await $dbMain['labels'].editLabel({ labelId, name, color });
-    return result;
+    if (!result) $utils['errors'].serverMessage();
+    return true;
   }
 
   // Remove label + removed from items
@@ -36,8 +38,8 @@ class Labels {
       tableRecord,
     });
     let result = await $dbMain['labels'].deleteLabel({ labelId });
-    if (result) return true;
-    throw Error($t('There is no such id'));
+    if (!result) $utils['errors'].serverMessage();
+    return true;
   }
 
   // Checking for a label in the rating with the same name
@@ -53,10 +55,12 @@ class Labels {
       if (isExist) break;
     }
 
-    if (isExist)
-      throw {
-        errors: [{ path: 'name', message: $t('A label with the same name already exists') }],
-      };
+    if (isExist) {
+      $utils['errors'].validationMessage({
+        path: 'name',
+        message: $t('A label with the same name already exists'),
+      });
+    }
   }
 
   // Update labels for rating items (delete label)

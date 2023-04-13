@@ -1,113 +1,97 @@
 let express = require('express');
 let router = express.Router();
-let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let Cache = require(global.ROOT_PATH + '/class/cache');
 
 // Add cache rating
-router.post('/rating/:ratingId', async (req, res, next) => {
+router.post('/rating/:ratingId', async (request, response, next) => {
   let result = true;
   try {
     let cache = new Cache();
     await cache.deleteCacheId();
-    result = await cache.createCacheRating(req.body);
-    if (result) {
-      result = await cache.setCacheId();
-    }
+    result = await cache.createCacheRating(request.body);
+    await cache.setCacheId();
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Delete cache rating
-router.delete('/rating/:ratingId', async (req, res, next) => {
+router.delete('/rating/:ratingId', async (request, response, next) => {
   let result = true;
   try {
     let cache = new Cache();
     await cache.deleteCacheId();
-    result = await cache.deleteCacheRating(req.body);
-    if (result) {
-      result = await cache.setCacheId();
-    }
+    result = await cache.deleteCacheRating(request.body);
+    await cache.setCacheId();
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Create new cache from all
-router.post('/reset-all', async (req, res, next) => {
+router.post('/reset-all', async (request, response, next) => {
   let result = true;
   try {
     let cache = new Cache();
     await cache.deleteCacheId();
-    result = await cache.resetCache(req.body);
-    if (result) {
-      result = await cache.setCacheId();
-    }
+    result = await cache.resetCacheAll(request.body);
+    await cache.setCacheId();
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Clear database
-router.delete('/clear-all', async (req, res, next) => {
+router.delete('/clear-all', async (request, response, next) => {
   let result = true;
   try {
     let cache = new Cache();
-    result = await cache.clearDatabase();
+    result = await cache.clearCacheAll();
     // No identifier indicates no cache
     // if (result) {
     //   result = await cache.setCacheId();
     // }
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Create cache sections
-router.post('/sections', async (req, res, next) => {
+router.post('/sections', async (request, response, next) => {
   let result = true;
   try {
     let cache = new Cache();
     await cache.deleteCacheId();
     result = await cache.createCacheSections();
-    if (result) {
-      result = await cache.setCacheId();
-    }
+    await cache.setCacheId();
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Create cache translations + langs site
-router.post('/translations-and-langs-site', async (req, res, next) => {
+router.post('/translations-and-langs-site', async (request, response, next) => {
   let result = true;
   try {
     let cache = new Cache();
     await cache.deleteCacheId();
     result = await cache.createCacheTranslationsAndLangsSite();
-    if (result) {
-      result = await cache.setCacheId();
-    }
+    await cache.setCacheId();
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 module.exports = router;

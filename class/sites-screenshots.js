@@ -32,12 +32,12 @@ class SitesScreenshots {
   async addSiteToProcessing({ siteId, url }) {
     await this.checkSiteProcessing({ siteId });
     await $dbMain['sites'].removeScreenshotInfo({ siteId });
-    let result = await $dbMain['sites-screenshots'].addSiteToProcessing({
+    let { siteScreenshotId } = await $dbMain['sites-screenshots'].addSiteToProcessing({
       url,
       siteId,
     });
 
-    return result;
+    return { siteScreenshotId };
   }
 
   // Checking if the site is in the queue for creating a screenshot, so as not to add it again
@@ -47,14 +47,10 @@ class SitesScreenshots {
     });
 
     if (isScreenshotProcessing) {
-      throw {
-        errors: [
-          {
-            path: 'screenshot',
-            message: $t('This site is currently in the screenshot queue'),
-          },
-        ],
-      };
+      $utils['errors'].validationMessage({
+        path: 'screenshot',
+        message: $t('This site is currently in the screenshot queue'),
+      });
     }
   }
 
@@ -104,7 +100,8 @@ class SitesScreenshots {
   // A screenshot
   async runCustomScreenshotCreate({ fileImg, siteId }) {
     let filename = await this.uploadCustomScreenshot({ fileImg });
-    return await this.createCustomScreenshot({ filename, siteId });
+    let { siteScreenshotId } = await this.createCustomScreenshot({ filename, siteId });
+    return { siteScreenshotId };
   }
 
   // Upload screenshot
@@ -112,9 +109,7 @@ class SitesScreenshots {
     let isMimeType = global.$config['sites'].screenshotMimeTypes.includes(fileImg.mimetype);
     let tmpFileName = $utils['paths'].saveTmpFile(fileImg.name);
     if (!isMimeType) {
-      throw {
-        errors: [{ path: 'screenshot', message: $t('Invalid file') }],
-      };
+      $utils['errors'].validationMessage({ path: 'screenshot', message: $t('Invalid file') });
     }
     await fileImg.mv(tmpFileName);
 

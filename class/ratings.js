@@ -15,8 +15,7 @@ class Ratings {
     isHiden,
   }) {
     let { userId } = await $utils['users'].getTokenData({ token });
-
-    return await $dbMain['ratings'].createRating({
+    let { ratingId } = await $dbMain['ratings'].createRating({
       userId,
       name,
       descr,
@@ -26,6 +25,8 @@ class Ratings {
       sectionsIds,
       isHiden,
     });
+
+    return { ratingId };
   }
 
   // Edit Rating
@@ -42,7 +43,7 @@ class Ratings {
     visitorId,
   }) {
     let { userId } = await $utils['users'].getTokenData({ token });
-    return await $dbMain['ratings'].editRating({
+    let result = await $dbMain['ratings'].editRating({
       userId,
       ratingId,
       name,
@@ -54,6 +55,9 @@ class Ratings {
       sectionsIds,
       visitorId,
     });
+
+    if (!result) $utils['errors'].serverMessage();
+    return true;
   }
 
   // Get Rating
@@ -82,14 +86,10 @@ class Ratings {
     let ratingItems = await $dbMain['ratings-items'].getItemsRating({ ratingId });
     let ratingLabels = await $dbMain['labels'].getLabelsRating({ ratingId });
     if (ratingItems.length || ratingLabels.length) {
-      throw {
-        errors: [
-          {
-            path: 'rating',
-            message: $t('You can not remove a rating that has sites or labels'),
-          },
-        ],
-      };
+      $utils['errors'].validationMessage({
+        path: 'rating',
+        message: $t('You can not remove a rating that has sites or labels'),
+      });
     }
 
     let tableRecord = await $dbMain['ratings'].getRating({ ratingId });
@@ -99,7 +99,8 @@ class Ratings {
       tableRecord,
     });
     let result = await $dbMain['ratings'].deleteRating({ ratingId });
-    if (result) return true;
+    if (!result) $utils['errors'].serverMessage();
+    return true;
   }
 }
 

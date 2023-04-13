@@ -1,51 +1,49 @@
 let express = require('express');
 let router = express.Router();
-let ErrorsMessage = require(global.ROOT_PATH + '/class/errors-message');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let Translations = require(global.ROOT_PATH + '/class/translations');
 
 // Get part translations for service
-router.get('/part-list', async (req, res, next) => {
+router.get('/part-list', async (request, response, next) => {
   let result;
-  let serviceName = req.query.serviceName;
+  let serviceName = request.query.serviceName;
   try {
     let translations = new Translations();
     let { serviceType } = global.$config['services'][serviceName];
 
     result = await translations.getTranslationsForService({
       serviceType,
-      page: Number(req.query.page) || 1,
+      page: Number(request.query.page) || 1,
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Get translations for function translate
-router.get('/function-translate', async (req, res, next) => {
+router.get('/function-translate', async (request, response, next) => {
   let result;
   try {
     let translations = new Translations();
-    let { serviceName, serviceType } = global.$config['services'][req.query.serviceName];
+    let { serviceName, serviceType } = global.$config['services'][request.query.serviceName];
 
     result = await translations.getTranslationsForFunctionTranslate({
       serviceName,
       serviceType,
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Create translations for service
-router.post('/create-for-service', async (req, res, next) => {
+router.post('/create-for-service', async (request, response, next) => {
   let result;
-  let serviceName = req.body.serviceName;
+  let serviceName = request.body.serviceName;
 
   try {
     let translations = new Translations();
@@ -55,25 +53,23 @@ router.post('/create-for-service', async (req, res, next) => {
       serviceType,
     });
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 // Update text for translation
-router.put('/text/:translationId', async (req, res, next) => {
+router.put('/text/:translationId', async (request, response, next) => {
   let result;
   try {
     let translations = new Translations();
-    result = await translations.runEditText(req.body);
+    result = await translations.runEditText(request.body);
   } catch (error) {
-    let errorsMessage = new ErrorsMessage(req);
-    result = errorsMessage.createMessage(error);
-    res.status(result.status);
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
   }
-  res.send(result);
+  response.send(result);
 });
 
 module.exports = router;
