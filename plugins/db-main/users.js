@@ -1,7 +1,14 @@
 let { M_Users, name: tableName } = require('./models/users');
+const { Op } = require('sequelize');
 
 module.exports = {
   tableName,
+  // The request checks for the presence of at least one user in the database, so as not to create a user by default
+  async checkExistUsers() {
+    let result = await M_Users.findOne();
+    return result;
+  },
+
   //  Create user
   async createUser({ email, password }) {
     let result = await M_Users.create({ email, password });
@@ -86,6 +93,26 @@ module.exports = {
         countLoginAttempt: 0,
       },
       { where: { sessionId, userId, userAgent } }
+    );
+    return result[0];
+  },
+
+  async editUsersAllLogOut() {
+    let result = await M_Users.update(
+      {
+        sessionId: null,
+        userAgent: null,
+        dateEntry: null,
+        dateLoginAttempt: null,
+        countLoginAttempt: 0,
+      },
+      {
+        where: {
+          dateEntry: {
+            [Op.not]: null,
+          },
+        },
+      }
     );
     return result[0];
   },

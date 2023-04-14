@@ -37,9 +37,10 @@ router.post('/', async (request, response, next) => {
   let result;
 
   try {
+    let { userId } = await $utils['users'].getUserDataFromRequest(request);
     let ratings = new Ratings();
     result = await ratings.createRating({
-      token: request.cookies[global.$config['users'].cookieToken] || '',
+      userId,
       ...request.body,
     });
   } catch (error) {
@@ -54,6 +55,7 @@ router.put('/:ratingId', async (request, response, next) => {
   let result;
 
   try {
+    let { userId } = await $utils['users'].getUserDataFromRequest(request);
     if (request.body.isHiden) {
       let cache = new Cache();
       result = await cache.deleteCacheRating(request.body);
@@ -61,7 +63,7 @@ router.put('/:ratingId', async (request, response, next) => {
 
     let ratings = new Ratings();
     result = await ratings.editRating({
-      token: request.cookies[global.$config['users'].cookieToken] || '',
+      userId,
       ...request.body,
     });
   } catch (error) {

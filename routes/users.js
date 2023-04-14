@@ -1,20 +1,23 @@
 let express = require('express');
 let router = express.Router();
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
-let User = require(global.ROOT_PATH + '/class/user');
-let UserLogin = require(global.ROOT_PATH + '/class/user-login');
+let Users = require(global.ROOT_PATH + '/class/users');
+let UsersAuth = require(global.ROOT_PATH + '/class/users-auth');
 
 // Login to site
 router.put('/login', async (request, response, next) => {
   let result;
   try {
-    let userLogin = new UserLogin();
-    await userLogin.auth({
-      email: request?.body?.email,
-      password: request?.body?.password,
-      userAgent: request?.headers['user-agent'],
+    let { userAgent, ip } = await $utils['users'].getUserDataFromRequest(request);
+
+    let users = new Users();
+    let usersAuth = new UsersAuth();
+    await usersAuth.login({
+      email: request?.body.email,
+      password: users.encryptPassword(request?.body.password),
+      userAgent,
       response,
-      ip: request.headers['x-forwarded-for'] || '',
+      ip,
     });
     result = true;
   } catch (error) {
@@ -27,14 +30,18 @@ router.put('/login', async (request, response, next) => {
 // Login to site
 router.put('/log-out', async (request, response, next) => {
   let result;
-
   try {
-    let userLogin = new UserLogin();
-    await userLogin.logOut({
-      token: request.cookies[global.$config['users'].cookieToken] || '',
-      userAgent: request.headers['user-agent'] || '',
+    let { userAgent, ip, sessionId, userId } = await $utils['users'].getUserDataFromRequest(
+      request
+    );
+
+    let usersAuth = new UsersAuth();
+    await usersAuth.logOut({
+      sessionId,
+      userId,
+      userAgent,
       response,
-      ip: request.headers['x-forwarded-for'] || '',
+      ip,
     });
     result = true;
   } catch (error) {
@@ -47,12 +54,17 @@ router.put('/log-out', async (request, response, next) => {
 router.put('/auth-refresh', async (request, response, next) => {
   let result;
   try {
-    let userLogin = new UserLogin();
-    result = await userLogin.authRefresh({
-      token: request.cookies[global.$config['users'].cookieToken] || '',
-      userAgent: request.headers['user-agent'] || '',
+    let { userAgent, ip, sessionId, userId } = await $utils['users'].getUserDataFromRequest(
+      request
+    );
+
+    let usersAuth = new UsersAuth();
+    result = await usersAuth.authRefresh({
+      sessionId,
+      userId,
+      userAgent,
       response,
-      ip: request?.headers['x-forwarded-for'] || '',
+      ip,
     });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
@@ -71,9 +83,10 @@ router.put('/auth-refresh', async (request, response, next) => {
 router.put('/password', async (request, response, next) => {
   let result;
   try {
-    let user = new User();
-    result = await user.editPassword({
-      token: request.cookies[global.$config['users'].cookieToken] || '',
+    let { userId } = await $utils['users'].getUserDataFromRequest(request);
+    let users = new Users();
+    result = await users.editPassword({
+      userId,
       password: request.body?.password,
     });
   } catch (error) {
@@ -89,9 +102,10 @@ router.put('/email', async (request, response, next) => {
   let result;
 
   try {
-    let user = new User();
-    result = await user.editEmail({
-      token: request.cookies[global.$config['users'].cookieToken] || '',
+    let users = new Users();
+    let { userId } = await $utils['users'].getUserDataFromRequest(request);
+    result = await users.editEmail({
+      userId,
       email: request.body?.email,
     });
   } catch (error) {

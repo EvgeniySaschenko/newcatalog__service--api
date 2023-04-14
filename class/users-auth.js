@@ -1,10 +1,13 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
+let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { v4: uuidv4 } = require('uuid');
+let jwt = require('jsonwebtoken');
 
-class UserLogin {
-  async auth({ email, password, userAgent = '', ip, response }) {
+class UsersAuth {
+  async login({ email, password, userAgent = '', ip, response }) {
+    // Empty email
     if (!email) {
       $utils['errors'].validationMessage({
         path: 'email',
@@ -12,13 +15,18 @@ class UserLogin {
       });
     }
 
-    password = $utils['users'].encryptPassword(password);
-
+    // Incorrect login
     let user = await $dbMain['users'].getUserByEmail({ email });
+    if (!user) {
+      $utils['errors'].validationMessage({
+        path: 'auth',
+        message: $t('Incorrect login or password'),
+      });
+    }
 
-    // Trying to log in from multiple devices
+    // Trying to log in from multiple devices (if there is an exit date and it has not expired, then the user tries to log in from 2 devices)
     if (this.сheckSessionExpiration({ dateEntry: user?.dateEntry })) {
-      await $dbMain['users-auth'].createAuth({
+      await $dbMain['users-auth'].createRecord({
         sessionId: user.sessionId,
         userId: user.userId,
         email,
@@ -36,7 +44,7 @@ class UserLogin {
 
     // Brute force protection
     if (user) {
-      await $dbMain['users-auth'].createAuth({
+      await $dbMain['users-auth'].createRecord({
         sessionId: user.sessionId,
         userId: user.userId,
         email,
@@ -52,11 +60,11 @@ class UserLogin {
       });
     }
 
-    // Incorrect auth data
-    if (!user || !password || password !== user.password) {
-      await $dbMain['users-auth'].createAuth({
-        sessionId: user.sessionId || null,
-        userId: user.userId || 0,
+    // Incorrect password
+    if (password !== user.password) {
+      await $dbMain['users-auth'].createRecord({
+        sessionId: null,
+        userId: user.userId,
         email,
         ip,
         userAgent,
@@ -71,7 +79,7 @@ class UserLogin {
 
     let sessionId = await this.setAuthData({ userId: user.userId, userAgent, response });
 
-    await $dbMain['users-auth'].createAuth({
+    await $dbMain['users-auth'].createRecord({
       sessionId,
       userId: user.userId,
       email,
@@ -84,14 +92,12 @@ class UserLogin {
   }
 
   // Check auth user
-  async checkAuth({ token, userAgent, ip }) {
-    let tokenData = await $utils['users'].getTokenData({ token });
-
+  async checkAuth({ sessionId, userId, userAgent, ip }) {
     // Empty
-    if (!tokenData) {
-      await $dbMain['users-auth'].createAuth({
-        sessionId: null,
-        userId: 0,
+    if (!sessionId) {
+      await $dbMain['users-auth'].createRecord({
+        sessionId,
+        userId,
         email: null,
         ip,
         userAgent,
@@ -104,18 +110,18 @@ class UserLogin {
       });
     }
 
-    let dbData = await $dbMain['users'].getUserByUserId({ userId: tokenData.userId });
+    let dbData = await $dbMain['users'].getUserByUserId({ userId });
     let isValidSessionExpiration = this.сheckSessionExpiration({ dateEntry: dbData?.dateEntry });
 
     // Wrong data
     if (
       !isValidSessionExpiration ||
-      tokenData.sessionId !== dbData.sessionId ||
+      sessionId !== dbData.sessionId ||
       userAgent !== dbData.userAgent
     ) {
-      await $dbMain['users-auth'].createAuth({
-        sessionId: tokenData.sessionId || null,
-        userId: tokenData.userId || 0,
+      await $dbMain['users-auth'].createRecord({
+        sessionId,
+        userId,
         email: null,
         ip,
         userAgent,
@@ -134,25 +140,30 @@ class UserLogin {
   // Set auth data
   async setAuthData({ userId, userAgent, response }) {
     let sessionId = this.createSessionId();
+
     await $dbMain['users'].editUserAuth({
       userId,
       userAgent,
       sessionId,
     });
 
-    await this.setAuthCookies({ sessionId, userId, response });
+    let token = await this.createUserToken({
+      data: { sessionId, userId },
+      expiresIn: global.$config['users'].sessionMaxAge,
+    });
+
+    await this.setAuthCookies({ token, response });
 
     return sessionId;
   }
 
   // Auth refresh
-  async authRefresh({ token, userAgent, response, ip }) {
-    let tokenData = await $utils['users'].getTokenData({ token });
+  async authRefresh({ sessionId, userId, userAgent, response, ip }) {
     // Empty
-    if (!tokenData) {
-      await $dbMain['users-auth'].createAuth({
-        sessionId: null,
-        userId: 0,
+    if (!sessionId) {
+      await $dbMain['users-auth'].createRecord({
+        sessionId,
+        userId,
         email: null,
         ip,
         userAgent,
@@ -165,14 +176,13 @@ class UserLogin {
       });
     }
 
-    let { userId, sessionId } = tokenData;
-
     let user = await $dbMain['users'].getUserByUserId({ userId });
 
-    if (!sessionId || sessionId !== user.sessionId || userAgent !== user.userAgent) {
-      await $dbMain['users-auth'].createAuth({
-        sessionId: sessionId || null,
-        userId: userId || 0,
+    // Incorrect
+    if (sessionId !== user.sessionId || userAgent !== user.userAgent) {
+      await $dbMain['users-auth'].createRecord({
+        sessionId,
+        userId,
         email: null,
         ip,
         userAgent,
@@ -186,22 +196,11 @@ class UserLogin {
       });
     }
 
-    // Refres session id
-    if (this.сheckSessionExpiration({ dateEntry: user?.dateEntry })) {
-      let sessionId = await this.setAuthData({ userId: user.userId, userAgent, response });
+    // Token expired
+    if (!this.сheckSessionExpiration({ dateEntry: user?.dateEntry })) {
+      await this.logOut({ sessionId, userId, userAgent, ip, response });
 
-      await $dbMain['users-auth'].createAuth({
-        sessionId,
-        userId: user.userId,
-        email: null,
-        ip,
-        userAgent,
-        type: 'refresh',
-      });
-    } else {
-      await this.logOut({ token, userAgent, ip, response });
-
-      await $dbMain['users-auth'].createAuth({
+      await $dbMain['users-auth'].createRecord({
         sessionId,
         userId,
         email: null,
@@ -209,9 +208,21 @@ class UserLogin {
         userAgent,
         type: 'refresh-log-out',
       });
-
       return false;
     }
+
+    // Success - Refres session id
+    sessionId = await this.setAuthData({ userId: user.userId, userAgent, response });
+    // We do not create records for successful refreshes
+    // await $dbMain['users-auth'].createRecord({
+    //   sessionId,
+    //   userId: user.userId,
+    //   email: null,
+    //   ip,
+    //   userAgent,
+    //   type: 'refresh',
+    // });
+
     return true;
   }
 
@@ -231,24 +242,15 @@ class UserLogin {
   }
 
   // Log out user
-  async logOut({ token, userAgent, ip, response }) {
-    let tokenData = await $utils['users'].getTokenData({ token });
-
+  async logOut({ sessionId, userId, userAgent, ip, response }) {
     this.clearAuthCookies({ response });
-
-    if (!tokenData) return true;
-
-    let { sessionId, userId } = tokenData;
-
-    if (!sessionId || !userId || !userAgent) return true;
-
     await $dbMain['users'].editUserLogOut({
       sessionId,
       userId,
       userAgent,
     });
 
-    await $dbMain['users-auth'].createAuth({
+    await $dbMain['users-auth'].createRecord({
       sessionId,
       userId,
       email: null,
@@ -257,6 +259,12 @@ class UserLogin {
       type: 'log-out',
     });
 
+    return true;
+  }
+
+  // Log out all users
+  async logOutAllUsers() {
+    await $dbMain['users'].editUsersAllLogOut();
     return true;
   }
 
@@ -289,16 +297,27 @@ class UserLogin {
   }
 
   // Set cookies (The frontend will send a session refresh request every 5 minutes. In order not to take into account the time zone, set the lifetime to 2 days)
-  async setAuthCookies({ sessionId, userId, response }) {
-    let token = await $utils['users'].createToken({
-      data: { sessionId, userId },
-      expiresIn: global.$config['users'].sessionMaxAge,
-    });
+  async setAuthCookies({ token, response }) {
     response.cookie(global.$config['users'].cookieToken, token, {
       maxAge: 3600 * 48 * 1000,
       httpOnly: true,
       secure: true,
     });
+  }
+
+  // Create token
+  async createUserToken({ data, expiresIn }) {
+    let tokenSecretKey = await $dbTemporary['api'].getTokenUserSecretKey();
+
+    let token = jwt.sign(
+      {
+        data,
+      },
+      tokenSecretKey,
+      { expiresIn }
+    );
+
+    return token;
   }
 
   // Clear cookies
@@ -309,4 +328,4 @@ class UserLogin {
   }
 }
 
-module.exports = UserLogin;
+module.exports = UsersAuth;

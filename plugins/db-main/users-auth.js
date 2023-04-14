@@ -2,8 +2,8 @@ let { M_UsersAuth, name: tableName } = require('./models/users-auth');
 
 module.exports = {
   tableName,
-  //  Create user
-  async createAuth({ sessionId, userId, email, ip, userAgent, type }) {
+  //  Create record - about login/logout attempts
+  async createRecord({ sessionId, userId, email, ip, userAgent, type }) {
     type = global.$config['users-auth-types'][type];
     let result = await M_UsersAuth.create({ sessionId, userId, email, ip, userAgent, type });
     return result.get({ plain: true });

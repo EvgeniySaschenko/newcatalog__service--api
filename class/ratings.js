@@ -5,7 +5,7 @@ let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 class Ratings {
   // Create Rating
   async createRating({
-    token,
+    userId,
     name,
     descr,
     typeRating,
@@ -14,7 +14,6 @@ class Ratings {
     sectionsIds,
     isHiden,
   }) {
-    let { userId } = await $utils['users'].getTokenData({ token });
     let { ratingId } = await $dbMain['ratings'].createRating({
       userId,
       name,
@@ -31,7 +30,7 @@ class Ratings {
 
   // Edit Rating
   async editRating({
-    token,
+    userId,
     ratingId,
     name,
     descr,
@@ -42,7 +41,6 @@ class Ratings {
     sectionsIds,
     visitorId,
   }) {
-    let { userId } = await $utils['users'].getTokenData({ token });
     let result = await $dbMain['ratings'].editRating({
       userId,
       ratingId,
