@@ -1,4 +1,4 @@
-let { ADMIN__SERVICE, SITE__SERVICE } = process.env;
+let { ADMIN__SERVICE, SITE__SERVICE, API__PASSWORD_SALT } = process.env;
 let services = {
   api: {
     serviceName: 'api',
@@ -57,15 +57,19 @@ let $config = {
     emailLengthMax: 255,
     passwordLengthMin: 6,
     passwordLengthMax: 20,
-    loginAttemptMaxCount: 5,
+    loginAttemptMaxCount: 10,
     loginAttempTimaut: 600, // sec (Brute force)
-    salt: 'dgkdfsjg;kdfjsgkj53',
+    salt: API__PASSWORD_SALT,
     // If you change the mobile / desktop mode in the browser, the user agent will be changed. Therefore, the user will be kicked out of the system and he will not be able to log in for a while
     sessionMaxAge: 1200, // sec (The frontend periodically asks to update the key, during this time a request to update the key should come)
     cookieUserId: 'userId',
     cookieToken: 'token',
     emailDefault: 'test@test.com',
     passwordDefault: '123456',
+    // These URLs can be accessed without authorization
+    urlWithoutLogin: {
+      '/api/users/login': true,
+    },
   },
   // For authorization logging
   'users-auth-types': {
