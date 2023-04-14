@@ -37,11 +37,12 @@ let $config = {
 
   settings: {
     langDefault: {
-      //api: 'en',
+      // api: 'en',
       admin: 'en',
       site: 'en',
     },
     langs: {
+      // api: ['en'],
       admin: ['en'],
       site: ['en'],
     },
