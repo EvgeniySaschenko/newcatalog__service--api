@@ -1,7 +1,7 @@
 let { createClient } = require('redis');
-let { DB_TEMPORARY__HOST, DB_TEMPORARY__PORT_INTERNAL, DB_TEMPORARY__DB_CONTENT } = process.env;
+let { DB_TEMPORARY__HOST, DB_TEMPORARY__PORT_INTERNAL, DB_TEMPORARY__DB_SITE } = process.env;
 let client = createClient({
-  url: `${DB_TEMPORARY__HOST}:${DB_TEMPORARY__PORT_INTERNAL}/${DB_TEMPORARY__DB_CONTENT}`,
+  url: `${DB_TEMPORARY__HOST}:${DB_TEMPORARY__PORT_INTERNAL}/${DB_TEMPORARY__DB_SITE}`,
 });
 client.on('error', (err) => {
   console.error('Redis Content Error', err);
@@ -10,10 +10,10 @@ client.on('error', (err) => {
 
 module.exports = {
   // add
-  async add({ prefix, data }) {
+  async add({ key, data }) {
     try {
       await client.connect();
-      await client.set(prefix, JSON.stringify(data));
+      await client.set(key, JSON.stringify(data));
       await client.quit();
       return true;
     } catch (error) {
@@ -23,10 +23,10 @@ module.exports = {
   },
 
   // get
-  async get({ prefix }) {
+  async get({ key }) {
     try {
       await client.connect();
-      let result = await client.get(prefix);
+      let result = await client.get(key);
       await client.quit();
       return result ? JSON.parse(result) : false;
     } catch (error) {
@@ -36,10 +36,10 @@ module.exports = {
   },
 
   // delete
-  async delete({ prefix }) {
+  async delete({ key }) {
     try {
       await client.connect();
-      await client.del(prefix);
+      await client.del(key);
       await client.quit();
       return true;
     } catch (error) {

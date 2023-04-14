@@ -3,10 +3,13 @@ let Sites = require(global.ROOT_PATH + '/class/sites');
 let User = require(global.ROOT_PATH + '/class/user');
 let Settings = require(global.ROOT_PATH + '/class/settings');
 let Translations = require(global.ROOT_PATH + '/class/translations');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 
 class AppManage {
   // Init
   async init() {
+    // Create token user secret key
+    await $utils['users'].createTokenUserSecretKey();
     // Create settings default
     let settings = new Settings();
     await settings.initSettingsDefault();
