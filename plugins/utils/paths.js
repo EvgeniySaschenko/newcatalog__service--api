@@ -5,7 +5,7 @@ const host = `https://${process.env.ADMIN__DOMAIN}`;
 const isDev = process.env.NODE_ENV === 'development';
 const dataFilesPath = `${global.ROOT_PATH}/data`;
 const folderEnv = isDev ? 'dev' : 'prod';
-const siteLogoUrlDefault = `${host}/images/site-logo-default.jpg`;
+const siteLogoUrlDefault = `${host}/images/default-image.png`;
 const { screenshotFileExtension, logoFileExtension } = global.$config['sites'];
 
 module.exports = {
