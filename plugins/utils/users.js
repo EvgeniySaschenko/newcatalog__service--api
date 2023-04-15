@@ -1,15 +1,17 @@
 let jwt = require('jsonwebtoken');
-let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
 
-// tokenSecretKey -
+let tokenUserSecretKey = null;
 
 module.exports = {
-  // Get user data from token
-  async getUserDataFromToken(token) {
-    let tokenSecretKey = await $dbTemporary['api'].getTokenUserSecretKey();
+  // Set token secret key (This key is needed to get data from the token)
+  async setTokenUserSecretKey(secretKey) {
+    tokenUserSecretKey = secretKey;
+  },
 
+  // Get user data from token
+  getUserDataFromToken(token) {
     let data;
-    jwt.verify(token, tokenSecretKey, function (err, decoded) {
+    jwt.verify(token, tokenUserSecretKey, function (err, decoded) {
       if (err) {
         data = false;
       }
@@ -20,9 +22,9 @@ module.exports = {
   },
 
   // Get user data from request
-  async getUserDataFromRequest(request) {
+  getUserDataFromRequest(request) {
     let token = request.cookies[global.$config['users'].cookieToken] || '';
-    let tokenData = await this.getUserDataFromToken(token);
+    let tokenData = this.getUserDataFromToken(token);
     let sessionId = tokenData?.sessionId || null;
     let userId = tokenData?.userId || 0;
 

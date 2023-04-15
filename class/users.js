@@ -84,12 +84,16 @@ class Users {
   */
   async createTokenUserSecretKey() {
     let tokenSecretKey = await $dbTemporary['api'].getTokenUserSecretKey();
-    if (!tokenSecretKey) {
-      tokenSecretKey = uuidv4();
-      await $dbTemporary['api'].addTokenUserSecretKey(tokenSecretKey);
-      return true;
+
+    if (tokenSecretKey) {
+      $utils['users'].setTokenUserSecretKey(tokenSecretKey);
+      return false;
     }
-    return false;
+
+    tokenSecretKey = uuidv4();
+    $utils['users'].setTokenUserSecretKey(tokenSecretKey);
+    await $dbTemporary['api'].addTokenUserSecretKey(tokenSecretKey);
+    return true;
   }
 }
 
