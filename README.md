@@ -37,3 +37,13 @@ yarn lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+let { rss, heapTotal, heapUsed, external, arrayBuffers } = process.memoryUsage();
+console.log({
+  rss: rss / 1000,
+  heapTotal: heapTotal / 1000,
+  heapUsed: heapUsed / 1000,
+  external: external / 1000,
+  arrayBuffers: arrayBuffers / 1000,
+});

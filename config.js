@@ -115,6 +115,7 @@ let $config = {
     nameLengthMax: 120,
     descrLengthMin: 0,
     descrLengthMax: 1000,
+    maxRecordsPerPage: 20,
   },
   // sections
   sections: {

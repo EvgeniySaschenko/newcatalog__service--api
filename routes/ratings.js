@@ -10,7 +10,7 @@ router.get('/', async (request, response, next) => {
 
   try {
     let ratings = new Ratings();
-    result = await ratings.getRatings(request);
+    result = await ratings.getRatings({ page: Number(request.query.page) });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);

@@ -4,7 +4,7 @@ let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let Translations = require(global.ROOT_PATH + '/class/translations');
 
 // Get part translations for service
-router.get('/part-list', async (request, response, next) => {
+router.get('/', async (request, response, next) => {
   let result;
   let serviceName = request.query.serviceName;
   try {
@@ -13,7 +13,7 @@ router.get('/part-list', async (request, response, next) => {
 
     result = await translations.getTranslationsForService({
       serviceType,
-      page: Number(request.query.page) || 1,
+      page: Number(request.query.page),
     });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });

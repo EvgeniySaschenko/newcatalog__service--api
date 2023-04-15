@@ -80,6 +80,12 @@ module.exports = {
     return result;
   },
 
+  // Get rating count
+  async getRatingCount() {
+    let result = await M_Ratings.count({});
+    return result;
+  },
+
   // Get the number of ratings in a section
   async getRatingCountBySectionId({ sectionId }) {
     let result = await M_Ratings.count({
@@ -108,16 +114,14 @@ module.exports = {
   },
 
   // Get all ratings
-  async getRatings() {
-    // let maxLimit = 200;
-    // offset = offset || 0;
-    // limit = limit || 15;
-    // limit = limit <= maxLimit ? limit : maxLimit;
+  async getRatings({ offset, limit }) {
     let result = await M_Ratings.findAll({
       order: [
         ['dateCreate', 'DESC'],
         ['dateFirstPublication', 'DESC'],
       ],
+      offset,
+      limit,
     });
     return result;
   },
