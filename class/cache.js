@@ -403,7 +403,6 @@ class Cache {
       for await (let ratingData of ratingsDataList) {
         // Add to cache
         await this.addRatingToCache(ratingData);
-
         // Update "dateFirstPublication"
         let dateFirstPublication =
           ratingData.rating.dateFirstPublication ||

@@ -37,7 +37,7 @@ router.post('/', async (request, response, next) => {
   let result;
 
   try {
-    let { userId } = await $utils['users'].getUserDataFromRequest(request);
+    let { userId } = $utils['users'].getUserDataFromRequest(request);
     let ratings = new Ratings();
     result = await ratings.createRating({
       userId,
@@ -55,7 +55,7 @@ router.put('/:ratingId', async (request, response, next) => {
   let result;
 
   try {
-    let { userId } = await $utils['users'].getUserDataFromRequest(request);
+    let { userId } = $utils['users'].getUserDataFromRequest(request);
     if (request.body.isHiden) {
       let cache = new Cache();
       result = await cache.deleteCacheRating(request.body);

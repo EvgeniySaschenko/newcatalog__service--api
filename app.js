@@ -1,4 +1,3 @@
-let isInitAppReady = false;
 global.ROOT_PATH = require('app-root-path');
 global.$config = require('./config');
 let { $utils } = require('./plugins/utils');
@@ -11,6 +10,8 @@ let routes = require('./routes');
 let fileUpload = require('express-fileupload');
 let AppManage = require(global.ROOT_PATH + '/class/app-manage');
 let app = express();
+
+$utils['service'].blockService();
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -27,12 +28,12 @@ app.use(express.static(path.join(__dirname, $utils['paths'].dataFilesPublicPath)
 (async function () {
   let appManage = new AppManage();
   await appManage.init();
-  isInitAppReady = true;
+  $utils['service'].unblockService();
 })();
 
 // Checking app readiness (Until the api server is fully ready, where the user will get status 202)
 app.use((req, res, next) => {
-  if (isInitAppReady) {
+  if (!$utils['service'].checkIsServiceBlocked()) {
     next();
   } else {
     res.sendStatus(202);

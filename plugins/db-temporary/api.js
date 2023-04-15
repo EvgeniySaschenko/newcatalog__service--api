@@ -6,34 +6,23 @@ const client = createClient({
   url: `${DB_TEMPORARY__HOST}/${DB_TEMPORARY__DB_API}`,
 });
 
-client.on('error', (err) => {
-  console.error('Redis Settings Error', err);
-  client.quit();
+client.on('error', async (err) => {
+  console.error('Redis content "API"', err);
+  await client.quit();
+  await client.connect();
 });
+
+client.connect();
 
 module.exports = {
   // Add token
   async addTokenUserSecretKey(secretKey) {
-    try {
-      await client.connect();
-      await client.set(dbTemporaryPrefixes['token-user-secret-key'], secretKey);
-      await client.quit();
-    } catch (error) {
-      await client.quit();
-      throw error;
-    }
+    await client.set(dbTemporaryPrefixes['token-user-secret-key'], secretKey);
   },
 
   // Get token
   async getTokenUserSecretKey() {
-    try {
-      await client.connect();
-      let result = await client.get(dbTemporaryPrefixes['token-user-secret-key']);
-      await client.quit();
-      return result || null;
-    } catch (error) {
-      await client.quit();
-      throw error;
-    }
+    let result = await client.get(dbTemporaryPrefixes['token-user-secret-key']);
+    return result || null;
   },
 };

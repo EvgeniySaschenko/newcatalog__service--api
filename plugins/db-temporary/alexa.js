@@ -1,46 +1,42 @@
 let { createClient } = require('redis');
 let fse = require('fs-extra');
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { DB_TEMPORARY__HOST, DB_TEMPORARY__DB_ALEXA, DB_TEMPORARY__DB_ALEXA_PREFIXES } = process.env;
 const client = createClient({
   url: `${DB_TEMPORARY__HOST}/${DB_TEMPORARY__DB_ALEXA}`,
 });
-client.on('error', (err) => {
-  console.error('Redis Alexa Error', err);
-  client.quit();
+
+client.on('error', async (err) => {
+  console.error('Redis content "ALEXA"', err);
+  await client.quit();
+  await client.connect();
 });
+
+client.connect();
 
 let prefixes = JSON.parse(DB_TEMPORARY__DB_ALEXA_PREFIXES);
 
 module.exports = {
   // Create database AlexaRank
   async createDataDaseCacheAlexaRank() {
-    try {
-      await client.connect();
-      let isAlexaRankData = await client.get('isAlexaRankData');
-      if (!isAlexaRankData) {
-        let fileContent = fse.readFileSync(global.ROOT_PATH + '/data/alexa-rank.csv', 'utf8');
-        for (let item of fileContent.split('\n')) {
-          let [rank, host] = item.split(',');
-          await client.set(`${prefixes['alexa-rank']}_${host}`, rank);
-        }
-        await client.set('isAlexaRankData', 'true');
+    let isAlexaRankData = await client.get(prefixes['is-alexa-rank-data']);
+    if (!isAlexaRankData) {
+      let fileContent = fse.readFileSync($utils['paths'].filePathAlexaRank(), 'utf8');
+      for (let item of fileContent.split('\n')) {
+        let [rank, host] = item.split(',');
+        await client.set(`${prefixes['alexa-rank']}_${host}`, rank);
       }
-      await client.quit();
-    } catch (error) {
-      await client.quit();
-      console.error(error);
+      await client.set(prefixes['is-alexa-rank-data'], 'true');
     }
   },
 
   // Get AlexaRank
   async getAlexaRank(domain) {
     try {
-      await client.connect();
       let alexaRank = await client.get(`${prefixes['alexa-rank']}_${domain}`);
-      await client.quit();
       return Number(alexaRank) || null;
     } catch (error) {
-      await client.quit();
+      // Even if there is an error, this data is not critical.
       console.error(error);
     }
     return null;

@@ -8,7 +8,7 @@ let UsersAuth = require(global.ROOT_PATH + '/class/users-auth');
 router.put('/login', async (request, response, next) => {
   let result;
   try {
-    let { userAgent, ip } = await $utils['users'].getUserDataFromRequest(request);
+    let { userAgent, ip } = $utils['users'].getUserDataFromRequest(request);
 
     let users = new Users();
     let usersAuth = new UsersAuth();
@@ -31,9 +31,7 @@ router.put('/login', async (request, response, next) => {
 router.put('/log-out', async (request, response, next) => {
   let result;
   try {
-    let { userAgent, ip, sessionId, userId } = await $utils['users'].getUserDataFromRequest(
-      request
-    );
+    let { userAgent, ip, sessionId, userId } = $utils['users'].getUserDataFromRequest(request);
 
     let usersAuth = new UsersAuth();
     await usersAuth.logOut({
@@ -54,9 +52,7 @@ router.put('/log-out', async (request, response, next) => {
 router.put('/auth-refresh', async (request, response, next) => {
   let result;
   try {
-    let { userAgent, ip, sessionId, userId } = await $utils['users'].getUserDataFromRequest(
-      request
-    );
+    let { userAgent, ip, sessionId, userId } = $utils['users'].getUserDataFromRequest(request);
 
     let usersAuth = new UsersAuth();
     result = await usersAuth.authRefresh({
@@ -83,7 +79,7 @@ router.put('/auth-refresh', async (request, response, next) => {
 router.put('/password', async (request, response, next) => {
   let result;
   try {
-    let { userId } = await $utils['users'].getUserDataFromRequest(request);
+    let { userId } = $utils['users'].getUserDataFromRequest(request);
     let users = new Users();
     result = await users.editPassword({
       userId,
@@ -103,7 +99,7 @@ router.put('/email', async (request, response, next) => {
 
   try {
     let users = new Users();
-    let { userId } = await $utils['users'].getUserDataFromRequest(request);
+    let { userId } = $utils['users'].getUserDataFromRequest(request);
     result = await users.editEmail({
       userId,
       email: request.body?.email,

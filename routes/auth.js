@@ -8,9 +8,7 @@ router.use(async (request, response, next) => {
   let isAuth = false;
   try {
     let usersAuth = new UsersAuth();
-    let { userAgent, ip, sessionId, userId } = await $utils['users'].getUserDataFromRequest(
-      request
-    );
+    let { userAgent, ip, sessionId, userId } = $utils['users'].getUserDataFromRequest(request);
     await usersAuth.checkAuth({
       userAgent,
       ip,

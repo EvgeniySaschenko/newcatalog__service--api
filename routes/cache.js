@@ -36,6 +36,7 @@ router.delete('/rating/:ratingId', async (request, response, next) => {
 // Create new cache from all
 router.post('/reset-all', async (request, response, next) => {
   let result = true;
+  $utils['service'].blockService();
   try {
     let cache = new Cache();
     await cache.deleteCacheId();
@@ -45,12 +46,14 @@ router.post('/reset-all', async (request, response, next) => {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);
   }
+  $utils['service'].unblockService();
   response.send(result);
 });
 
 // Clear database
 router.delete('/clear-all', async (request, response, next) => {
   let result = true;
+  $utils['service'].blockService();
   try {
     let cache = new Cache();
     result = await cache.clearCacheAll();
@@ -62,6 +65,7 @@ router.delete('/clear-all', async (request, response, next) => {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);
   }
+  $utils['service'].unblockService();
   response.send(result);
 });
 
