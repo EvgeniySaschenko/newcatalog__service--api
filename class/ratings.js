@@ -74,9 +74,24 @@ class Ratings {
     return rating;
   }
 
-  // Get Ratings
-  async getRatings() {
-    return await $dbMain['ratings'].getRatings();
+  // Get ratings
+  async getRatings({ maxRecordsPerPage = global.$config['ratings'].maxRecordsPerPage, page = 1 }) {
+    let offset = (page - 1) * maxRecordsPerPage;
+    let count = await $dbMain['ratings'].getRatingCount();
+    let ratings = await $dbMain['ratings'].getRatings({
+      offset,
+      limit: maxRecordsPerPage,
+    });
+
+    let pagesCount = Math.ceil(count / maxRecordsPerPage);
+
+    return {
+      page,
+      pagesCount,
+      maxRecordsPerPage,
+      itemsCount: count,
+      items: ratings,
+    };
   }
 
   // Delete Rating

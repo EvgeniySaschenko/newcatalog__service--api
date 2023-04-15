@@ -80,12 +80,19 @@ class Cache {
     };
   }
 
-  // Get data from all ratings where exist visible items
-  async getRatingsAllData() {
-    let ratingsData = [];
-    let ratings = await $dbMain['ratings'].getRatings({});
+  // Get the list rating in parts (as for pagination) so as not to consume too much memory at the same time
+  async getRatingsPartData({ page }) {
+    let count = await $dbMain['ratings'].getRatingCount();
+    let maxRecordsPerPage = global.$config['ratings'].maxRecordsPerPage;
+    let pagesCount = Math.ceil(count / maxRecordsPerPage);
+    let offset = (page - 1) * maxRecordsPerPage;
 
-    for await (let rating of ratings) {
+    if (page > pagesCount) return false;
+
+    let ratingsDataList = [];
+    let result = await $dbMain['ratings'].getRatings({ offset, limit: maxRecordsPerPage });
+
+    for await (let rating of result) {
       if (rating.isHiden) continue;
 
       let coutnVisibleItems = await $dbMain['ratings-items'].getCountItemsRatingByIsHiden({
@@ -99,9 +106,9 @@ class Cache {
 
       if (!data) continue;
 
-      ratingsData.push(data);
+      ratingsDataList.push(data);
     }
-    return ratingsData;
+    return ratingsDataList;
   }
 
   // Add rating to cache
@@ -385,48 +392,55 @@ class Cache {
   // Create cache from all elements
   async resetCacheAll() {
     await this.clearCacheAll();
-    let ratingsAllData = await this.getRatingsAllData();
+
     let ratingsDataFromList = [];
     let ratingsDataFromListSections = {};
+    let ratingsDataList = [];
 
-    if (!ratingsAllData.length) return true;
+    let runPart = async (pageCurrent) => {
+      ratingsDataList = await this.getRatingsPartData({ page: pageCurrent });
+      if (!ratingsDataList) return;
+      for await (let ratingData of ratingsDataList) {
+        // Add to cache
+        await this.addRatingToCache(ratingData);
 
-    for await (let ratingData of ratingsAllData) {
-      // Add to cache
-      await this.addRatingToCache(ratingData);
+        // Update "dateFirstPublication"
+        let dateFirstPublication =
+          ratingData.rating.dateFirstPublication ||
+          (await this.setDateFirstPublication({
+            ratingId: ratingData.rating.ratingId,
+          }));
 
-      // Update "dateFirstPublication"
-      let dateFirstPublication =
-        ratingData.rating.dateFirstPublication ||
-        (await this.setDateFirstPublication({
+        // Update date create cache
+        await $dbMain['ratings'].editCacheCreation({
           ratingId: ratingData.rating.ratingId,
-        }));
+          dateCacheCreation: new Date(),
+          sectionsIdsCache: ratingData.rating.sectionsIds,
+        });
 
-      // ratingsDataFromList
-      let data = { ratingId: ratingData.rating.ratingId, dateFirstPublication };
-      ratingsDataFromList.push(data);
-      // ratingsDataFromListSections
-      for (let sectionId in ratingData.rating.sectionsIds) {
-        if (!ratingsDataFromListSections[sectionId]) {
-          ratingsDataFromListSections[sectionId] = [];
+        // ratingsDataFromList
+        let data = { ratingId: ratingData.rating.ratingId, dateFirstPublication };
+        ratingsDataFromList.push(data);
+        // ratingsDataFromListSections
+        for (let sectionId in ratingData.rating.sectionsIds) {
+          if (!ratingsDataFromListSections[sectionId]) {
+            ratingsDataFromListSections[sectionId] = [];
+          }
+          ratingsDataFromListSections[sectionId].push(data);
         }
-        ratingsDataFromListSections[sectionId].push(data);
+
+        await runPart(pageCurrent + 1);
       }
-    }
+    };
+
+    await runPart(1);
+
+    if (!ratingsDataFromList.length) return;
 
     // Add ratings to list
     await this.addRatingsListIds({ ratingsData: ratingsDataFromList });
     for await (let [sectionId, ratingsData] of Object.entries(ratingsDataFromListSections)) {
       await this.addSectionRatingsListIds({ sectionId, ratingsData });
-    }
-
-    // Update date create cache
-    for await (let ratingData of ratingsAllData) {
-      await $dbMain['ratings'].editCacheCreation({
-        ratingId: ratingData.rating.ratingId,
-        dateCacheCreation: new Date(),
-        sectionsIdsCache: ratingData.rating.sectionsIds,
-      });
     }
 
     await this.createCacheSections();
@@ -443,14 +457,20 @@ class Cache {
 
   // Clear all cache
   async clearCacheAll() {
-    let ratings = await $dbMain['ratings'].getRatings({});
-    for await (let { ratingId } of ratings) {
-      await $dbMain['ratings'].editCacheCreation({
-        ratingId,
-        dateCacheCreation: null,
-        sectionsIdsCache: null,
-      });
-    }
+    let ratingsDataList = [];
+    let runPart = async (pageCurrent) => {
+      ratingsDataList = await this.getRatingsPartData({ page: pageCurrent });
+      if (!ratingsDataList) return;
+      for await (let { rating } of ratingsDataList) {
+        await $dbMain['ratings'].editCacheCreation({
+          ratingId: rating.ratingId,
+          dateCacheCreation: null,
+          sectionsIdsCache: null,
+        });
+      }
+      await runPart(pageCurrent + 1);
+    };
+    await runPart(1);
     await $dbTemporary['site'].clearDatabase();
     return true;
   }
