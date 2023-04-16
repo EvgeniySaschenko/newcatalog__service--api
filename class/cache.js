@@ -176,7 +176,7 @@ class Cache {
 
     ratingsListIds.arr = Object.entries(ratingsListIds.map)
       .sort((a, b) => {
-        return a[1] - b[1];
+        return b[1] - a[1];
       })
       .map((el) => el[0]);
 
@@ -209,7 +209,7 @@ class Cache {
 
     sectionRatingIds.arr = Object.entries(sectionRatingIds.map)
       .sort((a, b) => {
-        return a[1] - b[1];
+        return b[1] - a[1];
       })
       .map((el) => el[0]);
     await $dbTemporary['site'].add({
@@ -272,7 +272,7 @@ class Cache {
 
     ratingsListIds.arr = Object.entries(ratingsListIds.map)
       .sort((a, b) => {
-        return a[1] - b[1];
+        return b[1] - a[1];
       })
       .map((el) => el[0]);
 
@@ -296,7 +296,7 @@ class Cache {
 
     sectionRatingIds.arr = Object.entries(sectionRatingIds.map)
       .sort((a, b) => {
-        return a[1] - b[1];
+        return b[1] - a[1];
       })
       .map((el) => el[0]);
     await $dbTemporary['site'].add({
