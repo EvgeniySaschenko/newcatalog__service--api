@@ -92,30 +92,43 @@ class Sites {
   }
 
   // Get site whois info
-  async getWhois(host) {
-    let { domain } = $utils['common'].urlInfo(host);
+  async getWhois(domain) {
     let whoisConsole = {};
     let whoisApi = {};
 
     // whois from API
     try {
-      whoisApi = await whois(domain);
+      let pathFile = $utils['paths'].filePathWhoisSiteInfo({ type: 'api', domain });
+      let isExistFile = await fse.pathExists(pathFile);
+      if (isExistFile) {
+        whoisApi = await fse.readJson(pathFile);
+      } else {
+        whoisApi = await whois(domain);
+        await this.createWhoisFile({ whois: whoisApi, domain, path: pathFile });
+      }
     } catch (error) {
       console.error(`whois API ${error}`);
     }
 
     // whois from package OS
     try {
-      let { error, stdout } = await exec(`whois ${domain}`, { encoding: 'utf8' });
-      if (stdout) {
-        let whois = parserWhois.parseWhoIsData(stdout.toString());
-        if (whois && Object.keys(whois).length) {
-          for (let { attribute, value } of whois) {
-            whoisConsole[attribute.trim()] = value.trim();
+      let pathFile = $utils['paths'].filePathWhoisSiteInfo({ type: 'console', domain });
+      let isExistFile = await fse.pathExists(pathFile);
+      if (isExistFile) {
+        whoisConsole = await fse.readJson(pathFile);
+      } else {
+        let { error, stdout } = await exec(`whois ${domain}`, { encoding: 'utf8' });
+        if (stdout) {
+          let whois = parserWhois.parseWhoIsData(stdout.toString());
+          if (whois && Object.keys(whois).length) {
+            for (let { attribute, value } of whois) {
+              whoisConsole[attribute.trim()] = value.trim();
+            }
           }
         }
+        if (error) throw error;
+        await this.createWhoisFile({ whois: whoisConsole, domain, path: pathFile });
       }
-      if (error) throw error;
     } catch (error) {
       console.error(`whois OS ${error}`);
     }
@@ -123,10 +136,11 @@ class Sites {
   }
 
   // Write data whois in file
-  async createWhoisFile({ whois, siteId, type }) {
+  async createWhoisFile({ whois, domain, path }) {
     try {
       if (Object.keys(whois).length) {
-        await fse.writeJson($utils['paths'].filePathWhoisSiteInfo({ type, siteId }), whois);
+        whois.hostNameCustom = domain;
+        await fse.writeJson(path, whois);
       }
     } catch (error) {
       console.error(error);
@@ -200,14 +214,15 @@ class Sites {
       if (!this.sitesAlexaRankEmpty.length) {
         this.sitesAlexaRankEmpty = await $dbMain['sites'].getSitesAlexaRankEmpty();
       }
+
       if (!this.isSitesAlexaRankProcessing && this.sitesAlexaRankEmpty.length) {
         this.isSitesAlexaRankProcessing = true;
         let { host, siteId } = this.sitesAlexaRankEmpty[this.sitesAlexaRankEmpty.length - 1];
         let alexaRank = await this.getAlexaRank(host);
-        let { whoisConsole, whoisApi } = await this.getWhois(host);
+        let { domain } = $utils['common'].urlInfo(host);
+        let { whoisConsole, whoisApi } = await this.getWhois(domain);
         let dateDomainCreate = this.getDomainDateCreate({ whoisConsole, whoisApi });
-        await this.createWhoisFile({ whois: whoisConsole, siteId, type: 'console' });
-        await this.createWhoisFile({ whois: whoisApi, siteId, type: 'api' });
+
         await $dbMain['sites'].editDomainAndAlexaInfo({
           siteId,
           alexaRank,
@@ -229,7 +244,11 @@ class Sites {
   // Get domain date create (return "date" or "null")
   getDomainDateCreate({ whoisConsole, whoisApi }) {
     try {
-      let dateRaw = whoisConsole['Creation Date'] || whoisApi['created'] || whoisConsole['created'];
+      let dateRaw =
+        whoisConsole['Creation Date'] ||
+        whoisApi['created'] ||
+        whoisConsole['created'] ||
+        whoisApi['creationDate'];
       let isNotDate = isNaN(new Date(dateRaw).getFullYear());
       /*
         handling such strings - '2012-04-02 15:49:24+03 2014-04-03 06:15:53+03 2014-04-03 06:15:53+03 2014-04-03 06:15:55+03'

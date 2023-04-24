@@ -32,9 +32,9 @@ module.exports = {
   filePathSiteLogo: ({ siteLogoId }) => {
     return `${dataFilesPath}/${folderEnv}/images/sites-logos/${siteLogoId}.${logoFileExtension}`;
   },
-  // Files whois Site info
-  filePathWhoisSiteInfo({ type, siteId }) {
-    return `${dataFilesPath}/whois/${type}/${siteId}.json`;
+  // Files whois Site info (type: api / console)
+  filePathWhoisSiteInfo({ type, domain }) {
+    return `${dataFilesPath}/whois/${type}/${domain}.json`;
   },
   // File Alexa Rank sites list
   filePathAlexaRank() {

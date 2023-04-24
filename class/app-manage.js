@@ -16,12 +16,12 @@ class AppManage {
     await translations.setTranslationsListServiceApi();
     // Starts a process for which will create screenshots when adding sites that are not in the database
     let sitesScreenshots = new SitesScreenshots();
-    sitesScreenshots.initProccessScreenshotsCreates();
+    await sitesScreenshots.initProccessScreenshotsCreates();
     // Creates an Alexa Rank list in redis
     let sites = new Sites();
-    sites.initCreateAlexaRankList();
+    await sites.initCreateAlexaRankList();
     // Starts the process to add whois and Alexa Rank to sites
-    sites.initProccessSitesInfoUpdate();
+    await sites.initProccessSitesInfoUpdate();
     // Create token user secret key + create user default
     let users = new Users();
     let isNewKey = await users.createTokenUserSecretKey();
