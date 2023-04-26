@@ -1,48 +1,59 @@
 let path = require('path');
 let { v4: uuidv4 } = require('uuid');
 
-const host = `https://${process.env.ADMIN__DOMAIN}`;
-const isDev = process.env.NODE_ENV === 'development';
-const dataFilesPath = `${global.ROOT_PATH}/data`;
-const folderEnv = isDev ? 'dev' : 'prod';
-const siteLogoUrlDefault = `${host}/images/default-image.png`;
+const siteLogoUrlDefault = `/images/default-image.png`;
 const { screenshotFileExtension, logoFileExtension } = global.$config['sites'];
+const { FILES__SERVICE } = process.env;
+const basePathFiles = `${global.ROOT_PATH}/symlinks/${FILES__SERVICE}`;
 
 module.exports = {
-  // Public resources
-  dataFilesPublicPath: `data/${folderEnv}`,
-  // URL screenshot
-  fileUrlScreenshot: ({ siteScreenshotId }) => {
+  // PROXY
+  // The path to screenshots of sites through a proxy
+  fileProxyPathScreenshot: ({ siteScreenshotId }) => {
     return siteScreenshotId
-      ? `${host}/images/screenshots/${siteScreenshotId}.${screenshotFileExtension}`
+      ? `/images/site-screenshots/${siteScreenshotId}.${screenshotFileExtension}`
       : null;
   },
-  // Path screenshot
-  filePathScreenshot: ({ siteScreenshotId }) => {
-    return `${dataFilesPath}/${folderEnv}/images/screenshots/${siteScreenshotId}.${screenshotFileExtension}`;
-  },
-  // URL site logo
-  fileUrlSiteLogo: ({ siteLogoId, resetCache }) => {
+  // The path to site logos through a proxy
+  fileProxyPathSiteLogo: ({ siteLogoId, resetCache }) => {
     let sufix = resetCache ? `?=${resetCache}` : '';
     return siteLogoId
-      ? `${host}/images/sites-logos/${siteLogoId}.${logoFileExtension}${sufix}`
+      ? `/images/site-logos/${siteLogoId}.${logoFileExtension}${sufix}`
       : siteLogoUrlDefault;
+  },
+  // The path to app logo through a proxy
+  fileProxyPathAppLogo: () => {
+    return '/images/app/logo.png';
+  },
+  // The path to app preloader through a proxy
+  fileProxyPathAppPreloader: () => {
+    return '/images/app/preloader.png';
+  },
+  // The path to app favicon through a proxy
+  fileProxyPathAppFavicon: () => {
+    return '/images/app/favicon.ico';
+  },
+  // SYMLINKS
+  // Path screenshot
+  filePathScreenshot: ({ siteScreenshotId }) => {
+    return `${basePathFiles}/images/site-screenshots/${siteScreenshotId}.${screenshotFileExtension}`;
   },
   // Path site logo
   filePathSiteLogo: ({ siteLogoId }) => {
-    return `${dataFilesPath}/${folderEnv}/images/sites-logos/${siteLogoId}.${logoFileExtension}`;
+    return `${basePathFiles}/images/site-logos/${siteLogoId}.${logoFileExtension}`;
   },
   // Files whois Site info (type: api / console)
   filePathWhoisSiteInfo({ type, domain }) {
-    return `${dataFilesPath}/whois/${type}/${domain}.json`;
+    return `${basePathFiles}/whois/${type}/${domain}.json`;
   },
   // File Alexa Rank sites list
   filePathAlexaRank() {
-    return `${dataFilesPath}/alexa-rank.csv`;
+    return `${basePathFiles}/alexa-rank.csv`;
   },
+  // TMP
   // Path temporary file
   filePathTmp(fileName) {
-    return `${dataFilesPath}/tmp/${fileName}`;
+    return `${global.ROOT_PATH}/tmp/${fileName}`;
   },
   // Path save temporary file
   saveTmpFile(fileName) {

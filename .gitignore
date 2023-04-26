@@ -1,20 +1,11 @@
 .DS_Store
 node_modules
-data/**/*.json
-data/**/*.png
-data/**/*.jpg
-data/**/*.webp
-!data/dev/images/site-logo-default.jpg
-!data/prod/images/site-logo-default.jpg
-public
 tmp/**/*
 !tmp/.gitkeep
 symlinks
 
 /tests/e2e/videos/
 /tests/e2e/screenshots/
-data/whois-api/**/*.json
-data/whois-console/**/*.json
 
 # local env files
 .env.local
