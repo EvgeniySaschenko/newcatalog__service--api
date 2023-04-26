@@ -195,8 +195,7 @@ class Translations {
 
   // Set translations for service api (Fired during initialization and when updating translations of any service)
   async setTranslationsListServiceApi() {
-    let { serviceType } = global.$config['services'].api;
-    let { serviceName } = global.$config['services'].admin; // admin - because $translations.getLangs({ serviceName });
+    let { serviceType, serviceName } = global.$config['services'].api;
     let translations = await this.getTranslationsForFunctionTranslate({
       serviceName,
       serviceType,

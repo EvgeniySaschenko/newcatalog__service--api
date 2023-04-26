@@ -33,7 +33,7 @@ module.exports = {
   // Create response
   createResponse({ request, error }) {
     try {
-      let { serviceName } = global.$config['services'].admin;
+      let { serviceName } = global.$config['services'].api;
       let langDefaultCookie = request.cookies[global.$config['translations'].cookieNameLangDefault];
       let langDefaultService = $translations.getLangDefault({ serviceName });
       let langDefault = langDefaultCookie || langDefaultService;

@@ -38,6 +38,14 @@ class Settings {
     return setting;
   }
 
+  // Starts editing settings for services from an array
+  async runEditSettingServices({ settingName, servicesNames, settingValue }) {
+    for await (let serviceName of servicesNames) {
+      await this.editSetting({ settingName, serviceName, settingValue });
+    }
+    return true;
+  }
+
   // Edit setting
   async editSetting({ settingName, serviceName, settingValue }) {
     let settingsNames = global.$config['settings-names'];
@@ -70,7 +78,8 @@ class Settings {
   // Edit lang default
   async editLangDefault({ settingName, serviceType, langDefault }) {
     let settingsNames = global.$config['settings-names'];
-    let servicesTypes = global.$config['services-types'];
+    let services = Object.values(global.$config['services']);
+    let { serviceName } = services.find((el) => el.serviceType == serviceType);
 
     // not valid lang
     if (!langsMap.has('1', langDefault)) {
@@ -91,7 +100,7 @@ class Settings {
     let isExistLang = sttingLangs.settingValue.includes(langDefault);
     if (!isExistLang) {
       $utils['errors'].validationMessage({
-        path: `${servicesTypes[serviceType].serviceName}--${settingsNames.langDefault}`,
+        path: `${serviceName}--${settingsNames.langDefault}`,
         message: $t('First you need to add the language to the general list'),
       });
     }
@@ -106,14 +115,14 @@ class Settings {
       $utils['errors'].serverMessage();
     }
 
-    let serviceName = servicesTypes[serviceType].serviceName;
     return $translations.setLangDefault({ serviceName, langDefault });
   }
 
   // Edit langs list
   async editLangs({ settingName, serviceType, langs }) {
     let settingsNames = global.$config['settings-names'];
-    let servicesTypes = global.$config['services-types'];
+    let services = Object.values(global.$config['services']);
+    let { serviceName } = services.find((el) => el.serviceType == serviceType);
 
     // not valid lang
     for (let lang of langs) {
@@ -136,7 +145,7 @@ class Settings {
     let isExistLang = langs.includes(settingLangDefault.settingValue);
     if (!isExistLang) {
       $utils['errors'].validationMessage({
-        path: `${servicesTypes[serviceType].serviceName}--${settingsNames.langs}`,
+        path: `${serviceName}--${settingsNames.langs}`,
         message: $t('The list should include the default language'),
       });
     }
@@ -151,19 +160,18 @@ class Settings {
       $utils['errors'].serverMessage();
     }
 
-    let serviceName = servicesTypes[serviceType].serviceName;
     return $translations.setLangs({ serviceName, langs });
   }
 
   // Get settings
   async getSettings() {
-    let servicesTypes = global.$config['services-types'];
     let settings = await $dbMain['settings'].getSettings();
-
+    let services = Object.values(global.$config['services']);
     let result = {};
 
     for (let { settingName, serviceType, settingValue } of settings) {
-      let serviceName = servicesTypes[serviceType].serviceName;
+      let { serviceName } = services.find((el) => el.serviceType == serviceType);
+
       if (!result[settingName]) {
         result[settingName] = {};
       }
