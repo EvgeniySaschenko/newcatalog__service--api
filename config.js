@@ -1,32 +1,22 @@
 let { ADMIN__SERVICE, SITE__SERVICE, API__PASSWORD_SALT } = process.env;
-let services = {
-  api: {
-    serviceName: 'api',
-    serviceType: 1,
-    serviceRootPath: './',
-  },
-  admin: {
-    serviceName: 'admin',
-    serviceType: 2,
-    serviceRootPath: `symlinks/${ADMIN__SERVICE}`,
-  },
-  site: {
-    serviceName: 'site',
-    serviceType: 3,
-    serviceRootPath: `symlinks/${SITE__SERVICE}`,
-  },
-};
 
 let $config = {
   services: {
-    api: services['api'],
-    admin: services['admin'],
-    site: services['site'],
-  },
-  'services-types': {
-    1: services['api'],
-    2: services['admin'],
-    3: services['site'],
+    api: {
+      serviceName: 'api',
+      serviceType: 1,
+      serviceRootPath: './',
+    },
+    admin: {
+      serviceName: 'admin',
+      serviceType: 2,
+      serviceRootPath: `symlinks/${ADMIN__SERVICE}`,
+    },
+    site: {
+      serviceName: 'site',
+      serviceType: 3,
+      serviceRootPath: `symlinks/${SITE__SERVICE}`,
+    },
   },
   // translations
   translations: {
@@ -34,16 +24,15 @@ let $config = {
     cookieNameLangDefault: 'langDefault',
   },
   // These settings will be replaced with the settings from the database (These are initialization values, for "get"/"set" operations only "plugins/translations" should be used)
-
   settings: {
     langDefault: {
-      // api: 'en',
-      admin: 'en',
+      admin: 'en', // admin + api
+      api: 'en', // admin + api
       site: 'en',
     },
     langs: {
-      // api: ['en'],
-      admin: ['en'],
+      admin: ['en'], // admin + api
+      api: ['en'], // admin + api
       site: ['en'],
     },
   },

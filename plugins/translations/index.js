@@ -1,22 +1,22 @@
 let langsMap = require('langs');
 let serviceSite = global.$config['services'].site;
 let serviceAdmin = global.$config['services'].admin;
+let serviceApi = global.$config['services'].api;
+let settings = global.$config['settings'];
 
 let langsTypes = {
-  [serviceSite.serviceName]: global.$config['settings'].langs[serviceSite.serviceName],
-  [serviceAdmin.serviceName]: global.$config['settings'].langs[serviceAdmin.serviceName],
+  [serviceSite.serviceName]: settings.langs[serviceSite.serviceName],
+  [serviceAdmin.serviceName]: settings.langs[serviceAdmin.serviceName],
+  [serviceApi.serviceName]: settings.langs[serviceApi.serviceName],
 };
 
 let langsDefaultTypes = {
-  [serviceSite.serviceName]: global.$config['settings'].langDefault[serviceSite.serviceName],
-  [serviceAdmin.serviceName]: global.$config['settings'].langDefault[serviceAdmin.serviceName],
+  [serviceSite.serviceName]: settings.langDefault[serviceSite.serviceName],
+  [serviceAdmin.serviceName]: settings.langDefault[serviceAdmin.serviceName],
+  [serviceApi.serviceName]: settings.langDefault[serviceApi.serviceName],
 };
 
-/*
-   This function does not translate text, it is only used for parsing.
-   This is done because if you do a translation based on cookies, you will need to pass the language as an additional parameter, and this is problematic
-   Translations for the api-server, now only used for errors, so the desired function can be placed in the error class
-*/
+// This function does not translate, it is only used when parsing a project to create translations.
 let $t = (text) => {
   return text;
 };
@@ -33,7 +33,7 @@ let $translations = {
 
     // Translation function
     t(text, lang) {
-      let { serviceName } = serviceAdmin;
+      let { serviceName } = serviceApi;
       let langDefault = this.getLangDefault({ serviceName });
       let langs = this.getLangs({ serviceName });
       lang = lang || langDefault;

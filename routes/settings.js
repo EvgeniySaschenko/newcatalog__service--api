@@ -21,7 +21,7 @@ router.put('/:settingName', async (request, response, next) => {
   let result;
   try {
     let settings = new Settings();
-    result = await settings.editSetting(request.body);
+    result = await settings.runEditSettingServices(request.body);
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);
