@@ -22,7 +22,7 @@ app.use(
   })
 );
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, $utils['paths'].dataFilesPublicPath)));
+//app.use(express.static(path.join(__dirname, '')));
 
 // Init
 (async function () {

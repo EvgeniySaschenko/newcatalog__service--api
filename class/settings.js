@@ -178,6 +178,12 @@ class Settings {
       };
     });
 
+    Object.assign(result, {
+      imageAppLogo: $utils['paths'].fileProxyPathAppLogo(),
+      imageAppPreloder: $utils['paths'].fileProxyPathAppPreloader(),
+      imageAppFavicon: $utils['paths'].fileProxyPathAppFavicon(),
+    });
+
     return {
       settings: result,
       langsIso,

@@ -176,8 +176,8 @@ class Sites {
       };
     }
 
-    let logoImg = siteLogoId ? $utils['paths'].fileUrlSiteLogo({ siteLogoId }) : null;
-    let screenshotImg = $utils['paths'].fileUrlScreenshot({ siteScreenshotId });
+    let logoImg = siteLogoId ? $utils['paths'].fileProxyPathSiteLogo({ siteLogoId }) : null;
+    let screenshotImg = $utils['paths'].fileProxyPathScreenshot({ siteScreenshotId });
 
     // If exist logo or screenshot
     return {

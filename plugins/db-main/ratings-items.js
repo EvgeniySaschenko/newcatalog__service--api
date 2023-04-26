@@ -156,11 +156,11 @@ module.exports = {
       let { siteScreenshotId, siteLogoId, dateLogoCreate } = site;
       let { domain, hostname, isSubdomain } = $utils['common'].urlInfo(el.url);
       let resetCache = dateLogoCreate ? new Date(dateLogoCreate).getTime() : '';
-      el.logoImg = $utils['paths'].fileUrlSiteLogo({
+      el.logoImg = $utils['paths'].fileProxyPathSiteLogo({
         siteLogoId,
         resetCache,
       });
-      el.screenshotImg = $utils['paths'].fileUrlScreenshot({ siteScreenshotId });
+      el.screenshotImg = $utils['paths'].fileProxyPathScreenshot({ siteScreenshotId });
       el.isSubdomain = isSubdomain;
       el.domain = domain;
       el.hostname = hostname;
@@ -217,7 +217,7 @@ module.exports = {
         total.push({
           siteScreenshotId,
           host,
-          screenshotImg: $utils['paths'].fileUrlScreenshot({ siteScreenshotId }),
+          screenshotImg: $utils['paths'].fileProxyPathScreenshot({ siteScreenshotId }),
         });
       }
       return total;
