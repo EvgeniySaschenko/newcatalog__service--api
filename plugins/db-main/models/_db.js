@@ -1,5 +1,5 @@
 let { Sequelize } = require('sequelize');
-let { DB_MAIN__NAME, DB_MAIN__HOST, DB_MAIN__USER, DB_MAIN__PASSWORD } = process.env;
+let { DB_MAIN__NAME_DB, DB_MAIN__HOST_DB, DB_MAIN__USER_DB, DB_MAIN__PASSWORD_DB } = process.env;
 
 // value - using for "records-deleted"
 let $tables = {
@@ -33,9 +33,9 @@ let $tables = {
   },
 };
 
-let sequelize = new Sequelize(DB_MAIN__NAME, DB_MAIN__USER, DB_MAIN__PASSWORD, {
+let sequelize = new Sequelize(DB_MAIN__NAME_DB, DB_MAIN__USER_DB, DB_MAIN__PASSWORD_DB, {
   dialect: 'postgres',
-  host: DB_MAIN__HOST,
+  host: DB_MAIN__HOST_DB,
   define: {
     createdAt: 'dateCreate',
     updatedAt: 'dateUpdate',

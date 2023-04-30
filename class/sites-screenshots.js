@@ -4,7 +4,6 @@ let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let sharp = require('sharp');
 let fse = require('fs-extra');
-let path = require('path');
 
 class SitesScreenshots {
   isProcessing = false;
@@ -99,27 +98,29 @@ class SitesScreenshots {
 
   // A screenshot
   async runCustomScreenshotCreate({ fileImg, siteId }) {
-    let filename = await this.uploadCustomScreenshot({ fileImg });
-    let { siteScreenshotId } = await this.createCustomScreenshot({ filename, siteId });
+    let tmpFilePath = await this.uploadCustomScreenshot({ fileImg });
+    let { siteScreenshotId } = await this.createCustomScreenshot({ tmpFilePath, siteId });
     return { siteScreenshotId };
   }
 
   // Upload screenshot
   async uploadCustomScreenshot({ fileImg }) {
     let isMimeType = global.$config['sites'].screenshotMimeTypes.includes(fileImg.mimetype);
-    let tmpFileName = $utils['paths'].saveTmpFile(fileImg.name);
+    let tmpFilePath = $utils['paths'].filePathTmp(fileImg.name);
     if (!isMimeType) {
-      $utils['errors'].validationMessage({ path: 'screenshot', message: $t('Invalid file') });
+      $utils['errors'].validationMessage({
+        path: 'screenshot',
+        message: $t('Incorrect file type'),
+      });
     }
-    await fileImg.mv(tmpFileName);
+    await fileImg.mv(tmpFilePath);
 
-    return path.basename(tmpFileName);
+    return tmpFilePath;
   }
 
   // Create custom screenshot
-  async createCustomScreenshot({ filename, siteId }) {
+  async createCustomScreenshot({ tmpFilePath, siteId }) {
     let siteInfoPrev;
-    let tmpFilePath = $utils['paths'].filePathTmp(filename);
     await this.checkSiteProcessing({ siteId });
     let siteScreenshotId;
     let tmpFileMeta = await sharp(tmpFilePath).metadata();

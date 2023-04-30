@@ -1,19 +1,20 @@
-let { ADMIN__SERVICE, SITE__SERVICE, API__PASSWORD_SALT } = process.env;
+let { ADMIN__SERVICE, SITE__SERVICE, API__NAME, ADMIN__NAME, SITE__NAME, API__PASSWORD_SALT } =
+  process.env;
 
 let $config = {
   services: {
     api: {
-      serviceName: 'api',
+      serviceName: 'api', // API__NAME
       serviceType: 1,
       serviceRootPath: './',
     },
     admin: {
-      serviceName: 'admin',
+      serviceName: 'admin', // ADMIN__NAME
       serviceType: 2,
       serviceRootPath: `symlinks/${ADMIN__SERVICE}`,
     },
     site: {
-      serviceName: 'site',
+      serviceName: 'site', // SITE__NAME
       serviceType: 3,
       serviceRootPath: `symlinks/${SITE__SERVICE}`,
     },
@@ -35,10 +36,80 @@ let $config = {
       api: ['en'], // admin + api
       site: ['en'],
     },
+    imageAppLogo: {
+      site: '/images/app/site/logo.png',
+      admin: '/images/app/admin/logo.png',
+    },
+    imageAppFavicon: {
+      site: '/images/app/site/favicon.ico',
+      admin: '/images/app/admin/favicon.ico',
+    },
+    imageAppPreloader: {
+      site: '/images/app/site/preloader.png',
+    },
+    colorPrimary: {
+      site: '#5a448d',
+    },
+    // For example, white on a purple background
+    colorPrimaryInverted: {
+      site: '#ffffff',
+    },
+    colorTextRegular: {
+      site: '#222222',
+    },
+    colorSelectionBackground: {
+      site: '#f88686',
+    },
+    colorSelectionText: {
+      site: '#ffffff',
+    },
+    headStyles: {
+      site: '',
+    },
+    headScript: {
+      site: '',
+    },
+    headerHtml: {
+      site: '',
+    },
+    contentTopHtml: {
+      site: '',
+    },
+    footerHtml: {
+      site: '',
+    },
+    contentBottomHtml: {
+      site: '',
+    },
   },
   'settings-names': {
     langDefault: 'langDefault',
     langs: 'langs',
+    imageAppLogo: 'imageAppLogo',
+    imageAppFavicon: 'imageAppFavicon',
+    imageAppPreloader: 'imageAppPreloader',
+    colorPrimary: 'colorPrimary',
+    colorPrimaryInverted: 'colorPrimaryInverted',
+    colorTextRegular: 'colorTextRegular',
+    colorSelectionBackground: 'colorSelectionBackground',
+    colorSelectionText: 'colorSelectionText',
+    headStyles: 'headStyles',
+    headScript: 'headScript',
+    headerHtml: 'headerHtml',
+    contentTopHtml: 'contentTopHtml',
+    contentBottomHtml: 'contentBottomHtml',
+    footerHtml: 'footerHtml',
+  },
+  'settings-extends': {
+    imageAppLogo: {
+      mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/gif'],
+    },
+    imageAppFavicon: {
+      mimeTypes: ['image/vnd.microsoft.icon', 'image/x-icon'],
+    },
+    imageAppPreloader: {
+      mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/gif'],
+    },
   },
   // users
   users: {

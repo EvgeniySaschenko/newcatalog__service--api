@@ -7,7 +7,6 @@ const { FILES__SERVICE } = process.env;
 const basePathFiles = `${global.ROOT_PATH}/symlinks/${FILES__SERVICE}`;
 
 module.exports = {
-  // PROXY
   // The path to screenshots of sites through a proxy
   fileProxyPathScreenshot: ({ siteScreenshotId }) => {
     return siteScreenshotId
@@ -21,19 +20,7 @@ module.exports = {
       ? `/images/site-logos/${siteLogoId}.${logoFileExtension}${sufix}`
       : siteLogoUrlDefault;
   },
-  // The path to app logo through a proxy
-  fileProxyPathAppLogo: () => {
-    return '/images/app/logo.png';
-  },
-  // The path to app preloader through a proxy
-  fileProxyPathAppPreloader: () => {
-    return '/images/app/preloader.png';
-  },
-  // The path to app favicon through a proxy
-  fileProxyPathAppFavicon: () => {
-    return '/images/app/favicon.ico';
-  },
-  // SYMLINKS
+
   // Path screenshot
   filePathScreenshot: ({ siteScreenshotId }) => {
     return `${basePathFiles}/images/site-screenshots/${siteScreenshotId}.${screenshotFileExtension}`;
@@ -50,13 +37,36 @@ module.exports = {
   filePathAlexaRank() {
     return `${basePathFiles}/alexa-rank.csv`;
   },
+
+  // APP FILES
+  // - filePathApp... These functions return the path to upload images to the server
+  filePathAppLogo: ({ serviceName, extension }) => {
+    return `${basePathFiles}/images/app/${serviceName}/logo.${extension}`;
+  },
+  filePathAppPreloader: ({ serviceName, extension }) => {
+    return `${basePathFiles}/images/app/${serviceName}/preloader.${extension}`;
+  },
+  filePathAppFavicon: ({ serviceName }) => {
+    return `${basePathFiles}/images/app/${serviceName}/favicon.ico`;
+  },
+
+  // The path to app logo through a proxy
+  fileProxyPathAppLogo: ({ serviceName, extension = null }) => {
+    return `/images/app/${serviceName}/logo.${extension}`;
+  },
+  // The path to app preloader through a proxy
+  fileProxyPathAppPreloader: ({ serviceName, extension = null }) => {
+    return `/images/app/${serviceName}/preloader.${extension}`;
+  },
+  // The path to app favicon through a proxy
+  fileProxyPathAppFavicon: ({ serviceName }) => {
+    return `/images/app/${serviceName}/favicon.ico`;
+  },
+
   // TMP
   // Path temporary file
   filePathTmp(fileName) {
+    fileName = `${uuidv4()}${path.extname(fileName) || ''}`;
     return `${global.ROOT_PATH}/tmp/${fileName}`;
-  },
-  // Path save temporary file
-  saveTmpFile(fileName) {
-    return this.filePathTmp(`${uuidv4()}${path.extname(fileName) || ''}`);
   },
 };

@@ -33,7 +33,10 @@ module.exports = {
   // Get all settings
   async getSettings() {
     let result = await M_Settings.findAll({
-      order: [['settingName', 'DESC']],
+      order: [
+        ['settingName', 'DESC'],
+        ['serviceType', 'DESC'],
+      ],
     });
     return result;
   },

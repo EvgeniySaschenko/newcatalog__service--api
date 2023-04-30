@@ -84,13 +84,13 @@ router.post('/sections', async (request, response, next) => {
   response.send(result);
 });
 
-// Create cache translations + langs site
-router.post('/translations-and-langs-site', async (request, response, next) => {
+// Create cache settings
+router.post('/settings', async (request, response, next) => {
   let result = true;
   try {
     let cache = new Cache();
     await cache.deleteCacheId();
-    result = await cache.createCacheTranslationsAndLangsSite();
+    result = await cache.createCacheSettings();
     await cache.setCacheId();
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });

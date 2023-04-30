@@ -1,6 +1,6 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
-let { $translations, $t } = require(global.ROOT_PATH + '/plugins/translations');
+let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { DB_TEMPORARY__DB_SITE_PREFIXES } = process.env;
 let dbTemporaryPrefixes = JSON.parse(DB_TEMPORARY__DB_SITE_PREFIXES);
@@ -344,10 +344,13 @@ class Cache {
     return true;
   }
 
-  // Create cache translations + langs site
-  async createCacheTranslationsAndLangsSite() {
+  // Create cache settings
+  async createCacheSettings() {
     let { serviceName, serviceType } = global.$config['services'].site;
+    let settingsNames = global.$config['settings-names'];
     let translations = {};
+    let settings = {};
+
     let count = await $dbMain['translations'].getTranslationsCountByType({ serviceType });
 
     let translationsDb = await $dbMain['translations'].getTranslationsByType({
@@ -356,20 +359,26 @@ class Cache {
       offset: 0,
     });
 
-    let langs = $translations.getLangs({ serviceName });
-    for (let lang of langs) {
-      translations[lang] = {};
-    }
+    let settingsDb = await $dbMain['settings'].getSettings();
 
-    if (!translationsDb) return translations;
-
-    for (let { text, key } of translationsDb) {
-      for (let lang of langs) {
-        translations[lang][key] = text[lang] || '';
+    for (let item of settingsDb) {
+      if (item.serviceType == serviceType) {
+        settings[item.settingName] = item.settingValue;
       }
     }
 
-    let lang = $translations.getLangDefault({ serviceName });
+    let langs = settings[settingsNames.langs];
+
+    if (!translationsDb) return false;
+
+    for (let { text, key } of translationsDb) {
+      for (let lang of langs) {
+        if (!translations[lang]) {
+          translations[lang] = {};
+        }
+        translations[lang][key] = text[lang] || '';
+      }
+    }
 
     await $dbTemporary['site'].add({
       key: dbTemporaryPrefixes['translations-site'],
@@ -377,13 +386,8 @@ class Cache {
     });
 
     await $dbTemporary['site'].add({
-      key: dbTemporaryPrefixes['langs-site'],
-      data: langs,
-    });
-
-    await $dbTemporary['site'].add({
-      key: dbTemporaryPrefixes['lang-default-site'],
-      data: lang,
+      key: dbTemporaryPrefixes['settings'],
+      data: settings,
     });
 
     return true;
@@ -443,7 +447,7 @@ class Cache {
     }
 
     await this.createCacheSections();
-    await this.createCacheTranslationsAndLangsSite();
+    await this.createCacheSettings();
     return true;
   }
 
