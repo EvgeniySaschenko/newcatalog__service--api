@@ -1,28 +1,37 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
+let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
 let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
 let langsMap = require('langs');
-
+let settingsNames = global.$config['settings-names'];
 class Settings {
   // Init settings default
   async initSettingsDefault() {
     let settings = global.$config['settings'];
-    let settingsNames = global.$config['settings-names'];
     let services = global.$config['services'];
-    // Lang default
-    for await (let [serviceName, settingValue] of Object.entries(settings.langDefault)) {
-      let serviceType = services[serviceName].serviceType;
-      let settingName = settingsNames.langDefault;
-      let result = await this.createSetting({ settingName, serviceType, settingValue });
-      $translations.setLangDefault({ serviceName, langDefault: result.settingValue });
-    }
 
-    // Langs
-    for await (let [serviceName, settingValue] of Object.entries(settings.langs)) {
-      let serviceType = services[serviceName].serviceType;
-      let settingName = settingsNames.langs;
-      let result = await this.createSetting({ settingName, serviceType, settingValue });
-      $translations.setLangs({ serviceName, langs: result.settingValue });
+    let runCreateSetting = async (servicesSetting, settingName) => {
+      for await (let [serviceName, settingValue] of Object.entries(servicesSetting)) {
+        let serviceType = services[serviceName].serviceType;
+        let result = await this.createSetting({ settingName, serviceType, settingValue });
+        switch (settingName) {
+          // langs
+          case settingsNames.langs: {
+            $translations.setLangs({ serviceName, langs: result.settingValue });
+            break;
+          }
+          // langDefault
+          case settingsNames.langDefault: {
+            $translations.setLangDefault({ serviceName, langDefault: result.settingValue });
+            break;
+          }
+        }
+      }
+    };
+
+    // Oher settings
+    for await (let [settingName, servicesSetting] of Object.entries(settings)) {
+      await runCreateSetting(servicesSetting, settingName);
     }
   }
 
@@ -38,17 +47,8 @@ class Settings {
     return setting;
   }
 
-  // Starts editing settings for services from an array
-  async runEditSettingServices({ settingName, servicesNames, settingValue }) {
-    for await (let serviceName of servicesNames) {
-      await this.editSetting({ settingName, serviceName, settingValue });
-    }
-    return true;
-  }
-
   // Edit setting
   async editSetting({ settingName, serviceName, settingValue }) {
-    let settingsNames = global.$config['settings-names'];
     let services = global.$config['services'];
     let serviceType = services[serviceName].serviceType;
 
@@ -56,14 +56,35 @@ class Settings {
       // lang default
       case settingsNames.langDefault: {
         let langDefault = settingValue;
-        await this.editLangDefault({ settingName, serviceType, langDefault });
+        await this.editLangDefault({ settingName, serviceType, serviceName, langDefault });
         break;
       }
 
       // langs
       case settingsNames.langs: {
         let langs = settingValue;
-        await this.editLangs({ settingName, serviceType, langs });
+        await this.editLangs({ settingName, serviceType, serviceName, langs });
+        break;
+      }
+
+      // color
+      case settingsNames.colorPrimary:
+      case settingsNames.colorPrimaryInverted:
+      case settingsNames.colorTextRegular:
+      case settingsNames.colorSelectionBackground:
+      case settingsNames.colorSelectionText: {
+        await this.editColor({ settingName, serviceType, serviceName, settingValue });
+        break;
+      }
+
+      // oher settings
+      case settingsNames.headStyles:
+      case settingsNames.headScript:
+      case settingsNames.headerHtml:
+      case settingsNames.contentTopHtml:
+      case settingsNames.footerHtml:
+      case settingsNames.contentBottomHtml: {
+        await this.editOherText({ settingName, serviceType, settingValue });
         break;
       }
 
@@ -75,12 +96,112 @@ class Settings {
     return true;
   }
 
-  // Edit lang default
-  async editLangDefault({ settingName, serviceType, langDefault }) {
-    let settingsNames = global.$config['settings-names'];
-    let services = Object.values(global.$config['services']);
-    let { serviceName } = services.find((el) => el.serviceType == serviceType);
+  // Upload setting file
+  async editSettingFile({ settingName, serviceName, file }) {
+    let settingsExtends = global.$config['settings-extends'];
+    let services = global.$config['services'];
+    let serviceType = services[serviceName].serviceType;
+    let isMimeType = false;
+    let filePath = '';
+    let extension = file.name.split('.').pop();
+    let settingValue = '';
+    let mimeTypes = settingsExtends[settingName].mimeTypes;
 
+    switch (settingName) {
+      case settingsNames.imageAppLogo: {
+        isMimeType = mimeTypes.includes(file.mimetype);
+        if (isMimeType) {
+          filePath = $utils['paths'].filePathAppLogo({ serviceName, extension });
+          settingValue = `${$utils['paths'].fileProxyPathAppLogo({
+            serviceName,
+            extension,
+          })}?v=${Date.now()}`;
+        }
+        break;
+      }
+      case settingsNames.imageAppPreloader: {
+        isMimeType = mimeTypes.includes(file.mimetype);
+        if (isMimeType) {
+          filePath = $utils['paths'].filePathAppPreloader({ serviceName, extension });
+          settingValue = `${$utils['paths'].fileProxyPathAppPreloader({
+            serviceName,
+            extension,
+          })}?v=${Date.now()}`;
+        }
+        break;
+      }
+      case settingsNames.imageAppFavicon: {
+        isMimeType = mimeTypes.includes(file.mimetype);
+        if (isMimeType) {
+          filePath = $utils['paths'].filePathAppFavicon({ serviceName });
+          settingValue = `${$utils['paths'].fileProxyPathAppFavicon({
+            serviceName,
+          })}?v=${Date.now()}`;
+        }
+        break;
+      }
+    }
+
+    if (!isMimeType) {
+      $utils['errors'].validationMessage({
+        path: `${serviceName}--${settingName}`,
+        message: $t('Incorrect file type'),
+      });
+    }
+
+    await file.mv(filePath);
+
+    let reusult = await $dbMain['settings'].editSetting({
+      settingName,
+      serviceType,
+      settingValue,
+    });
+
+    if (!reusult) {
+      $utils['errors'].serverMessage();
+    }
+
+    return true;
+  }
+
+  // edit color
+  async editColor({ settingName, serviceType, serviceName, settingValue }) {
+    settingValue = settingValue.toLowerCase();
+    if (!$regexp.colorHex.test(settingValue)) {
+      $utils['errors'].validationMessage({
+        path: `${serviceName}--${settingName}`,
+        message: $t('Color value must be in HEX format'),
+      });
+    }
+
+    let reusult = await $dbMain['settings'].editSetting({
+      settingName,
+      serviceType,
+      settingValue,
+    });
+
+    if (!reusult) {
+      $utils['errors'].serverMessage();
+    }
+    return true;
+  }
+
+  // Edit oher text
+  async editOherText({ settingName, serviceType, settingValue }) {
+    let reusult = await $dbMain['settings'].editSetting({
+      settingName,
+      serviceType,
+      settingValue,
+    });
+
+    if (!reusult) {
+      $utils['errors'].serverMessage();
+    }
+    return true;
+  }
+
+  // Edit lang default
+  async editLangDefault({ settingName, serviceType, langDefault, serviceName }) {
     // not valid lang
     if (!langsMap.has('1', langDefault)) {
       $utils['errors'].serverMessage($t('Not valid lang'));
@@ -119,11 +240,7 @@ class Settings {
   }
 
   // Edit langs list
-  async editLangs({ settingName, serviceType, langs }) {
-    let settingsNames = global.$config['settings-names'];
-    let services = Object.values(global.$config['services']);
-    let { serviceName } = services.find((el) => el.serviceType == serviceType);
-
+  async editLangs({ settingName, serviceType, serviceName, langs }) {
     // not valid lang
     for (let lang of langs) {
       if (!langsMap.has('1', lang)) {
@@ -165,6 +282,7 @@ class Settings {
 
   // Get settings
   async getSettings() {
+    let settingsExtends = global.$config['settings-extends'];
     let settings = await $dbMain['settings'].getSettings();
     let services = Object.values(global.$config['services']);
     let result = {};
@@ -186,13 +304,8 @@ class Settings {
       };
     });
 
-    Object.assign(result, {
-      imageAppLogo: $utils['paths'].fileProxyPathAppLogo(),
-      imageAppPreloder: $utils['paths'].fileProxyPathAppPreloader(),
-      imageAppFavicon: $utils['paths'].fileProxyPathAppFavicon(),
-    });
-
     return {
+      settingsExtends,
       settings: result,
       langsIso,
     };

@@ -21,7 +21,24 @@ router.put('/:settingName', async (request, response, next) => {
   let result;
   try {
     let settings = new Settings();
-    result = await settings.runEditSettingServices(request.body);
+    result = await settings.editSetting(request.body);
+  } catch (error) {
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
+  }
+  response.send(result);
+});
+
+// Edit setting file
+router.put('/files/:settingName', async (request, response, next) => {
+  let result;
+  try {
+    let settings = new Settings();
+    result = await settings.editSettingFile({
+      settingName: JSON.parse(request.body.settingName),
+      serviceName: JSON.parse(request.body.serviceName),
+      file: request.files.settingValue,
+    });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);
