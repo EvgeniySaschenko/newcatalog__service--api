@@ -68,6 +68,7 @@ class Settings {
       }
 
       // color
+      case settingsNames.colorBodyBackground:
       case settingsNames.colorPrimary:
       case settingsNames.colorPrimaryInverted:
       case settingsNames.colorTextRegular:
@@ -78,6 +79,9 @@ class Settings {
       }
 
       // oher settings
+      case settingsNames.pageTitlePrefix:
+      case settingsNames.pageTitleSufix:
+      case settingsNames.googleTagManagerId:
       case settingsNames.headStyles:
       case settingsNames.headScript:
       case settingsNames.headerHtml:
