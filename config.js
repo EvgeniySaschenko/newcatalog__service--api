@@ -47,6 +47,9 @@ let $config = {
     imageAppPreloader: {
       site: '/images/app/site/preloader.png',
     },
+    colorBodyBackground: {
+      site: '#ffffff',
+    },
     colorPrimary: {
       site: '#5a448d',
     },
@@ -81,6 +84,15 @@ let $config = {
     contentBottomHtml: {
       site: '',
     },
+    pageTitlePrefix: {
+      site: '',
+    },
+    pageTitleSufix: {
+      site: '',
+    },
+    googleTagManagerId: {
+      site: '',
+    },
   },
   'settings-names': {
     langDefault: 'langDefault',
@@ -88,6 +100,7 @@ let $config = {
     imageAppLogo: 'imageAppLogo',
     imageAppFavicon: 'imageAppFavicon',
     imageAppPreloader: 'imageAppPreloader',
+    colorBodyBackground: 'colorBodyBackground',
     colorPrimary: 'colorPrimary',
     colorPrimaryInverted: 'colorPrimaryInverted',
     colorTextRegular: 'colorTextRegular',
@@ -99,6 +112,9 @@ let $config = {
     contentTopHtml: 'contentTopHtml',
     contentBottomHtml: 'contentBottomHtml',
     footerHtml: 'footerHtml',
+    pageTitlePrefix: 'pageTitlePrefix',
+    pageTitleSufix: 'pageTitleSufix',
+    googleTagManagerId: 'googleTagManagerId',
   },
   'settings-extends': {
     imageAppLogo: {
