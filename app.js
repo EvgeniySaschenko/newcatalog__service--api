@@ -2,16 +2,13 @@ global.ROOT_PATH = require('app-root-path');
 global.$config = require('./config');
 let { $utils } = require('./plugins/utils');
 let express = require('express');
-let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 let routesAuth = require('./routes/auth');
 let routes = require('./routes');
 let fileUpload = require('express-fileupload');
-let AppManage = require(global.ROOT_PATH + '/class/app-manage');
+let AppInit = require(global.ROOT_PATH + '/class/app-init');
 let app = express();
-
-$utils['service'].blockService();
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -26,9 +23,8 @@ app.use(cookieParser());
 
 // Init
 (async function () {
-  let appManage = new AppManage();
-  await appManage.init();
-  $utils['service'].unblockService();
+  let appInit = new AppInit();
+  await appInit.init();
 })();
 
 // Checking app readiness (Until the api server is fully ready, where the user will get status 202)

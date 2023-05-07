@@ -2,6 +2,9 @@ let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
 let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
+let crypto = require('crypto');
+let sshpk = require('sshpk');
+let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
 let langsMap = require('langs');
 let settingsNames = global.$config['settings-names'];
 class Settings {
@@ -75,6 +78,12 @@ class Settings {
       case settingsNames.colorSelectionBackground:
       case settingsNames.colorSelectionText: {
         await this.editColor({ settingName, serviceType, serviceName, settingValue });
+        break;
+      }
+
+      // backup
+      case settingsNames.backup: {
+        await this.editBackup({ settingName, serviceType, serviceName, settingValue });
         break;
       }
 
@@ -176,6 +185,57 @@ class Settings {
         path: `${serviceName}--${settingName}`,
         message: $t('Color value must be in HEX format'),
       });
+    }
+
+    let reusult = await $dbMain['settings'].editSetting({
+      settingName,
+      serviceType,
+      settingValue,
+    });
+
+    if (!reusult) {
+      $utils['errors'].serverMessage();
+    }
+    return true;
+  }
+
+  // edit backup
+  async editBackup({ settingName, serviceType, serviceName, settingValue }) {
+    let settings = global.$config['settings']['backup'][serviceName];
+    // Errors
+    let keysReference = Object.keys(settings).sort().join();
+    let keysUser = Object.keys(settingValue).sort().join();
+
+    if (keysReference !== keysUser) {
+      $utils['errors'].serverMessage();
+    }
+
+    if (!settingValue.host) {
+      $utils['errors'].validationMessage({
+        path: `${serviceName}--host`,
+        message: $t('This field cannot be empty'),
+      });
+    }
+
+    if (!Number.isInteger(settingValue.port) || settingValue.port < 0) {
+      $utils['errors'].validationMessage({
+        path: `${serviceName}--port`,
+        message: $t('Not valid setting'),
+      });
+    }
+
+    if (!Number.isInteger(settingValue.concurrency) || settingValue.concurrency < 1) {
+      $utils['errors'].validationMessage({
+        path: `${serviceName}--concurrency`,
+        message: $t('Not valid setting'),
+      });
+    }
+
+    // publicKey
+    if (!settingValue.publicKey) {
+      await this.generateSshKeys(settingValue.publicKeyComment);
+      let { publicKey } = await $dbTemporary['api'].getSshKeysPair();
+      settingValue.publicKey = publicKey;
     }
 
     let reusult = await $dbMain['settings'].editSetting({
@@ -313,6 +373,37 @@ class Settings {
       settings: result,
       langsIso,
     };
+  }
+
+  // Generate ssh keys
+  async generateSshKeys(publicKeyComment) {
+    let { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+      modulusLength: 4096,
+      publicKeyEncoding: {
+        type: 'pkcs1',
+        format: 'pem',
+      },
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'pem',
+      },
+    });
+    let publicKeySsh = sshpk.parseKey(publicKey, 'pem');
+    publicKeySsh.comment = publicKeyComment;
+    publicKeySsh = publicKeySsh.toString('ssh');
+
+    let privateKeySsh = sshpk.parsePrivateKey(privateKey, 'pem').toString('ssh');
+
+    await $dbTemporary['api'].addSshKeysPair(
+      JSON.stringify({
+        publicKey: publicKeySsh,
+        privateKey: privateKeySsh,
+        pem: {
+          publicKey,
+          privateKey,
+        },
+      })
+    );
   }
 }
 

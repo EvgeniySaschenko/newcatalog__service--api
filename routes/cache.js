@@ -45,8 +45,10 @@ router.post('/reset-all', async (request, response, next) => {
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);
+  } finally {
+    $utils['service'].unblockService();
   }
-  $utils['service'].unblockService();
+
   response.send(result);
 });
 
@@ -64,8 +66,10 @@ router.delete('/clear-all', async (request, response, next) => {
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);
+  } finally {
+    $utils['service'].unblockService();
   }
-  $utils['service'].unblockService();
+
   response.send(result);
 });
 

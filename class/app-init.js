@@ -4,10 +4,11 @@ let Users = require(global.ROOT_PATH + '/class/users');
 let UsersAuth = require(global.ROOT_PATH + '/class/users-auth');
 let Settings = require(global.ROOT_PATH + '/class/settings');
 let Translations = require(global.ROOT_PATH + '/class/translations');
-
-class AppManage {
+let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
+class AppInit {
   // Init
   async init() {
+    $utils['service'].blockService();
     // Create settings default
     let settings = new Settings();
     await settings.initSettingsDefault();
@@ -30,7 +31,8 @@ class AppManage {
       await usersAuth.logOutAllUsers();
     }
     await users.createUserDefault();
+    $utils['service'].unblockService();
   }
 }
 
-module.exports = AppManage;
+module.exports = AppInit;

@@ -117,7 +117,7 @@ class Sites {
       if (isExistFile) {
         whoisConsole = await fse.readJson(pathFile);
       } else {
-        let { error, stdout } = await exec(`whois ${domain}`, { encoding: 'utf8' });
+        let { error, stderr, stdout } = await exec(`whois ${domain}`, { encoding: 'utf8' });
         if (stdout) {
           let whois = parserWhois.parseWhoIsData(stdout.toString());
           if (whois && Object.keys(whois).length) {
@@ -126,6 +126,7 @@ class Sites {
             }
           }
         }
+        if (stderr) throw stderr;
         if (error) throw error;
         await this.createWhoisFile({ whois: whoisConsole, domain, path: pathFile });
       }
