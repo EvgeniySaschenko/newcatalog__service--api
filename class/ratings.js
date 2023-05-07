@@ -75,7 +75,7 @@ class Ratings {
   }
 
   // Get ratings
-  async getRatings({ maxRecordsPerPage = global.$config['ratings'].maxRecordsPerPage, page = 1 }) {
+  async getRatings({ maxRecordsPerPage = global.$config['common'].maxRecordsPerPage, page = 1 }) {
     let offset = (page - 1) * maxRecordsPerPage;
     let count = await $dbMain['ratings'].getRatingCount();
     let ratings = await $dbMain['ratings'].getRatings({

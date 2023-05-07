@@ -83,7 +83,7 @@ class Cache {
   // Get the list rating in parts (as for pagination) so as not to consume too much memory at the same time
   async getRatingsPartData({ page }) {
     let count = await $dbMain['ratings'].getRatingCount();
-    let maxRecordsPerPage = global.$config['ratings'].maxRecordsPerPage;
+    let maxRecordsPerPage = global.$config['common'].maxRecordsPerPage;
     let pagesCount = Math.ceil(count / maxRecordsPerPage);
     let offset = (page - 1) * maxRecordsPerPage;
 

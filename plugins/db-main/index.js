@@ -10,6 +10,7 @@ let $dbMain = {
   'users-auth': require('./users-auth'),
   settings: require('./settings'),
   translations: require('./translations'),
+  backups: require('./backups'),
 };
 
 module.exports = {

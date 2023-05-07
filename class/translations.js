@@ -143,7 +143,7 @@ class Translations {
   // Get translations service
   async getTranslationsForService({
     serviceType,
-    maxRecordsPerPage = global.$config['translations'].maxRecordsPerPage,
+    maxRecordsPerPage = global.$config['common'].maxRecordsPerPage,
     page = 1,
   }) {
     let offset = (page - 1) * maxRecordsPerPage;

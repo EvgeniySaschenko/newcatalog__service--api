@@ -1,9 +1,10 @@
-let { ADMIN__SERVICE, SITE__SERVICE, API__NAME, ADMIN__NAME, SITE__NAME, API__PASSWORD_SALT } =
+let { ADMIN__SERVICE, SITE__SERVICE, DB_MAIN__SERVICE, FILES__SERVICE, API__PASSWORD_SALT } =
   process.env;
 
 let $config = {
   services: {
     api: {
+      blockingTimeMax: 3600, // sec
       serviceName: 'api', // API__NAME
       serviceType: 1,
       serviceRootPath: './',
@@ -18,10 +19,19 @@ let $config = {
       serviceType: 3,
       serviceRootPath: `symlinks/${SITE__SERVICE}`,
     },
+    files: {
+      serviceName: 'files', // FILES__NAME
+      serviceType: 4,
+      serviceRootPath: `symlinks/${FILES__SERVICE}`,
+    },
+    dbMain: {
+      serviceName: 'db-main', // DB_MAIN__NAME
+      serviceType: 5,
+      serviceRootPath: `symlinks/${DB_MAIN__SERVICE}`,
+    },
   },
   // translations
   translations: {
-    maxRecordsPerPage: 20,
     cookieNameLangDefault: 'langDefault',
   },
   // These settings will be replaced with the settings from the database (These are initialization values, for "get"/"set" operations only "plugins/translations" should be used)
@@ -93,6 +103,17 @@ let $config = {
     googleTagManagerId: {
       site: '',
     },
+    backup: {
+      api: {
+        host: '',
+        username: '',
+        publicKey: '',
+        publicKeyComment: 'service@newcatalog',
+        port: 22,
+        concurrency: 10,
+        remoteDir: '',
+      },
+    },
   },
   'settings-names': {
     langDefault: 'langDefault',
@@ -115,6 +136,8 @@ let $config = {
     pageTitlePrefix: 'pageTitlePrefix',
     pageTitleSufix: 'pageTitleSufix',
     googleTagManagerId: 'googleTagManagerId',
+    backup: 'backup',
+    blockingTimeMax: 'blockingTimeMax',
   },
   'settings-extends': {
     imageAppLogo: {
@@ -127,6 +150,11 @@ let $config = {
       mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/gif'],
     },
   },
+  // Move to settings
+  common: {
+    maxRecordsPerPage: 20,
+  },
+
   // users
   users: {
     emailLengthMin: 3,
@@ -191,7 +219,6 @@ let $config = {
     nameLengthMax: 120,
     descrLengthMin: 0,
     descrLengthMax: 1000,
-    maxRecordsPerPage: 20,
   },
   // sections
   sections: {

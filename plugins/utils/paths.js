@@ -3,10 +3,67 @@ let { v4: uuidv4 } = require('uuid');
 
 const siteLogoUrlDefault = `/images/default-image.png`;
 const { screenshotFileExtension, logoFileExtension } = global.$config['sites'];
-const { FILES__SERVICE } = process.env;
-const basePathFiles = `${global.ROOT_PATH}/symlinks/${FILES__SERVICE}`;
+const { DB_MAIN__BACKUP_REPORT_PATH, DB_MAIN__BACKUP_IS_RUN_PATH, DB_MAIN__BACKUP_FOLDER } =
+  process.env;
+let services = global.$config['services'];
+
+const basePathFiles = `${global.ROOT_PATH}/${services.files.serviceRootPath}`;
+const basePathDbMain = `${global.ROOT_PATH}/${services.dbMain.serviceRootPath}`;
 
 module.exports = {
+  // Path images
+  dirPathImages: () => {
+    return `${basePathFiles}/images`;
+  },
+  // Path screenshot
+  filePathScreenshot: ({ siteScreenshotId }) => {
+    return `${this.dirPathImages()}/site-screenshots/${siteScreenshotId}.${screenshotFileExtension}`;
+  },
+  // Path site logo
+  filePathSiteLogo: ({ siteLogoId }) => {
+    return `${this.dirPathImages()}/site-logos/${siteLogoId}.${logoFileExtension}`;
+  },
+  // Path whois
+  dirPathWhois: () => {
+    return `${basePathFiles}/whois`;
+  },
+  // Files whois Site info (type: api / console)
+  filePathWhoisSiteInfo({ type, domain }) {
+    return `${this.dirPathWhois()}/${type}/${domain}.json`;
+  },
+
+  // File Alexa Rank sites list
+  filePathAlexaRank() {
+    return `${basePathFiles}/alexa-rank.csv`;
+  },
+
+  // APP IMAGES
+  // - filePathApp... These functions return the path to upload images to the server
+  filePathAppLogo: ({ serviceName, extension }) => {
+    return `${this.dirPathImages()}/app/${serviceName}/logo.${extension}`;
+  },
+  filePathAppPreloader: ({ serviceName, extension }) => {
+    return `${this.dirPathImages()}/app/${serviceName}/preloader.${extension}`;
+  },
+  filePathAppFavicon: ({ serviceName }) => {
+    return `${this.dirPathImages()}/app/${serviceName}/favicon.ico`;
+  },
+
+  // DB BACKUP
+  // Path db main backup
+  dirPathDbMainBackup: () => {
+    return `${basePathDbMain}/${DB_MAIN__BACKUP_FOLDER}`;
+  },
+  // The file specifies whether to back up
+  filePathDbMainIsRun: () => {
+    return `${basePathDbMain}/${DB_MAIN__BACKUP_IS_RUN_PATH}`;
+  },
+  // Db main report
+  filePathDbMainReport: () => {
+    return `${basePathDbMain}/${DB_MAIN__BACKUP_REPORT_PATH}`;
+  },
+
+  // PROXY
   // The path to screenshots of sites through a proxy
   fileProxyPathScreenshot: ({ siteScreenshotId }) => {
     return siteScreenshotId
@@ -19,35 +76,6 @@ module.exports = {
     return siteLogoId
       ? `/images/site-logos/${siteLogoId}.${logoFileExtension}${sufix}`
       : siteLogoUrlDefault;
-  },
-
-  // Path screenshot
-  filePathScreenshot: ({ siteScreenshotId }) => {
-    return `${basePathFiles}/images/site-screenshots/${siteScreenshotId}.${screenshotFileExtension}`;
-  },
-  // Path site logo
-  filePathSiteLogo: ({ siteLogoId }) => {
-    return `${basePathFiles}/images/site-logos/${siteLogoId}.${logoFileExtension}`;
-  },
-  // Files whois Site info (type: api / console)
-  filePathWhoisSiteInfo({ type, domain }) {
-    return `${basePathFiles}/whois/${type}/${domain}.json`;
-  },
-  // File Alexa Rank sites list
-  filePathAlexaRank() {
-    return `${basePathFiles}/alexa-rank.csv`;
-  },
-
-  // APP FILES
-  // - filePathApp... These functions return the path to upload images to the server
-  filePathAppLogo: ({ serviceName, extension }) => {
-    return `${basePathFiles}/images/app/${serviceName}/logo.${extension}`;
-  },
-  filePathAppPreloader: ({ serviceName, extension }) => {
-    return `${basePathFiles}/images/app/${serviceName}/preloader.${extension}`;
-  },
-  filePathAppFavicon: ({ serviceName }) => {
-    return `${basePathFiles}/images/app/${serviceName}/favicon.ico`;
   },
 
   // The path to app logo through a proxy
@@ -64,6 +92,11 @@ module.exports = {
   },
 
   // TMP
+  // Creates a path to a new temporary directory
+  dirPathTmpDir() {
+    return `${global.ROOT_PATH}/tmp/${uuidv4()}`;
+  },
+
   // Path temporary file
   filePathTmp(fileName) {
     fileName = `${uuidv4()}${path.extname(fileName) || ''}`;

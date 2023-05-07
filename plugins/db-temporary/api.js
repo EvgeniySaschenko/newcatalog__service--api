@@ -15,14 +15,25 @@ client.on('error', async (err) => {
 client.connect();
 
 module.exports = {
-  // Add token
+  // Add token user
   async addTokenUserSecretKey(secretKey) {
     await client.set(dbTemporaryPrefixes['token-user-secret-key'], secretKey);
   },
 
-  // Get token
+  // Get token user
   async getTokenUserSecretKey() {
     let result = await client.get(dbTemporaryPrefixes['token-user-secret-key']);
     return result || null;
+  },
+
+  // Add ssh keys
+  async addSshKeysPair(sshKeys) {
+    await client.set(dbTemporaryPrefixes['ssh-keys-pair'], sshKeys);
+  },
+
+  // Get ssh keys
+  async getSshKeysPair() {
+    let result = await client.get(dbTemporaryPrefixes['ssh-keys-pair']);
+    return result ? JSON.parse(result) : null;
   },
 };

@@ -2,8 +2,10 @@ let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
 
 module.exports = {
   // Server errors / Unexpected Errors
-  serverMessage(message = '') {
-    throw { server: message || $t('Server error') };
+  serverMessage(message = '', isReturn = false) {
+    let result = { server: message || $t('Server error') };
+    if (isReturn) return result;
+    throw result;
   },
   /*
     Used when creating messages when validating data (for example, validating form fields)
