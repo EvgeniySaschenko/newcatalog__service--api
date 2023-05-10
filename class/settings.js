@@ -7,6 +7,7 @@ let sshpk = require('sshpk');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
 let langsMap = require('langs');
 let settingsNames = global.$config['settings-names'];
+let axios = require('axios');
 class Settings {
   // Init settings default
   async initSettingsDefault() {
@@ -84,6 +85,12 @@ class Settings {
       // backup
       case settingsNames.backup: {
         await this.editBackup({ settingName, serviceType, serviceName, settingValue });
+        break;
+      }
+
+      // protector
+      case settingsNames.protector: {
+        await this.editProtector({ settingName, serviceType, serviceName, settingValue });
         break;
       }
 
@@ -204,9 +211,9 @@ class Settings {
     let settings = global.$config['settings']['backup'][serviceName];
     // Errors
     let keysReference = Object.keys(settings).sort().join();
-    let keysUser = Object.keys(settingValue).sort().join();
+    let keysRequest = Object.keys(settingValue).sort().join();
 
-    if (keysReference !== keysUser) {
+    if (keysReference !== keysRequest) {
       $utils['errors'].serverMessage();
     }
 
@@ -248,6 +255,47 @@ class Settings {
       $utils['errors'].serverMessage();
     }
     return true;
+  }
+
+  // edit server protector
+  async editProtector({ settingName, serviceType, serviceName, settingValue }) {
+    let settings = global.$config['settings']['protector'][serviceName];
+
+    // Errors
+    let keysReference = Object.keys(settings).sort().join();
+    let keysRequest = Object.keys(settingValue).sort().join();
+
+    if (keysReference !== keysRequest) {
+      $utils['errors'].serverMessage();
+    }
+
+    if (settingValue.url) {
+      try {
+        await axios.get(settingValue.url);
+      } catch (error) {
+        $utils['errors'].validationMessage({
+          path: `${serviceName}--url`,
+          message: $t('The server must be available'),
+        });
+      }
+
+      if (!settingValue.textKey) {
+        $utils['errors'].validationMessage({
+          path: `${serviceName}--textKey`,
+          message: $t('This field cannot be empty'),
+        });
+      }
+    }
+
+    let reusult = await $dbMain['settings'].editSetting({
+      settingName,
+      serviceType,
+      settingValue,
+    });
+
+    if (!reusult) {
+      $utils['errors'].serverMessage();
+    }
   }
 
   // Edit oher text

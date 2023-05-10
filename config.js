@@ -114,6 +114,13 @@ let $config = {
         remoteDir: '',
       },
     },
+    // This specifies the server url and the response that it must send in order to continue working with the service
+    protector: {
+      api: {
+        url: '',
+        textKey: '',
+      },
+    },
   },
   'settings-names': {
     langDefault: 'langDefault',
@@ -137,7 +144,7 @@ let $config = {
     pageTitleSufix: 'pageTitleSufix',
     googleTagManagerId: 'googleTagManagerId',
     backup: 'backup',
-    blockingTimeMax: 'blockingTimeMax',
+    protector: 'protector',
   },
   'settings-extends': {
     imageAppLogo: {
