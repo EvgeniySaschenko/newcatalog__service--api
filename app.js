@@ -7,7 +7,7 @@ let logger = require('morgan');
 let routesAuth = require('./routes/auth');
 let routes = require('./routes');
 let fileUpload = require('express-fileupload');
-let AppInit = require(global.ROOT_PATH + '/class/app-init');
+let AppMain = require(global.ROOT_PATH + '/class/app-main');
 let app = express();
 
 app.use(logger('dev'));
@@ -23,9 +23,30 @@ app.use(cookieParser());
 
 // Init
 (async function () {
-  let appInit = new AppInit();
-  await appInit.init();
+  let appMain = new AppMain();
+  await appMain.init();
 })();
+
+// Protection server blocked
+app.use(async (req, res, next) => {
+  let appMain = new AppMain();
+  let isAllow = await appMain.checkProtection();
+
+  if (isAllow) {
+    next();
+  } else {
+    res.sendStatus(202);
+  }
+});
+
+// Interior blocked
+app.use((req, res, next) => {
+  if (!$utils['service'].checkIsServiceBlocked()) {
+    next();
+  } else {
+    res.sendStatus(202);
+  }
+});
 
 // Checking app readiness (Until the api server is fully ready, where the user will get status 202)
 app.use((req, res, next) => {

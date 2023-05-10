@@ -5,7 +5,10 @@ let UsersAuth = require(global.ROOT_PATH + '/class/users-auth');
 let Settings = require(global.ROOT_PATH + '/class/settings');
 let Translations = require(global.ROOT_PATH + '/class/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
-class AppInit {
+let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
+let axios = require('axios');
+
+class AppMain {
   // Init
   async init() {
     $utils['service'].blockService();
@@ -33,6 +36,29 @@ class AppInit {
     await users.createUserDefault();
     $utils['service'].unblockService();
   }
+
+  // Blocking access to the API using a third-party server
+  async checkProtection() {
+    let settingsNames = global.$config['settings-names'];
+    let services = global.$config['services'];
+    let setting = await $dbMain['settings'].getSettingBySettingNameAndServiceType({
+      settingName: settingsNames.protector,
+      serviceType: services.api.serviceType,
+    });
+
+    let { url, textKey } = setting.settingValue;
+    if (url) {
+      try {
+        let response = await axios.get(url);
+        if (String(response.data) !== String(textKey)) {
+          return false;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    return true;
+  }
 }
 
-module.exports = AppInit;
+module.exports = AppMain;
