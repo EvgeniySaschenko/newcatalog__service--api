@@ -100,6 +100,7 @@ class Settings {
       case settingsNames.googleTagManagerId:
       case settingsNames.headStyles:
       case settingsNames.headScript:
+      case settingsNames.headerInfoHtml:
       case settingsNames.headerHtml:
       case settingsNames.contentTopHtml:
       case settingsNames.footerHtml:
