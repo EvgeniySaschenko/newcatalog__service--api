@@ -82,6 +82,10 @@ let $config = {
     headScript: {
       site: '',
     },
+    headerInfoHtml: {
+      site: '',
+      admin: '',
+    },
     headerHtml: {
       site: '',
     },
@@ -136,6 +140,7 @@ let $config = {
     colorSelectionText: 'colorSelectionText',
     headStyles: 'headStyles',
     headScript: 'headScript',
+    headerInfoHtml: 'headerInfoHtml',
     headerHtml: 'headerHtml',
     contentTopHtml: 'contentTopHtml',
     contentBottomHtml: 'contentBottomHtml',
