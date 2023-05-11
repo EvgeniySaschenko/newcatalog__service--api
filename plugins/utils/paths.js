@@ -3,7 +3,7 @@ let { v4: uuidv4 } = require('uuid');
 
 const siteLogoUrlDefault = `/images/default-image.png`;
 const { screenshotFileExtension, logoFileExtension } = global.$config['sites'];
-const { DB_MAIN__BACKUP_REPORT_PATH, DB_MAIN__BACKUP_IS_RUN_PATH, DB_MAIN__BACKUP_FOLDER } =
+const { DB_MAIN__BACKUP_REPORT_PATH, DB_MAIN__BACKUP_IS_RUN_PATH, DB_MAIN__BACKUP_DIR } =
   process.env;
 let services = global.$config['services'];
 
@@ -52,7 +52,7 @@ module.exports = {
   // DB BACKUP
   // Path db main backup
   dirPathDbMainBackup: () => {
-    return `${basePathDbMain}/${DB_MAIN__BACKUP_FOLDER}`;
+    return `${basePathDbMain}/${DB_MAIN__BACKUP_DIR}`;
   },
   // The file specifies whether to back up
   filePathDbMainIsRun: () => {
