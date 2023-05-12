@@ -220,21 +220,21 @@ class Settings {
 
     if (!settingValue.host) {
       $utils['errors'].validationMessage({
-        path: `${serviceName}--host`,
+        path: `${serviceName}--${settingsNames.backup}-host`,
         message: $t('This field cannot be empty'),
       });
     }
 
     if (!Number.isInteger(settingValue.port) || settingValue.port < 0) {
       $utils['errors'].validationMessage({
-        path: `${serviceName}--port`,
+        path: `${serviceName}--${settingsNames.backup}-port`,
         message: $t('Not valid setting'),
       });
     }
 
     if (!Number.isInteger(settingValue.concurrency) || settingValue.concurrency < 1) {
       $utils['errors'].validationMessage({
-        path: `${serviceName}--concurrency`,
+        path: `${serviceName}--${settingsNames.backup}-concurrency`,
         message: $t('Not valid setting'),
       });
     }
@@ -271,19 +271,27 @@ class Settings {
     }
 
     if (settingValue.url) {
+      let response;
       try {
-        await axios.get(settingValue.url);
+        response = await axios.get(settingValue.url);
       } catch (error) {
         $utils['errors'].validationMessage({
-          path: `${serviceName}--url`,
+          path: `${serviceName}--${settingsNames.protector}-url`,
           message: $t('The server must be available'),
         });
       }
 
       if (!settingValue.textKey) {
         $utils['errors'].validationMessage({
-          path: `${serviceName}--textKey`,
+          path: `${serviceName}--${settingsNames.protector}-textKey`,
           message: $t('This field cannot be empty'),
+        });
+      }
+
+      if (String(response.data) !== String(settingValue.textKey)) {
+        $utils['errors'].validationMessage({
+          path: `${serviceName}--${settingsNames.protector}-textKey`,
+          message: $t('The server should send the specified key in response'),
         });
       }
     }

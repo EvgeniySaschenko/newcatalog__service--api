@@ -17,11 +17,11 @@ module.exports = {
   },
   // Path screenshot
   filePathScreenshot: ({ siteScreenshotId }) => {
-    return `${this.dirPathImages()}/site-screenshots/${siteScreenshotId}.${screenshotFileExtension}`;
+    return `${basePathFiles}/images/site-screenshots/${siteScreenshotId}.${screenshotFileExtension}`;
   },
   // Path site logo
   filePathSiteLogo: ({ siteLogoId }) => {
-    return `${this.dirPathImages()}/site-logos/${siteLogoId}.${logoFileExtension}`;
+    return `${basePathFiles}/images/site-logos/${siteLogoId}.${logoFileExtension}`;
   },
   // Path whois
   dirPathWhois: () => {
@@ -40,13 +40,13 @@ module.exports = {
   // APP IMAGES
   // - filePathApp... These functions return the path to upload images to the server
   filePathAppLogo: ({ serviceName, extension }) => {
-    return `${this.dirPathImages()}/app/${serviceName}/logo.${extension}`;
+    return `${basePathFiles}/images/app/${serviceName}/logo.${extension}`;
   },
   filePathAppPreloader: ({ serviceName, extension }) => {
-    return `${this.dirPathImages()}/app/${serviceName}/preloader.${extension}`;
+    return `${basePathFiles}/images/app/${serviceName}/preloader.${extension}`;
   },
   filePathAppFavicon: ({ serviceName }) => {
-    return `${this.dirPathImages()}/app/${serviceName}/favicon.ico`;
+    return `${basePathFiles}/images/app/${serviceName}/favicon.ico`;
   },
 
   // DB BACKUP
