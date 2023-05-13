@@ -11,5 +11,6 @@ router.use('/cache', require('./cache'));
 router.use('/settings', require('./settings'));
 router.use('/translations', require('./translations'));
 router.use('/backups', require('./backups'));
+router.use('/ssl-certificates', require('./ssl-certificates'));
 
 module.exports = router;
