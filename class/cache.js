@@ -121,6 +121,7 @@ class Cache {
         ratingId: rating.ratingId,
         name: rating.name,
         descr: rating.descr,
+        linksToSources: rating.linksToSources,
         sectionsIds: rating.sectionsIds,
         dateFirstPublication: rating.dateFirstPublication,
       },

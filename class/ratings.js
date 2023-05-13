@@ -1,6 +1,7 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
+let striptags = require('striptags');
 
 class Ratings {
   // Create Rating
@@ -8,16 +9,20 @@ class Ratings {
     userId,
     name,
     descr,
+    linksToSources,
     typeRating,
     typeSort,
     typeDisplay,
     sectionsIds,
     isHiden,
   }) {
+    let data = this.prepareRatingData({ name, descr, linksToSources });
+
     let { ratingId } = await $dbMain['ratings'].createRating({
       userId,
-      name,
-      descr,
+      name: data.name,
+      descr: data.descr,
+      linksToSources: data.linksToSources,
       typeRating,
       typeSort,
       typeDisplay,
@@ -34,6 +39,7 @@ class Ratings {
     ratingId,
     name,
     descr,
+    linksToSources,
     isHiden,
     typeRating,
     typeSort,
@@ -41,11 +47,14 @@ class Ratings {
     sectionsIds,
     visitorId,
   }) {
+    let data = this.prepareRatingData({ name, descr, linksToSources });
+
     let result = await $dbMain['ratings'].editRating({
       userId,
       ratingId,
-      name,
-      descr,
+      name: data.name,
+      descr: data.descr,
+      linksToSources: data.linksToSources,
       isHiden,
       typeRating,
       typeSort,
@@ -56,6 +65,28 @@ class Ratings {
 
     if (!result) $utils['errors'].serverMessage();
     return true;
+  }
+
+  // Prepare rating data
+  prepareRatingData({ name, descr, linksToSources }) {
+    let linksUnic = {};
+    for (let key in name) {
+      name[key] = striptags(name[key]);
+      descr[key] = striptags(descr[key]);
+    }
+
+    if (Array.isArray(linksToSources)) {
+      for (let item of linksToSources) {
+        linksUnic[item] = item;
+      }
+      linksToSources = Object.keys(linksUnic).sort();
+    }
+
+    return {
+      name,
+      descr,
+      linksToSources,
+    };
   }
 
   // Get Rating

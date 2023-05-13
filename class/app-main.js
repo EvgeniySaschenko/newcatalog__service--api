@@ -55,6 +55,7 @@ class AppMain {
         }
       } catch (error) {
         console.error(error);
+        return false;
       }
     }
     return true;
