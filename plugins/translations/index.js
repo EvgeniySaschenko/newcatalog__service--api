@@ -49,9 +49,9 @@ let $translations = {
       if (Array.isArray(texts)) {
         let response = '';
         for (let text of texts) {
-          response += translationsList[lang][text] || text;
+          response += ` ${translationsList[lang][text] || text}`;
         }
-        return response;
+        return response.trim();
       }
       // is string
       return translationsList[lang][texts] || texts;
