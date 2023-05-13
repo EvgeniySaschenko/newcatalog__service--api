@@ -2,6 +2,7 @@ let { Model, DataTypes } = require('sequelize');
 let { $db } = require('./_db');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { $translations, $t } = require(global.ROOT_PATH + '/plugins/translations');
+let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
 
 let Scheme = function () {
   let serviceSite = global.$config['services'].site;
@@ -44,6 +45,25 @@ let Scheme = function () {
         },
       },
       defaultValue: $translations.getLangsObject({ serviceName: serviceSite.serviceName }),
+    },
+    // Links to sources
+    linksToSources: {
+      type: DataTypes.JSONB,
+      validate: {
+        checkJSON: (links) => {
+          // is array
+          if (!Array.isArray(links)) {
+            throw new Error($t('Wrong data format'));
+          }
+          // is link
+          for (let link of links) {
+            if (!$regexp.hyperlink.test(link)) {
+              throw new Error($t('The value must be "http" / "https" link'));
+            }
+          }
+        },
+      },
+      defaultValue: [],
     },
     // Indicates that the rating is hidden
     isHiden: {

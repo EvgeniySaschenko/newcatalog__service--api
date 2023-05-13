@@ -1,5 +1,4 @@
 let { M_Ratings, name: tableName } = require('./models/ratings');
-let striptags = require('striptags');
 let { Op } = require('sequelize');
 
 module.exports = {
@@ -9,21 +8,18 @@ module.exports = {
     userId,
     name,
     descr,
+    linksToSources,
     typeRating,
     typeSort,
     typeDisplay,
     sectionsIds,
     isHiden,
   }) {
-    for (let key in name) {
-      name[key] = striptags(name[key]);
-      descr[key] = striptags(descr[key]);
-    }
-
     let result = await M_Ratings.create({
       userId,
       name,
       descr,
+      linksToSources,
       typeRating,
       typeSort,
       typeDisplay,
@@ -40,6 +36,7 @@ module.exports = {
     ratingId,
     name,
     descr,
+    linksToSources,
     isHiden,
     typeRating,
     typeSort,
@@ -47,15 +44,11 @@ module.exports = {
     sectionsIds,
     visitorId,
   }) {
-    for (let key in name) {
-      name[key] = striptags(name[key]);
-      descr[key] = striptags(descr[key]);
-    }
-
     let result = await M_Ratings.update(
       {
         name,
         descr,
+        linksToSources,
         isHiden,
         typeRating,
         typeSort,
