@@ -32,7 +32,8 @@ let $translations = {
     },
 
     // Translation function
-    t(text, lang) {
+    // texts - string | array
+    t(texts, lang) {
       let { serviceName } = serviceApi;
       let langDefault = this.getLangDefault({ serviceName });
       let langs = this.getLangs({ serviceName });
@@ -41,9 +42,19 @@ let $translations = {
       if (!isLang) {
         lang = langDefault;
       }
+      // is not lang
+      if (!translationsList[lang]) return texts;
 
-      if (!translationsList[lang]) return text;
-      return translationsList[lang][text] || text;
+      // is array (example: throw [$t('The number of characters in a string must be in the range:'),  `${lengthMin} - ${lengthMax}`])
+      if (Array.isArray(texts)) {
+        let response = '';
+        for (let text of texts) {
+          response += translationsList[lang][text] || text;
+        }
+        return response;
+      }
+      // is string
+      return translationsList[lang][texts] || texts;
     },
 
     // Get lang default
@@ -100,7 +111,7 @@ let $translations = {
 
         if (translations[key].length < lengthMin || translations[key].length > lengthMax) {
           // eslint-disable-next-line prettier/prettier
-          throw Error(`${$t('The number of characters in a string must be in the range:')}  ${lengthMin} - ${lengthMax}`);
+          throw [$t('The number of characters in a string must be in the range:'),  `${lengthMin} - ${lengthMax}`];
         }
         if (!langsMap.has('1', key)) {
           throw Error($t('Not exist ISO key'));
