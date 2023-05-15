@@ -29,6 +29,11 @@ class Translations {
     public: true,
     data: true,
     symlinks: true,
+    dist: true,
+    build: true,
+    bin: true,
+    tmp: true,
+    '.output': true,
   };
 
   // Files extension allowed
