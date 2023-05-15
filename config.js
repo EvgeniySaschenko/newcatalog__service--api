@@ -68,6 +68,10 @@ let $config = {
     imageAppPreloader: {
       site: '/images/app/site/preloader.png',
     },
+    imageAppDefault: {
+      site: '/images/app/site/default.png',
+      admin: '/images/app/admin/default.png',
+    },
     colorBodyBackground: {
       site: '#ffffff',
     },
@@ -143,6 +147,7 @@ let $config = {
     imageAppLogo: 'imageAppLogo',
     imageAppFavicon: 'imageAppFavicon',
     imageAppPreloader: 'imageAppPreloader',
+    imageAppDefault: 'imageAppDefault',
     colorBodyBackground: 'colorBodyBackground',
     colorPrimary: 'colorPrimary',
     colorPrimaryInverted: 'colorPrimaryInverted',
@@ -170,6 +175,9 @@ let $config = {
       mimeTypes: ['image/vnd.microsoft.icon', 'image/x-icon'],
     },
     imageAppPreloader: {
+      mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/gif'],
+    },
+    imageAppDefault: {
       mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/gif'],
     },
   },
