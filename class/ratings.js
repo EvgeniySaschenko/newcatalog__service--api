@@ -132,7 +132,7 @@ class Ratings {
     if (ratingItems.length || ratingLabels.length) {
       $utils['errors'].validationMessage({
         path: 'rating',
-        message: $t('You can not remove a rating that has sites or labels'),
+        message: $t('You can not remove a rating that has websites or labels'),
       });
     }
 

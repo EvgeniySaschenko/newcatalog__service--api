@@ -48,7 +48,7 @@ class SitesScreenshots {
     if (isScreenshotProcessing) {
       $utils['errors'].validationMessage({
         path: 'screenshot',
-        message: $t('This site is currently in the screenshot queue'),
+        message: $t('This website is currently in the screenshot queue'),
       });
     }
   }
