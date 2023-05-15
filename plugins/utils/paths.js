@@ -1,7 +1,6 @@
 let path = require('path');
 let { v4: uuidv4 } = require('uuid');
 
-const siteLogoUrlDefault = `/images/default-image.png`;
 const { screenshotFileExtension, logoFileExtension } = global.$config['sites'];
 const { DB_MAIN__BACKUP_REPORT_PATH, DB_MAIN__BACKUP_IS_RUN_PATH, DB_MAIN__BACKUP_DIR } =
   process.env;
@@ -45,6 +44,9 @@ module.exports = {
   filePathAppPreloader: ({ serviceName, extension }) => {
     return `${basePathFiles}/images/app/${serviceName}/preloader.${extension}`;
   },
+  filePathAppImageDefault: ({ serviceName, extension }) => {
+    return `${basePathFiles}/images/app/${serviceName}/default.${extension}`;
+  },
   filePathAppFavicon: ({ serviceName }) => {
     return `${basePathFiles}/images/app/${serviceName}/favicon.ico`;
   },
@@ -75,7 +77,7 @@ module.exports = {
     let sufix = resetCache ? `?=${resetCache}` : '';
     return siteLogoId
       ? `/images/site-logos/${siteLogoId}.${logoFileExtension}${sufix}`
-      : siteLogoUrlDefault;
+      : '/images/site-logos';
   },
 
   // The path to app logo through a proxy
@@ -85,6 +87,10 @@ module.exports = {
   // The path to app preloader through a proxy
   fileProxyPathAppPreloader: ({ serviceName, extension = null }) => {
     return `/images/app/${serviceName}/preloader.${extension}`;
+  },
+  // The path to app image default through a proxy
+  fileProxyPathAppImageDefault: ({ serviceName, extension = null }) => {
+    return `/images/app/${serviceName}/default.${extension}`;
   },
   // The path to app favicon through a proxy
   fileProxyPathAppFavicon: ({ serviceName }) => {

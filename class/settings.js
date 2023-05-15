@@ -151,6 +151,17 @@ class Settings {
         }
         break;
       }
+      case settingsNames.imageAppDefault: {
+        isMimeType = mimeTypes.includes(file.mimetype);
+        if (isMimeType) {
+          filePath = $utils['paths'].filePathAppImageDefault({ serviceName, extension });
+          settingValue = `${$utils['paths'].fileProxyPathAppImageDefault({
+            serviceName,
+            extension,
+          })}?v=${Date.now()}`;
+        }
+        break;
+      }
       case settingsNames.imageAppFavicon: {
         isMimeType = mimeTypes.includes(file.mimetype);
         if (isMimeType) {
