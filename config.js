@@ -129,7 +129,6 @@ let $config = {
         publicKey: '',
         publicKeyComment: 'service@newcatalog',
         port: 22,
-        concurrency: 10,
         remoteDir: '',
       },
     },

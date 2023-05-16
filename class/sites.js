@@ -1,9 +1,9 @@
 let sharp = require('sharp');
 let whois = require('whois-json');
 let fse = require('fs-extra');
-let util = require('util');
-let exec = util.promisify(require('child_process').exec);
-let parserWhois = require('parse-whois');
+// let util = require('util');
+// let exec = util.promisify(require('child_process').exec);
+// let parserWhois = require('parse-whois');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
@@ -111,28 +111,28 @@ class Sites {
     }
 
     // whois from package OS
-    try {
-      let pathFile = $utils['paths'].filePathWhoisSiteInfo({ type: 'console', domain });
-      let isExistFile = await fse.pathExists(pathFile);
-      if (isExistFile) {
-        whoisConsole = await fse.readJson(pathFile);
-      } else {
-        let { error, stderr, stdout } = await exec(`whois ${domain}`, { encoding: 'utf8' });
-        if (stdout) {
-          let whois = parserWhois.parseWhoIsData(stdout.toString());
-          if (whois && Object.keys(whois).length) {
-            for (let { attribute, value } of whois) {
-              whoisConsole[attribute.trim()] = value.trim();
-            }
-          }
-        }
-        if (stderr) throw stderr;
-        if (error) throw error;
-        await this.createWhoisFile({ whois: whoisConsole, domain, path: pathFile });
-      }
-    } catch (error) {
-      console.error(`whois OS ${error}`);
-    }
+    // try {
+    //   let pathFile = $utils['paths'].filePathWhoisSiteInfo({ type: 'console', domain });
+    //   let isExistFile = await fse.pathExists(pathFile);
+    //   if (isExistFile) {
+    //     whoisConsole = await fse.readJson(pathFile);
+    //   } else {
+    //     let { error, stderr, stdout } = await exec(`whois ${domain}`, { encoding: 'utf8' });
+    //     if (stdout) {
+    //       let whois = parserWhois.parseWhoIsData(stdout.toString());
+    //       if (whois && Object.keys(whois).length) {
+    //         for (let { attribute, value } of whois) {
+    //           whoisConsole[attribute.trim()] = value.trim();
+    //         }
+    //       }
+    //     }
+    //     if (stderr) throw stderr;
+    //     if (error) throw error;
+    //     await this.createWhoisFile({ whois: whoisConsole, domain, path: pathFile });
+    //   }
+    // } catch (error) {
+    //   console.error(`whois OS ${error}`);
+    // }
     return { whoisConsole, whoisApi };
   }
 
