@@ -5,6 +5,7 @@ let {
   FILES__SERVICE,
   PROXY__SERVICE,
   API__PASSWORD_SALT,
+  SITE__DOMAIN,
 } = process.env;
 
 let $config = {
@@ -270,10 +271,10 @@ let $config = {
   },
   // puppeteer
   puppeteer: {
-    viewportWidth: 1600,
-    viewportHeight: 900,
+    viewportWidth: 1920,
+    viewportHeight: 1080,
     userAgent:
-      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36',
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36 newcatalog',
     extraHTTPHeaders: {
       'Accept-Language': 'en',
     },
