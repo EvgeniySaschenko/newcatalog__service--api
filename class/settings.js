@@ -243,13 +243,6 @@ class Settings {
       });
     }
 
-    if (!Number.isInteger(settingValue.concurrency) || settingValue.concurrency < 1) {
-      $utils['errors'].validationMessage({
-        path: `${serviceName}--${settingsNames.backup}-concurrency`,
-        message: $t('Not valid setting'),
-      });
-    }
-
     // publicKey
     if (!settingValue.publicKey) {
       await this.generateSshKeys(settingValue.publicKeyComment);

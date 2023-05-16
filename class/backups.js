@@ -9,7 +9,7 @@ let {
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
-let { NodeSSH } = require('node-ssh');
+let Ssh2SftpClient = require('ssh2-sftp-client');
 
 // When the service is blocked but sending to a remote server is in progress
 let isBlockedRunProcessBackup = false;
@@ -133,14 +133,14 @@ class Backups {
   async sendFilesSsh(dirBackup) {
     let settingsNames = global.$config['settings-names'];
     let services = global.$config['services'];
-    let ssh = new NodeSSH();
+    let sftp = new Ssh2SftpClient();
     let { privateKey } = await $dbTemporary['api'].getSshKeysPair();
     let { settingValue } = await $dbMain['settings'].getSettingBySettingNameAndServiceType({
       settingName: settingsNames.backup,
       serviceType: services.api.serviceType,
     });
 
-    let { host, username, port, concurrency, remoteDir } = settingValue;
+    let { host, username, port, remoteDir } = settingValue;
     // send files to remote server
     let pathsBackup = [
       {
@@ -157,7 +157,7 @@ class Backups {
       },
     ];
 
-    await ssh.connect({
+    await sftp.connect({
       host,
       username,
       privateKey,
@@ -165,10 +165,7 @@ class Backups {
     });
 
     for await (let item of pathsBackup) {
-      await ssh.putDirectory(item.local, item.remote, {
-        recursive: true,
-        concurrency,
-      });
+      await sftp.uploadDir(item.local, item.remote);
     }
   }
   // Get backups
