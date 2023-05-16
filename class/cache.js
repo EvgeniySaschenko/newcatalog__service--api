@@ -439,7 +439,7 @@ class Cache {
 
     await runPart(1);
 
-    if (!ratingsDataFromList.length) return;
+    if (!ratingsDataFromList.length) return true;
 
     // Add ratings to list
     await this.addRatingsListIds({ ratingsData: ratingsDataFromList });
