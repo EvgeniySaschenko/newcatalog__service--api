@@ -4,6 +4,7 @@ let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { v4: uuidv4 } = require('uuid');
 let jwt = require('jsonwebtoken');
+let { IS_DEMO_MODE } = process.env;
 
 class UsersAuth {
   async login({ email, password, userAgent = '', ip, response }) {
@@ -157,8 +158,32 @@ class UsersAuth {
     return sessionId;
   }
 
+  // Set auth data - Mode demo
+  async setAuthDataModeDemo({ response }) {
+    let { emailDemo, userAgentDemo, sessionIdDemo } = global.$config['users'];
+    let { userId } = await $dbMain['users'].getUserByEmail({ email: emailDemo });
+    await $dbMain['users'].editUserAuth({
+      userId,
+      userAgent: userAgentDemo,
+      sessionId: sessionIdDemo,
+    });
+
+    let token = await this.createUserToken({
+      data: { sessionId: sessionIdDemo, userId },
+      expiresIn: null,
+    });
+
+    await this.setAuthCookies({ token, response });
+  }
+
   // Auth refresh
   async authRefresh({ sessionId, userId, userAgent, response, ip }) {
+    // Create cookie Demo mode only
+    if (IS_DEMO_MODE) {
+      await this.setAuthDataModeDemo({ response });
+      return true;
+    }
+
     // Empty
     if (!sessionId) {
       await $dbMain['users-auth'].createRecord({
@@ -308,13 +333,13 @@ class UsersAuth {
   // Create token
   async createUserToken({ data, expiresIn }) {
     let tokenSecretKey = await $dbTemporary['api'].getTokenUserSecretKey();
-
+    expiresIn = expiresIn ? { expiresIn } : {};
     let token = jwt.sign(
       {
         data,
       },
       tokenSecretKey,
-      { expiresIn }
+      expiresIn
     );
 
     return token;

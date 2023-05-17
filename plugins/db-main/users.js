@@ -15,6 +15,11 @@ module.exports = {
     return result.get({ plain: true });
   },
 
+  // Delete user
+  async deleteUserByEmail({ email }) {
+    return await M_Users.destroy({ where: { email } });
+  },
+
   // Get user by email
   async getUserByEmail({ email }) {
     let result = await M_Users.findOne({

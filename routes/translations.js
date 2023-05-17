@@ -46,6 +46,7 @@ router.post('/create-for-service', async (request, response, next) => {
   let serviceName = request.body.serviceName;
 
   try {
+    $utils['errors'].serverMessageDemoMode();
     let translations = new Translations();
     let { serviceRootPath, serviceType } = global.$config['services'][serviceName];
     result = await translations.runCreateTranslations({
@@ -63,6 +64,7 @@ router.post('/create-for-service', async (request, response, next) => {
 router.put('/text/:translationId', async (request, response, next) => {
   let result;
   try {
+    $utils['errors'].serverMessageDemoMode();
     let translations = new Translations();
     result = await translations.runEditText(request.body);
   } catch (error) {

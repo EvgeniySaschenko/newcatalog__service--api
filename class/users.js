@@ -19,8 +19,41 @@ class Users {
     return result;
   }
 
+  // Create user - for demo
+  async createUserDemo() {
+    let result;
+    let { emailDemo, passwordDemo } = global.$config['users'];
+
+    let password = this.encryptPassword(passwordDemo);
+    let user = await $dbMain['users'].getUserByEmail({ email: emailDemo });
+    if (!user) {
+      result = await $dbMain['users'].createUser({ email: emailDemo, password });
+    }
+    return result;
+  }
+
+  // Delete user demo
+  async deleteUserDemo() {
+    let result;
+    let { emailDemo } = global.$config['users'];
+
+    let user = await $dbMain['users'].getUserByEmail({ email: emailDemo });
+    if (user) {
+      result = await $dbMain['users'].deleteUserByEmail({ email: emailDemo });
+    }
+    return result;
+  }
+
   // Edit email
   async editEmail({ userId, email }) {
+    // Exclude user demo
+    if (global.$config['users'].emailDemo === email.trim()) {
+      $utils['errors'].validationMessage({
+        path: 'email',
+        message: $t('This e-mail already exists'),
+      });
+    }
+
     let result;
     let user = await $dbMain['users'].getUserByEmail({ email });
     if (user) {

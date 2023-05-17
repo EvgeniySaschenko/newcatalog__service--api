@@ -7,6 +7,7 @@ let Translations = require(global.ROOT_PATH + '/class/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let axios = require('axios');
+let { IS_DEMO_MODE } = process.env;
 
 class AppMain {
   // Init
@@ -34,6 +35,15 @@ class AppMain {
       await usersAuth.logOutAllUsers();
     }
     await users.createUserDefault();
+
+    // Demo mode
+    if (IS_DEMO_MODE) {
+      await users.createUserDemo();
+    } else {
+      await users.deleteUserDemo();
+    }
+
+    // If before that there was a launch in demo mode
     $utils['service'].unblockService();
   }
 
