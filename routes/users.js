@@ -89,6 +89,7 @@ router.put('/password', async (request, response, next) => {
     result = await users.editPassword({
       userId,
       password: request.body?.password,
+      password2: request.body?.password2,
     });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
