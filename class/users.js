@@ -69,7 +69,14 @@ class Users {
   }
 
   // Edit password
-  async editPassword({ userId, password }) {
+  async editPassword({ userId, password, password2 }) {
+    if (password !== password2) {
+      $utils['errors'].validationMessage({
+        path: 'password',
+        message: $t('Passwords do not match'),
+      });
+    }
+
     let result;
     password = this.encryptPassword(password);
     result = await $dbMain['users'].editPassword({ password, userId });
