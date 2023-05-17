@@ -5,7 +5,6 @@ let {
   FILES__SERVICE,
   PROXY__SERVICE,
   API__PASSWORD_SALT,
-  SITE__DOMAIN,
 } = process.env;
 
 let $config = {
@@ -199,8 +198,13 @@ let $config = {
     sessionMaxAge: 1200, // sec (The frontend periodically asks to update the key, during this time a request to update the key should come)
     cookieUserId: 'userId',
     cookieToken: 'token',
-    emailDefault: 'test@test.com',
+    emailDefault: 'default@newcatalog.email',
     passwordDefault: '123456',
+    emailDemo: 'demo@newcatalog.email',
+    passwordDemo: '123456',
+    userAgentDemo:
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36 newcatalog',
+    sessionIdDemo: 'session-id-demo-mode',
     // These URLs can be accessed without authorization
     urlWithoutLogin: {
       '/api/users/login': true,

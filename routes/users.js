@@ -8,6 +8,8 @@ let UsersAuth = require(global.ROOT_PATH + '/class/users-auth');
 router.put('/login', async (request, response, next) => {
   let result;
   try {
+    $utils['errors'].serverMessageDemoMode();
+
     let { userAgent, ip } = $utils['users'].getUserDataFromRequest(request);
 
     let users = new Users();
@@ -31,6 +33,7 @@ router.put('/login', async (request, response, next) => {
 router.put('/log-out', async (request, response, next) => {
   let result;
   try {
+    $utils['errors'].serverMessageDemoMode();
     let { userAgent, ip, sessionId, userId } = $utils['users'].getUserDataFromRequest(request);
 
     let usersAuth = new UsersAuth();
@@ -79,6 +82,8 @@ router.put('/auth-refresh', async (request, response, next) => {
 router.put('/password', async (request, response, next) => {
   let result;
   try {
+    $utils['errors'].serverMessageDemoMode();
+
     let { userId } = $utils['users'].getUserDataFromRequest(request);
     let users = new Users();
     result = await users.editPassword({
@@ -98,6 +103,7 @@ router.put('/email', async (request, response, next) => {
   let result;
 
   try {
+    $utils['errors'].serverMessageDemoMode();
     let users = new Users();
     let { userId } = $utils['users'].getUserDataFromRequest(request);
     result = await users.editEmail({

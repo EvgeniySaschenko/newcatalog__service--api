@@ -1,4 +1,5 @@
 let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
+let { IS_DEMO_MODE } = process.env;
 
 module.exports = {
   // Server errors / Unexpected Errors
@@ -7,6 +8,15 @@ module.exports = {
     if (isReturn) return result;
     throw result;
   },
+
+  // Message only for demo mode
+  serverMessageDemoMode(message = '') {
+    if (IS_DEMO_MODE) {
+      let result = { server: message || $t('This setting is disabled in demo mode') };
+      throw result;
+    }
+  },
+
   /*
     Used when creating messages when validating data (for example, validating form fields)
 

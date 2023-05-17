@@ -20,6 +20,7 @@ router.get('/', async (request, response, next) => {
 router.put('/:settingName', async (request, response, next) => {
   let result;
   try {
+    $utils['errors'].serverMessageDemoMode();
     let settings = new Settings();
     result = await settings.editSetting(request.body);
   } catch (error) {
@@ -33,6 +34,7 @@ router.put('/:settingName', async (request, response, next) => {
 router.put('/files/:settingName', async (request, response, next) => {
   let result;
   try {
+    $utils['errors'].serverMessageDemoMode();
     let settings = new Settings();
     result = await settings.editSettingFile({
       settingName: JSON.parse(request.body.settingName),

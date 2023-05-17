@@ -9,6 +9,7 @@ let routes = require('./routes');
 let fileUpload = require('express-fileupload');
 let AppMain = require(global.ROOT_PATH + '/class/app-main');
 let app = express();
+let { IS_DEMO_MODE } = process.env;
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -58,7 +59,9 @@ app.use((req, res, next) => {
 });
 
 // Check auth user
-app.use(routesAuth);
+if (!IS_DEMO_MODE) {
+  app.use(routesAuth);
+}
 
 // Data api
 app.use('/api', routes);

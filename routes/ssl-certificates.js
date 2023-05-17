@@ -7,6 +7,7 @@ let SslCertificates = require(global.ROOT_PATH + '/class/ssl-certificates');
 router.put('/', async (request, response, next) => {
   let result;
   try {
+    $utils['errors'].serverMessageDemoMode();
     let sslCertificates = new SslCertificates();
     result = await sslCertificates.editSslCertificate(request.body);
   } catch (error) {

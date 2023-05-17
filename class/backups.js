@@ -76,7 +76,14 @@ class Backups {
               await $dbMain['backups'].editRecord({ backupId, report, isError: false });
             } catch (error) {
               await this.finalize();
-              await $dbMain['backups'].editRecord({ backupId, report: error, isError: true });
+              await $dbMain['backups'].editRecord({
+                backupId,
+                report: {
+                  message: error.message,
+                  name: error.name,
+                },
+                isError: true,
+              });
               console.error(error);
             }
           }, 0);
@@ -86,7 +93,14 @@ class Backups {
       });
     } catch (error) {
       await this.finalize();
-      await $dbMain['backups'].editRecord({ backupId, report: error, isError: true });
+      await $dbMain['backups'].editRecord({
+        backupId,
+        report: {
+          message: error.message,
+          name: error.name,
+        },
+        isError: true,
+      });
       console.error(error);
       throw error;
     }
