@@ -1,4 +1,5 @@
-let { validateSSLKey, validateSSLCert } = require('ssl-validator');
+let { validateSSLKey, validateSSLCert, validateCertKeyPair } = require('ssl-validator');
+
 let fse = require('fs-extra');
 let { PROXY__SSL_CERT_SITE, PROXY__SSL_KEY_SITE, PROXY__SSL_CERT_ADMIN, PROXY__SSL_KEY_ADMIN } =
   process.env;
@@ -29,6 +30,15 @@ class SslCertificates {
       $utils['errors'].validationMessage({
         path: 'privateKey',
         message: $t('Invalid SSL private key'),
+      });
+    }
+
+    try {
+      await validateCertKeyPair(cert, privateKey, { skipDateValidation: true });
+    } catch (error) {
+      $utils['errors'].validationMessage({
+        path: 'privateKey',
+        message: $t('Private key and certificate do not match'),
       });
     }
 

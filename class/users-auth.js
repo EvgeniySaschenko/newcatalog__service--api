@@ -222,7 +222,8 @@ class UsersAuth {
     }
 
     // Token expired
-    if (!this.сheckSessionExpiration({ dateEntry: user?.dateEntry })) {
+    let timeLeft = this.сheckSessionExpiration({ dateEntry: user?.dateEntry });
+    if (!timeLeft) {
       await this.logOut({ sessionId, userId, userAgent, ip, response });
 
       await $dbMain['users-auth'].createRecord({
@@ -234,6 +235,15 @@ class UsersAuth {
         type: 'refresh-log-out',
       });
       return false;
+    }
+
+    // Handling the situation when a request was sent from the user to refresh the token and the user refreshed the page at the same time, the old token will be sent in the page refresh request if the user did not manage to get the token from the previous request
+
+    if (
+      global.$config['users'].sessionMaxAge - timeLeft <
+      global.$config['users'].tokenRefreshMinTime
+    ) {
+      return true;
     }
 
     // Success - Refres session id
@@ -259,9 +269,10 @@ class UsersAuth {
 
     let dateEntryMs = new Date(dateEntry).getTime();
     let dateCurrent = new Date().getTime();
+    let difference = global.$config['users'].sessionMaxAge * 1000 - (dateCurrent - dateEntryMs);
 
-    if (dateCurrent - dateEntryMs < global.$config['users'].sessionMaxAge * 1000) {
-      return true;
+    if (difference > 0) {
+      return difference / 1000;
     }
     return false;
   }
