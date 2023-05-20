@@ -1,5 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
-let { $db } = require('./_db');
+let { $dbMainConnect } = require('./_db');
 
 // Пользователи
 let Scheme = function () {
@@ -44,11 +44,11 @@ let Scheme = function () {
   };
 };
 
-const name = 'users-auth';
+const name = 'users_auth';
 class M_UsersAuth extends Model {}
 
 M_UsersAuth.init(new Scheme(), {
-  sequelize: $db,
+  sequelize: $dbMainConnect,
   modelName: name,
 });
 

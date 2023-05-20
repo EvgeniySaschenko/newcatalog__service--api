@@ -1,6 +1,6 @@
 let { Model, DataTypes } = require('sequelize');
 let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
-let { $db } = require('./_db');
+let { $dbMainConnect } = require('./_db');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 
 let Scheme = function () {
@@ -64,7 +64,7 @@ const name = 'sites';
 class M_Sites extends Model {}
 
 M_Sites.init(new Scheme(), {
-  sequelize: $db,
+  sequelize: $dbMainConnect,
   modelName: name,
 });
 

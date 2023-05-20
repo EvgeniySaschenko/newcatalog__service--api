@@ -1,16 +1,21 @@
-let { M_Settings, name: tableName } = require('./models/settings');
+let { name: tableName } = require('./models/settings');
+let { $dbMainConnect } = require('./models/_db');
 
 module.exports = {
   tableName,
   //  Create setting
   async createSetting({ settingName, serviceType, settingValue }) {
-    let result = await M_Settings.create({ settingName, serviceType, settingValue });
+    let result = await $dbMainConnect.models['settings'].create({
+      settingName,
+      serviceType,
+      settingValue,
+    });
     return result.get({ plain: true });
   },
 
   // Edit setting (editSettingByType)
   async editSetting({ settingName, serviceType, settingValue }) {
-    let result = await M_Settings.update(
+    let result = await $dbMainConnect.models['settings'].update(
       {
         settingValue,
       },
@@ -21,7 +26,7 @@ module.exports = {
 
   // Get setting by name (getSettingByType)
   async getSettingBySettingNameAndServiceType({ settingName, serviceType }) {
-    let result = await M_Settings.findOne({
+    let result = await $dbMainConnect.models['settings'].findOne({
       where: {
         settingName,
         serviceType,
@@ -32,7 +37,7 @@ module.exports = {
 
   // Get all settings
   async getSettings() {
-    let result = await M_Settings.findAll({
+    let result = await $dbMainConnect.models['settings'].findAll({
       order: [
         ['settingName', 'DESC'],
         ['serviceType', 'DESC'],

@@ -12,13 +12,21 @@ class SitesScreenshots {
   // Start the screenshot process
   async initProccessScreenshotsCreates() {
     this.idInterval = setInterval(async () => {
-      if (!this.sites.length) {
-        this.sites = await $dbMain['sites-screenshots'].getSitesProcessingWithoutScreenshot();
-      } else {
-        if (!this.isProcessing) {
-          let { url, siteScreenshotId, siteId } = this.sites[this.sites.length - 1];
-          await this.createScreenshot({ url, siteScreenshotId, siteId });
+      try {
+        if (!this.sites.length) {
+          this.sites = await $dbMain['sites-screenshots'].getSitesProcessingWithoutScreenshot();
+        } else {
+          if (!this.isProcessing) {
+            this.isProcessing = true;
+            let { url, siteScreenshotId, siteId } = this.sites[this.sites.length - 1];
+            await this.createScreenshot({ url, siteScreenshotId, siteId });
+          }
         }
+      } catch (error) {
+        this.sites = [];
+        console.error(error);
+      } finally {
+        this.isProcessing = false;
       }
     }, global.$config['puppeteer'].timeIntervalScreenshotCreate);
   }
@@ -59,7 +67,6 @@ class SitesScreenshots {
     let page;
 
     try {
-      this.isProcessing = true;
       browser = await puppeteer.launch(global.$config['puppeteer'].launch);
       page = await browser.newPage();
       await page.setExtraHTTPHeaders(global.$config['puppeteer'].extraHTTPHeaders);
@@ -91,7 +98,6 @@ class SitesScreenshots {
       console.warn(error);
     } finally {
       this.sites.pop();
-      this.isProcessing = false;
       await browser.close();
     }
   }

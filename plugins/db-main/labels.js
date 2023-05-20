@@ -1,5 +1,5 @@
-let { M_Labels, name: tableName } = require('./models/labels');
-
+let { name: tableName } = require('./models/labels');
+let { $dbMainConnect } = require('./models/_db');
 let striptags = require('striptags');
 let { Op } = require('sequelize');
 
@@ -10,7 +10,7 @@ module.exports = {
     for (let key in name) {
       name[key] = striptags(name[key]);
     }
-    let result = await M_Labels.create({
+    let result = await $dbMainConnect.models['labels'].create({
       ratingId,
       name,
       color: striptags(color).toLocaleLowerCase(),
@@ -23,7 +23,7 @@ module.exports = {
     for (let key in name) {
       name[key] = striptags(name[key]);
     }
-    let result = await M_Labels.update(
+    let result = await $dbMainConnect.models['labels'].update(
       { name, color: striptags(color).toLocaleLowerCase() },
       { where: { labelId } }
     );
@@ -32,7 +32,7 @@ module.exports = {
 
   // Get labels rating
   async getLabelsRating({ ratingId }) {
-    let result = await M_Labels.findAll({
+    let result = await $dbMainConnect.models['labels'].findAll({
       where: {
         ratingId,
       },
@@ -43,7 +43,7 @@ module.exports = {
 
   // Get label by LabelId
   async getLabelByLabelId({ labelId }) {
-    let result = await M_Labels.findOne({
+    let result = await $dbMainConnect.models['labels'].findOne({
       where: {
         labelId,
       },
@@ -53,7 +53,7 @@ module.exports = {
 
   // Get rating label by name
   async getLabelRatingByName({ labelId = null, name, ratingId, lang }) {
-    let result = await M_Labels.findOne({
+    let result = await $dbMainConnect.models['labels'].findOne({
       attributes: ['labelId', 'name', 'color'],
       where: {
         ratingId,
@@ -68,18 +68,21 @@ module.exports = {
 
   // Вelete label
   async deleteLabel({ labelId }) {
-    return await M_Labels.destroy({ where: { labelId } });
+    return await $dbMainConnect.models['labels'].destroy({ where: { labelId } });
   },
 
   // This function can have any content - it is for tests or some kind of edits in the data meringue
   async test() {
-    let all = await M_Labels.findAll();
+    let all = await $dbMainConnect.models['labels'].findAll();
 
     for await (let item of all) {
       let ua = item.name['ua'];
       item.name['uk'] = ua;
       delete item.name['ua'];
-      await M_Labels.update({ name: item.name }, { where: { labelId: item.labelId } });
+      await $dbMainConnect.models['labels'].update(
+        { name: item.name },
+        { where: { labelId: item.labelId } }
+      );
     }
   },
 };

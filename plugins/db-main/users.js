@@ -1,28 +1,29 @@
-let { M_Users, name: tableName } = require('./models/users');
+let { name: tableName } = require('./models/users');
 const { Op } = require('sequelize');
+let { $dbMainConnect } = require('./models/_db');
 
 module.exports = {
   tableName,
   // The request checks for the presence of at least one user in the database, so as not to create a user by default
   async checkExistUsers() {
-    let result = await M_Users.findOne();
+    let result = await $dbMainConnect.models['users'].findOne();
     return result;
   },
 
   //  Create user
   async createUser({ email, password }) {
-    let result = await M_Users.create({ email, password });
+    let result = await $dbMainConnect.models['users'].create({ email, password });
     return result.get({ plain: true });
   },
 
   // Delete user
   async deleteUserByEmail({ email }) {
-    return await M_Users.destroy({ where: { email } });
+    return await $dbMainConnect.models['users'].destroy({ where: { email } });
   },
 
   // Get user by email
   async getUserByEmail({ email }) {
-    let result = await M_Users.findOne({
+    let result = await $dbMainConnect.models['users'].findOne({
       attributes: [
         'userAgent',
         'sessionId',
@@ -41,7 +42,7 @@ module.exports = {
 
   // Update user email
   async editEmail({ userId, email }) {
-    let result = await M_Users.update(
+    let result = await $dbMainConnect.models['users'].update(
       {
         email,
       },
@@ -52,7 +53,7 @@ module.exports = {
 
   // Update user password
   async editPassword({ userId, password }) {
-    let result = await M_Users.update(
+    let result = await $dbMainConnect.models['users'].update(
       {
         password,
       },
@@ -63,7 +64,7 @@ module.exports = {
 
   // Get user auth
   async getUserByUserId({ userId }) {
-    let result = await M_Users.findOne({
+    let result = await $dbMainConnect.models['users'].findOne({
       where: {
         userId,
       },
@@ -74,7 +75,7 @@ module.exports = {
 
   // Update user info if success auth
   async editUserAuth({ userId, userAgent, sessionId }) {
-    let result = await M_Users.update(
+    let result = await $dbMainConnect.models['users'].update(
       {
         sessionId,
         userAgent,
@@ -89,7 +90,7 @@ module.exports = {
 
   // Update user info log out
   async editUserLogOut({ sessionId, userId, userAgent }) {
-    let result = await M_Users.update(
+    let result = await $dbMainConnect.models['users'].update(
       {
         sessionId: null,
         userAgent: null,
@@ -103,7 +104,7 @@ module.exports = {
   },
 
   async editUsersAllLogOut() {
-    let result = await M_Users.update(
+    let result = await $dbMainConnect.models['users'].update(
       {
         sessionId: null,
         userAgent: null,
@@ -124,7 +125,7 @@ module.exports = {
 
   // Update the number of login attempts
   async editUserLoginAttempt({ userId, countLoginAttempt, dateLoginAttempt }) {
-    let result = await M_Users.update(
+    let result = await $dbMainConnect.models['users'].update(
       {
         dateLoginAttempt,
         countLoginAttempt,

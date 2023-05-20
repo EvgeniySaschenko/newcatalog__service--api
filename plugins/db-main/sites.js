@@ -1,18 +1,19 @@
 let { Op } = require('sequelize');
-let { M_Sites, name: tableName } = require('./models/sites');
+let { name: tableName } = require('./models/sites');
+let { $dbMainConnect } = require('./models/_db');
 let striptags = require('striptags');
 
 module.exports = {
   tableName,
   // Create an entry for a new sat (if such a domain has never existed before)
   async createSite({ host }) {
-    let result = await M_Sites.create({ host });
+    let result = await $dbMainConnect.models['sites'].create({ host });
     return result.get({ plain: true });
   },
 
   // Edit logo information
   async editLogoInfo({ color, siteScreenshotId, dateLogoCreate }) {
-    let result = await M_Sites.update(
+    let result = await $dbMainConnect.models['sites'].update(
       {
         siteLogoId: siteScreenshotId,
         color: color ? striptags(color).toLocaleLowerCase() : null,
@@ -25,7 +26,7 @@ module.exports = {
 
   // Edit site colors
   async editSitesColor({ siteScreenshotId, color }) {
-    let result = await M_Sites.update(
+    let result = await $dbMainConnect.models['sites'].update(
       {
         color: color ? striptags(color).toLocaleLowerCase() : null,
       },
@@ -36,7 +37,7 @@ module.exports = {
 
   // Edit screenshot information
   async editScreenshotInfo({ siteId, siteScreenshotId }) {
-    let result = await M_Sites.update(
+    let result = await $dbMainConnect.models['sites'].update(
       {
         siteScreenshotId,
       },
@@ -47,7 +48,7 @@ module.exports = {
 
   // Update image information completely
   async editImageInfo({ siteId, color, siteScreenshotId, siteLogoId, dateLogoCreate }) {
-    let result = await M_Sites.update(
+    let result = await $dbMainConnect.models['sites'].update(
       {
         color: color ? striptags(color).toLocaleLowerCase() : null,
         siteScreenshotId,
@@ -61,7 +62,7 @@ module.exports = {
 
   // Remove screenshot id, to take a new screenshot
   async removeScreenshotInfo({ siteId }) {
-    let result = await M_Sites.update(
+    let result = await $dbMainConnect.models['sites'].update(
       {
         siteScreenshotId: null,
         dateLogoCreate: null,
@@ -75,7 +76,7 @@ module.exports = {
 
   // Remove logo id, to take a new logo
   async removeLogoInfo({ siteId }) {
-    let result = await M_Sites.update(
+    let result = await $dbMainConnect.models['sites'].update(
       {
         dateLogoCreate: null,
         siteLogoId: null,
@@ -88,7 +89,7 @@ module.exports = {
 
   // Get image record by "siteId"
   async getSiteBySiteId({ siteId }) {
-    return await M_Sites.findOne({
+    return await $dbMainConnect.models['sites'].findOne({
       attributes: ['siteId', 'siteScreenshotId', 'siteLogoId', 'color', 'dateLogoCreate'],
       where: {
         siteId,
@@ -98,7 +99,7 @@ module.exports = {
 
   // Get image record by "host"
   async getSiteByHost({ host }) {
-    return await M_Sites.findOne({
+    return await $dbMainConnect.models['sites'].findOne({
       attributes: ['siteId', 'siteScreenshotId', 'siteLogoId', 'color'],
       where: {
         host,
@@ -108,7 +109,7 @@ module.exports = {
 
   // Get sites that don't have Alexa Rank (used to add Alexa Rank / domain registration date)
   async getSitesAlexaRankEmpty() {
-    return await M_Sites.findAll({
+    return await $dbMainConnect.models['sites'].findAll({
       attributes: ['siteId', 'host'],
       where: {
         alexaRank: {
@@ -121,7 +122,7 @@ module.exports = {
 
   // Edit image information
   async editDomainAndAlexaInfo({ siteId, alexaRank, dateDomainCreate }) {
-    let result = await M_Sites.update(
+    let result = await $dbMainConnect.models['sites'].update(
       {
         alexaRank,
         dateDomainCreate,
@@ -132,7 +133,7 @@ module.exports = {
   },
 
   async getSitesDateDomainCreateEmpty() {
-    return await M_Sites.findAll({
+    return await $dbMainConnect.models['sites'].findAll({
       attributes: ['siteId', 'host'],
       where: {
         dateDomainCreate: null,
