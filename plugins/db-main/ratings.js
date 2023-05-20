@@ -1,5 +1,6 @@
-let { M_Ratings, name: tableName } = require('./models/ratings');
+let { name: tableName } = require('./models/ratings');
 let { Op } = require('sequelize');
+let { $dbMainConnect } = require('./models/_db');
 
 module.exports = {
   tableName,
@@ -15,7 +16,7 @@ module.exports = {
     sectionsIds,
     isHiden,
   }) {
-    let result = await M_Ratings.create({
+    let result = await $dbMainConnect.models['ratings'].create({
       userId,
       name,
       descr,
@@ -44,7 +45,7 @@ module.exports = {
     sectionsIds,
     visitorId,
   }) {
-    let result = await M_Ratings.update(
+    let result = await $dbMainConnect.models['ratings'].update(
       {
         name,
         descr,
@@ -65,7 +66,7 @@ module.exports = {
 
   // Get rating
   async getRating({ ratingId }) {
-    let result = await M_Ratings.findOne({
+    let result = await $dbMainConnect.models['ratings'].findOne({
       where: {
         ratingId,
       },
@@ -75,13 +76,13 @@ module.exports = {
 
   // Get rating count
   async getRatingCount() {
-    let result = await M_Ratings.count({});
+    let result = await $dbMainConnect.models['ratings'].count({});
     return result;
   },
 
   // Get the number of ratings in a section
   async getRatingCountBySectionId({ sectionId }) {
-    let result = await M_Ratings.count({
+    let result = await $dbMainConnect.models['ratings'].count({
       where: {
         sectionsIds: {
           [sectionId]: sectionId,
@@ -93,7 +94,7 @@ module.exports = {
 
   // Get the number of published ratings in a section
   async getRatingPublishedCountBySectionId({ sectionId }) {
-    let result = await M_Ratings.count({
+    let result = await $dbMainConnect.models['ratings'].count({
       where: {
         sectionsIds: {
           [sectionId]: sectionId,
@@ -108,7 +109,7 @@ module.exports = {
 
   // Get all ratings
   async getRatings({ offset, limit }) {
-    let result = await M_Ratings.findAll({
+    let result = await $dbMainConnect.models['ratings'].findAll({
       order: [
         ['dateCreate', 'DESC'],
         ['dateFirstPublication', 'DESC'],
@@ -121,12 +122,12 @@ module.exports = {
 
   // Delete rating
   async deleteRating({ ratingId }) {
-    return await M_Ratings.destroy({ where: { ratingId } });
+    return await $dbMainConnect.models['ratings'].destroy({ where: { ratingId } });
   },
 
   // Set the date of the first publication (determines the sequence of output on the site)
   async editDateFirstPublication({ ratingId }) {
-    let result = await M_Ratings.update(
+    let result = await $dbMainConnect.models['ratings'].update(
       {
         dateFirstPublication: new Date(),
       },
@@ -138,7 +139,7 @@ module.exports = {
   },
   // Cache creation date
   async editCacheCreation({ ratingId, dateCacheCreation, sectionsIdsCache }) {
-    let result = await M_Ratings.update(
+    let result = await $dbMainConnect.models['ratings'].update(
       {
         dateCacheCreation,
         sectionsIdsCache,
@@ -152,13 +153,16 @@ module.exports = {
 
   // This function can have any content - it is for tests or some kind of edits in the data meringue
   async test() {
-    let all = await M_Ratings.findAll();
+    let all = await $dbMainConnect.models['ratings'].findAll();
 
     for await (let item of all) {
       let ua = item.descr['ua'];
       item.descr['uk'] = ua;
       delete item.descr['ua'];
-      await M_Ratings.update({ descr: item.descr }, { where: { ratingId: item.ratingId } });
+      await $dbMainConnect.models['ratings'].update(
+        { descr: item.descr },
+        { where: { ratingId: item.ratingId } }
+      );
     }
   },
 };

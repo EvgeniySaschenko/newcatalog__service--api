@@ -50,4 +50,4 @@ let sequelize = new Sequelize(DB_MAIN__NAME_DB, DB_MAIN__USER_DB, DB_MAIN__PASSW
   logging: false,
 });
 
-module.exports = { $db: sequelize, $tables };
+module.exports = { $dbMainConnect: sequelize, $tables };

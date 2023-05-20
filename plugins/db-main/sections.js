@@ -1,6 +1,6 @@
-let { M_Sections, name: tableName } = require('./models/sections');
+let { name: tableName } = require('./models/sections');
 let striptags = require('striptags');
-let { $t } = require(global.ROOT_PATH + '/plugins/translations');
+let { $dbMainConnect } = require('./models/_db');
 
 module.exports = {
   tableName,
@@ -9,13 +9,13 @@ module.exports = {
     for (let key in name) {
       name[key] = striptags(name[key]);
     }
-    let result = await M_Sections.create({ name });
+    let result = await $dbMainConnect.models['sections'].create({ name });
     return result.get({ plain: true });
   },
 
   // Delete section
   async deleteSection({ sectionId }) {
-    return await M_Sections.destroy({ where: { sectionId } });
+    return await $dbMainConnect.models['sections'].destroy({ where: { sectionId } });
   },
 
   // Edit section
@@ -24,13 +24,16 @@ module.exports = {
       name[key] = striptags(name[key]);
     }
 
-    let result = await M_Sections.update({ name, priority, isHiden }, { where: { sectionId } });
+    let result = await $dbMainConnect.models['sections'].update(
+      { name, priority, isHiden },
+      { where: { sectionId } }
+    );
     return result[0];
   },
 
   // Get all sections
   async getSections() {
-    let result = await M_Sections.findAll({
+    let result = await $dbMainConnect.models['sections'].findAll({
       attributes: ['sectionId', 'name', 'priority', 'isHiden', 'dateCreate'],
       order: [
         ['priority', 'DESC'],
@@ -42,7 +45,7 @@ module.exports = {
 
   // Get section by SectionId
   async getSectionBySectionId({ sectionId }) {
-    let result = await M_Sections.findOne({
+    let result = await $dbMainConnect.models['sections'].findOne({
       where: {
         sectionId,
       },
@@ -52,13 +55,16 @@ module.exports = {
 
   // This function can have any content - it is for tests or some kind of edits in the data meringue
   async test() {
-    let all = await M_Sections.findAll();
+    let all = await $dbMainConnect.models['sections'].findAll();
 
     for await (let item of all) {
       let ua = item.name['ua'];
       item.name['uk'] = ua;
       delete item.name['ua'];
-      await M_Sections.update({ name: item.name }, { where: { sectionId: item.sectionId } });
+      await $dbMainConnect.models['sections'].update(
+        { name: item.name },
+        { where: { sectionId: item.sectionId } }
+      );
     }
   },
 };

@@ -1,5 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
-let { $db } = require('./_db');
+let { $dbMainConnect } = require('./_db');
 let { $translations } = require(global.ROOT_PATH + '/plugins/translations');
 
 let Scheme = function () {
@@ -55,7 +55,7 @@ const name = 'sections';
 class M_Sections extends Model {}
 
 M_Sections.init(new Scheme(), {
-  sequelize: $db,
+  sequelize: $dbMainConnect,
   modelName: name,
 });
 

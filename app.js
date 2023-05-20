@@ -11,6 +11,11 @@ let AppMain = require(global.ROOT_PATH + '/class/app-main');
 let app = express();
 let { IS_DEMO_MODE } = process.env;
 
+process.on('uncaughtException', function (error) {
+  console.error(error);
+  process.exit(1); // terminates process
+});
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

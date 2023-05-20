@@ -1,14 +1,15 @@
-let { M_RatingsItems, name: tableName } = require('./models/ratings-items');
+let { name: tableName } = require('./models/ratings-items');
 let { M_Sites } = require('./models/sites');
 let { M_SitesScreenshots } = require('./models/sites-screenshots');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { Op } = require('sequelize');
+let { $dbMainConnect } = require('./models/_db');
 
 module.exports = {
   tableName,
   // Create item
   async createItem({ ratingId, url, siteId, name, host, labelsIds, priority, isHidden }) {
-    let result = await M_RatingsItems.create({
+    let result = await $dbMainConnect.models['ratings_items'].create({
       ratingId,
       url,
       siteId,
@@ -23,7 +24,7 @@ module.exports = {
 
   // Edit item
   async editItem({ ratingItemId, name, labelsIds, priority, isHiden }) {
-    let result = await M_RatingsItems.update(
+    let result = await $dbMainConnect.models['ratings_items'].update(
       {
         name,
         labelsIds,
@@ -37,12 +38,12 @@ module.exports = {
 
   // Delete item
   async deleteItem({ ratingItemId }) {
-    return await M_RatingsItems.destroy({ where: { ratingItemId } });
+    return await $dbMainConnect.models['ratings_items'].destroy({ where: { ratingItemId } });
   },
 
   // Get site by url and ratingId (to check for uniqueness)
   async getItemRatingByUrl({ ratingId, url }) {
-    let result = await M_RatingsItems.findOne({
+    let result = await $dbMainConnect.models['ratings_items'].findOne({
       attributes: ['ratingItemId'],
       where: {
         ratingId,
@@ -54,7 +55,7 @@ module.exports = {
 
   // Get all rating items by labelId - (Needed to check label when removed)
   async getItemsRatingByLabelId({ labelId }) {
-    let result = await M_RatingsItems.findAll({
+    let result = await $dbMainConnect.models['ratings_items'].findAll({
       attributes: ['ratingItemId', 'labelsIds'],
       where: {
         labelsIds: { [labelId]: labelId },
@@ -65,7 +66,7 @@ module.exports = {
 
   // Get item by ratingItemId
   async getItemByRatingItemId({ ratingItemId }) {
-    let result = await M_RatingsItems.findOne({
+    let result = await $dbMainConnect.models['ratings_items'].findOne({
       where: {
         ratingItemId,
       },
@@ -75,7 +76,7 @@ module.exports = {
 
   // Update labels for rating elements (used when deleting a label)
   async editItemsRatingLabel({ ratingItemId, labelsIds }) {
-    let result = await M_RatingsItems.update(
+    let result = await $dbMainConnect.models['ratings_items'].update(
       { labelsIds },
       {
         where: {
@@ -94,8 +95,8 @@ module.exports = {
 
     let order = {
       alexa: [
-        [{ model: M_Sites, as: 'site' }, 'alexaRank', 'ASC'],
         ['priority', 'DESC'],
+        [{ model: M_Sites, as: 'site' }, 'alexaRank', 'ASC'],
         ['click', 'DESC'],
         ['ratingItemId', 'ASC'],
       ],
@@ -107,7 +108,7 @@ module.exports = {
       ],
     };
 
-    let result = await M_RatingsItems.findAll({
+    let result = await $dbMainConnect.models['ratings_items'].findAll({
       attributes: [
         'ratingItemId',
         'ratingId',
@@ -177,7 +178,7 @@ module.exports = {
 
   // Get count items in rating by isHiden
   async getCountItemsRatingByIsHiden({ ratingId, isHiden }) {
-    let result = await M_RatingsItems.count({
+    let result = await $dbMainConnect.models['ratings_items'].count({
       where: {
         ratingId,
         isHiden,
@@ -188,7 +189,7 @@ module.exports = {
 
   // Get items for which there are screenshots but no logos
   async getItemsReadyScrenshotsNotLogo({ ratingId }) {
-    let result = await M_RatingsItems.findAll({
+    let result = await $dbMainConnect.models['ratings_items'].findAll({
       where: {
         ratingId: +ratingId,
       },
@@ -226,7 +227,7 @@ module.exports = {
 
   // Get items for which there are screenshots but no logos
   async getItemsScrenshotsErrors({ ratingId }) {
-    let result = await M_RatingsItems.findAll({
+    let result = await $dbMainConnect.models['ratings_items'].findAll({
       where: {
         ratingId: +ratingId,
       },
@@ -264,13 +265,13 @@ module.exports = {
 
   // This function can have any content - it is for tests or some kind of edits in the data meringue
   async test() {
-    let all = await M_RatingsItems.findAll();
+    let all = await $dbMainConnect.models['ratings_items'].findAll();
 
     for await (let item of all) {
       let ua = item.name['ua'];
       item.name['uk'] = ua;
       delete item.name['ua'];
-      await M_RatingsItems.update(
+      await $dbMainConnect.models['ratings_items'].update(
         { name: item.name },
         { where: { ratingItemId: item.ratingItemId } }
       );

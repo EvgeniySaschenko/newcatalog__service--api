@@ -1,10 +1,11 @@
-let { M_SitesScreenshots, name: tableName } = require('./models/sites-screenshots');
+let { name: tableName } = require('./models/sites-screenshots');
+let { $dbMainConnect } = require('./models/_db');
 
 module.exports = {
   tableName,
   // Add an item to the screen creation queue
   async addSiteToProcessing({ url, siteId, isUploadCustomScreenshot = false }) {
-    let result = await M_SitesScreenshots.create({
+    let result = await $dbMainConnect.models['sites_screenshots'].create({
       url,
       siteId,
       isUploadCustomScreenshot,
@@ -14,7 +15,7 @@ module.exports = {
 
   // Screenshot created
   async editScreenshotCreatedSuccess({ siteScreenshotId }) {
-    let result = await M_SitesScreenshots.update(
+    let result = await $dbMainConnect.models['sites_screenshots'].update(
       { dateScreenshotCreated: new Date() },
       {
         where: {
@@ -27,7 +28,7 @@ module.exports = {
 
   // Error entry when taking a screenshot
   async editErrorScreenshotCreate({ siteScreenshotId, errorMessage }) {
-    let result = await M_SitesScreenshots.update(
+    let result = await $dbMainConnect.models['sites_screenshots'].update(
       { dateScreenshotError: new Date(), errorMessage },
       {
         where: {
@@ -43,7 +44,7 @@ module.exports = {
     isUploadCustomScreenshot - if the value is true, then the screenshot was uploaded manually
   */
   async getSitesProcessingWithoutScreenshot() {
-    let result = await M_SitesScreenshots.findAll({
+    let result = await $dbMainConnect.models['sites_screenshots'].findAll({
       attributes: ['siteScreenshotId', 'url', 'siteId'],
       where: {
         dateScreenshotCreated: null,
@@ -51,13 +52,14 @@ module.exports = {
         isUploadCustomScreenshot: false,
       },
       order: [['dateCreate', 'DESC']],
+      limit: 10,
     });
     return result || [];
   },
 
   // Get the element that is being processed (check)
   async checkSiteProcessingBySiteId({ siteId }) {
-    let result = await M_SitesScreenshots.findOne({
+    let result = await $dbMainConnect.models['sites_screenshots'].findOne({
       where: {
         siteId,
         dateScreenshotError: null,
@@ -70,7 +72,7 @@ module.exports = {
 
   // Get screenshot by id
   async getSiteScreenshotById({ siteScreenshotId }) {
-    let result = await M_SitesScreenshots.findOne({
+    let result = await $dbMainConnect.models['sites_screenshots'].findOne({
       where: { siteScreenshotId },
     });
     return result;

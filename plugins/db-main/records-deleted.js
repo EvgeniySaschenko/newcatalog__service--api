@@ -1,10 +1,11 @@
-let { M_Records_deleted, name: tableName } = require('./models/records-deleted');
+let { name: tableName } = require('./models/records-deleted');
+let { $dbMainConnect } = require('./models/_db');
 
 module.exports = {
   tableName,
   // Add new record for delete record
   async createRecords({ tableName, tableId, tableRecord }) {
-    let result = await M_Records_deleted.create({
+    let result = await $dbMainConnect.models['records_deleted'].create({
       tableName,
       tableId,
       tableRecord,

@@ -1,16 +1,17 @@
-let { M_Translations, name: tableName } = require('./models/translations');
+let { name: tableName } = require('./models/translations');
+let { $dbMainConnect } = require('./models/_db');
 
 module.exports = {
   tableName,
   // Create translation
   async createTranslationKey({ key, serviceType }) {
-    let result = await M_Translations.create({ key, serviceType });
+    let result = await $dbMainConnect.models['translations'].create({ key, serviceType });
     return result.get({ plain: true });
   },
 
   // Get translation by key and type
   async getTranslationByKeyAndType({ key, serviceType }) {
-    return await M_Translations.findOne({
+    return await $dbMainConnect.models['translations'].findOne({
       where: {
         key,
         serviceType,
@@ -20,7 +21,7 @@ module.exports = {
 
   // Get translations count by serviceType
   async getTranslationsCountByType({ serviceType }) {
-    let result = await M_Translations.count({
+    let result = await $dbMainConnect.models['translations'].count({
       where: {
         serviceType,
       },
@@ -30,7 +31,7 @@ module.exports = {
 
   // Get translation by serviceType
   async getTranslationsByType({ serviceType, offset, limit }) {
-    let result = await M_Translations.findAll({
+    let result = await $dbMainConnect.models['translations'].findAll({
       where: {
         serviceType,
       },
@@ -43,7 +44,7 @@ module.exports = {
 
   // Update translation by id
   async editTextById({ translationId, text }) {
-    let result = await M_Translations.update(
+    let result = await $dbMainConnect.models['translations'].update(
       {
         text,
       },
@@ -54,18 +55,18 @@ module.exports = {
 
   // Delete translation by key and serviceType
   async deleteTranslationByKeyAndType({ key, serviceType }) {
-    return await M_Translations.destroy({ where: { key, serviceType } });
+    return await $dbMainConnect.models['translations'].destroy({ where: { key, serviceType } });
   },
 
   // This function can have any content - it is for tests or some kind of edits in the data meringue
   async test() {
-    let all = await M_Translations.findAll();
+    let all = await $dbMainConnect.models['translations'].findAll();
 
     for await (let item of all) {
       let ua = item.text['ua'];
       item.text['uk'] = ua;
       delete item.text['ua'];
-      await M_Translations.update(
+      await $dbMainConnect.models['translations'].update(
         { text: item.text },
         { where: { translationId: item.translationId } }
       );

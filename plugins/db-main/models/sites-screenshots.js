@@ -1,5 +1,5 @@
 let { Model, DataTypes } = require('sequelize');
-let { $db } = require('./_db');
+let { $dbMainConnect } = require('./_db');
 
 let Scheme = function () {
   return {
@@ -55,7 +55,7 @@ const name = 'sites_screenshots';
 class M_SitesScreenshots extends Model {}
 
 M_SitesScreenshots.init(new Scheme(), {
-  sequelize: $db,
+  sequelize: $dbMainConnect,
   modelName: name,
 });
 
