@@ -138,7 +138,7 @@ class RatingsItems {
       let result = await axios.get(url);
       return this.parsePageHTML(result.data);
     } catch (error) {
-      console.warn(error);
+      console.error(error);
       return {
         name: '',
         html: '',
