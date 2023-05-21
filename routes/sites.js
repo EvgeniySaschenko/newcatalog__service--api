@@ -81,6 +81,32 @@ router.post('/screenshot-custom', async (request, response, next) => {
   response.send(result);
 });
 
+// Restart screenshots create process
+router.put('/screenshots-process-restart', async (request, response, next) => {
+  let result;
+  try {
+    let sitesScreenshots = new SitesScreenshots();
+    result = await sitesScreenshots.restartProccessScreenshotsCreates();
+  } catch (error) {
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
+  }
+  response.send(result);
+});
+
+// Restart proccess sites info update
+router.put('/sites-process-restart', async (request, response, next) => {
+  let result;
+  try {
+    let sites = new Sites();
+    result = await sites.restartProccessSitesInfoUpdate(request.body);
+  } catch (error) {
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
+  }
+  response.send(result);
+});
+
 // Create logo site
 router.put('/logo-create', async (request, response, next) => {
   let result;

@@ -286,7 +286,7 @@ let $config = {
     launch: {
       args: ['--lang=en-US,en', '--no-sandbox'],
     },
-    defaultNavigationTimeout: 60000,
+    defaultNavigationTimeout: 45000,
     // Sets the interval for checking for new entries in the database or the minimum interval between screenshots.
     timeIntervalScreenshotCreate: 1000,
   },

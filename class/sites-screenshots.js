@@ -4,35 +4,37 @@ let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let sharp = require('sharp');
 let fse = require('fs-extra');
+let idIntervalProccessScreenshots = null;
+let sitesQueue = [];
 
 class SitesScreenshots {
-  isProcessing = false;
-  sites = [];
-  idInterval = null;
   // Start the screenshot process
   async initProccessScreenshotsCreates() {
-    this.idInterval = setInterval(async () => {
-      try {
-        if (!this.sites.length) {
-          this.sites = await $dbMain['sites-screenshots'].getSitesProcessingWithoutScreenshot();
-        } else {
-          if (!this.isProcessing) {
-            this.isProcessing = true;
-            let { url, siteScreenshotId, siteId } = this.sites[this.sites.length - 1];
-            await this.createScreenshot({ url, siteScreenshotId, siteId });
-          }
+    sitesQueue = [];
+    let isBlock = false;
+    idIntervalProccessScreenshots = setInterval(async () => {
+      if (isBlock) return;
+      isBlock = true;
+      if (!sitesQueue.length) {
+        try {
+          sitesQueue = await $dbMain['sites-screenshots'].getSitesProcessingWithoutScreenshot();
+        } catch (error) {
+          sitesQueue = [];
+          console.error(error);
         }
-      } catch (error) {
-        this.sites = [];
-        console.error(error);
-      } finally {
-        this.isProcessing = false;
+      } else {
+        let { url, siteScreenshotId, siteId } = sitesQueue[sitesQueue.length - 1];
+        await this.createScreenshot({ url, siteScreenshotId, siteId });
       }
+      isBlock = false;
     }, global.$config['puppeteer'].timeIntervalScreenshotCreate);
   }
 
-  stop() {
-    clearInterval(this.idInterval);
+  // Restart screenshots create process
+  async restartProccessScreenshotsCreates() {
+    clearInterval(idIntervalProccessScreenshots);
+    this.initProccessScreenshotsCreates();
+    return true;
   }
 
   // Add site to processing screenshot create
@@ -63,12 +65,11 @@ class SitesScreenshots {
 
   // Create screenshot
   async createScreenshot({ url, siteScreenshotId, siteId }) {
-    let browser;
     let page;
-
+    let puppeteerBrowser;
     try {
-      browser = await puppeteer.launch(global.$config['puppeteer'].launch);
-      page = await browser.newPage();
+      puppeteerBrowser = await puppeteer.launch(global.$config['puppeteer'].launch);
+      page = await puppeteerBrowser.newPage();
       await page.setExtraHTTPHeaders(global.$config['puppeteer'].extraHTTPHeaders);
 
       await page.setDefaultNavigationTimeout(global.$config['puppeteer'].defaultNavigationTimeout);
@@ -95,10 +96,10 @@ class SitesScreenshots {
           name: error.name,
         },
       });
-      console.warn(error);
+      console.error(error);
     } finally {
-      this.sites.pop();
-      await browser.close();
+      sitesQueue.pop();
+      await puppeteerBrowser.close();
     }
   }
 

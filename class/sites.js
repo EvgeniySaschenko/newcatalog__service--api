@@ -8,10 +8,9 @@ let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
-class Sites {
-  sitesAlexaRankEmpty = [];
-  isSitesAlexaRankProcessing = false;
+let idIntervalProccessSites = null;
 
+class Sites {
   // Get site by id
   async getSiteBySiteId({ siteId }) {
     let result = await $dbMain['sites'].getSiteBySiteId({ siteId });
@@ -210,15 +209,19 @@ class Sites {
 
   // Run a process that will update alexaRank and dateDomainCreate for sites that have alexaRank = 0
   async initProccessSitesInfoUpdate() {
-    setInterval(async () => {
+    let sitesAlexaRankEmpty = [];
+    let isBlock = false;
+
+    idIntervalProccessSites = setInterval(async () => {
+      if (isBlock) return;
+      isBlock = true;
       // Get sites
-      if (!this.sitesAlexaRankEmpty.length) {
-        this.sitesAlexaRankEmpty = await $dbMain['sites'].getSitesAlexaRankEmpty();
+      if (!sitesAlexaRankEmpty.length) {
+        sitesAlexaRankEmpty = await $dbMain['sites'].getSitesAlexaRankEmpty();
       }
 
-      if (!this.isSitesAlexaRankProcessing && this.sitesAlexaRankEmpty.length) {
-        this.isSitesAlexaRankProcessing = true;
-        let { host, siteId } = this.sitesAlexaRankEmpty[this.sitesAlexaRankEmpty.length - 1];
+      if (sitesAlexaRankEmpty.length) {
+        let { host, siteId } = sitesAlexaRankEmpty[sitesAlexaRankEmpty.length - 1];
         let alexaRank = await this.getAlexaRank(host);
         let { domain } = $utils['common'].urlInfo(host);
         let { whoisConsole, whoisApi } = await this.getWhois(domain);
@@ -229,10 +232,17 @@ class Sites {
           alexaRank,
           dateDomainCreate,
         });
-        this.sitesAlexaRankEmpty.pop();
-        this.isSitesAlexaRankProcessing = false;
+        sitesAlexaRankEmpty.pop();
       }
+      isBlock = false;
     }, global.$config['sites'].timeIntervalProcessSitesInfoUpdate);
+  }
+
+  // Restart proccess sites info update
+  restartProccessSitesInfoUpdate() {
+    clearInterval(idIntervalProccessSites);
+    this.initProccessSitesInfoUpdate();
+    return true;
   }
 
   // Get Alexa Rank
