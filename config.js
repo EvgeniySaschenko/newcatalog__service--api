@@ -119,7 +119,7 @@ let $config = {
     pageTitleSufix: {
       site: '',
     },
-    googleTagManagerId: {
+    googleTagManagerCode: {
       site: '',
     },
     backup: {
@@ -162,7 +162,7 @@ let $config = {
     footerHtml: 'footerHtml',
     pageTitlePrefix: 'pageTitlePrefix',
     pageTitleSufix: 'pageTitleSufix',
-    googleTagManagerId: 'googleTagManagerId',
+    googleTagManagerCode: 'googleTagManagerCode',
     backup: 'backup',
     protector: 'protector',
   },
