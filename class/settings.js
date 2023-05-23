@@ -97,7 +97,7 @@ class Settings {
       // oher settings
       case settingsNames.pageTitlePrefix:
       case settingsNames.pageTitleSufix:
-      case settingsNames.googleTagManagerId:
+      case settingsNames.googleTagManagerCode:
       case settingsNames.headStyles:
       case settingsNames.headScript:
       case settingsNames.headerInfoHtml:
