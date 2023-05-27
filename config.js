@@ -256,6 +256,8 @@ let $config = {
   sections: {
     nameLengthMin: 2,
     nameLengthMax: 50,
+    descrLengthMin: 0,
+    descrLengthMax: 1000,
   },
   // sites
   sites: {

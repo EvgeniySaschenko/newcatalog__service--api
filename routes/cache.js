@@ -79,7 +79,7 @@ router.post('/sections', async (request, response, next) => {
   try {
     let cache = new Cache();
     await cache.deleteCacheId();
-    result = await cache.createCacheSections();
+    result = await cache.createCacheSections(true);
     await cache.setCacheId();
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });

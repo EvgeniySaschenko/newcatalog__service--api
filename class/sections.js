@@ -1,11 +1,16 @@
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
+let striptags = require('striptags');
 
 class Sections {
   // Create section
-  async createSection({ name }) {
-    let { sectionId } = await $dbMain['sections'].createSection({ name });
+  async createSection(section = {}) {
+    for (let key in section.name) {
+      section.name[key] = striptags(section.name[key]);
+      section.descr[key] = striptags(section.descr[key]);
+    }
+    let { sectionId } = await $dbMain['sections'].createSection(section);
     return { sectionId };
   }
 
@@ -34,6 +39,10 @@ class Sections {
 
   // Edit section
   async editSection(section = {}) {
+    for (let key in section.name) {
+      section.name[key] = striptags(section.name[key]);
+      section.descr[key] = striptags(section.descr[key]);
+    }
     let result = await $dbMain['sections'].editSection(section);
     if (!result) $utils['errors'].serverMessage();
     return true;

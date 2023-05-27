@@ -1,15 +1,11 @@
 let { name: tableName } = require('./models/sections');
-let striptags = require('striptags');
 let { $dbMainConnect } = require('./models/_db');
 
 module.exports = {
   tableName,
   // Create section
-  async createSection({ name }) {
-    for (let key in name) {
-      name[key] = striptags(name[key]);
-    }
-    let result = await $dbMainConnect.models['sections'].create({ name });
+  async createSection({ name, descr, priority, isHiden }) {
+    let result = await $dbMainConnect.models['sections'].create({ name, descr, priority, isHiden });
     return result.get({ plain: true });
   },
 
@@ -19,13 +15,9 @@ module.exports = {
   },
 
   // Edit section
-  async editSection({ sectionId, name, priority = 0, isHiden }) {
-    for (let key in name) {
-      name[key] = striptags(name[key]);
-    }
-
+  async editSection({ sectionId, name, descr, priority, isHiden }) {
     let result = await $dbMainConnect.models['sections'].update(
-      { name, priority, isHiden },
+      { name, descr, priority, isHiden },
       { where: { sectionId } }
     );
     return result[0];
@@ -34,7 +26,6 @@ module.exports = {
   // Get all sections
   async getSections() {
     let result = await $dbMainConnect.models['sections'].findAll({
-      attributes: ['sectionId', 'name', 'priority', 'isHiden', 'dateCreate'],
       order: [
         ['priority', 'DESC'],
         ['dateCreate', 'DESC'],

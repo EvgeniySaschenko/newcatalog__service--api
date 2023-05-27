@@ -28,6 +28,19 @@ let Scheme = function () {
       },
       defaultValue: $translations.getLangsObject({ serviceName: serviceSite.serviceName }),
     },
+    descr: {
+      type: DataTypes.JSONB,
+      validate: {
+        checkJSON: (translations) => {
+          $translations.validateLangsObject({
+            translations,
+            lengthMin: global.$config['sections'].descrLengthMin,
+            lengthMax: global.$config['sections'].descrLengthMax,
+          });
+        },
+      },
+      defaultValue: $translations.getLangsObject({ serviceName: serviceSite.serviceName }),
+    },
     priority: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
