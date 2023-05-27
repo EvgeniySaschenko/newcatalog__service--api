@@ -55,6 +55,21 @@ class Cache {
   // Get rating related data
   async getRatingData({ ratingId }) {
     let rating = await $dbMain['ratings'].getRating({ ratingId });
+    let sections = await $dbMain['sections'].getSections();
+
+    // Checking if the section exists and that it is not hidden
+    for (let sectionId in rating.sectionsIds) {
+      let isSectinon = sections.find((el) => {
+        return !el.isHiden && el.sectionId == sectionId;
+      });
+      if (!isSectinon) {
+        delete rating.sectionsIds[sectionId];
+      }
+    }
+
+    if (!Object.keys(rating.sectionsIds).length) {
+      return false;
+    }
 
     let ratingsItems = (
       await $dbMain['ratings-items'].getItemsRating({
@@ -140,6 +155,11 @@ class Cache {
           logoImg: el.logoImg,
           hostname: el.hostname,
           color: el.color,
+          dataForAnalyzed: JSON.stringify({
+            ratingItemId: el.ratingItemId,
+            ratingId: el.ratingId,
+            siteId: el.siteId,
+          }),
         };
       }),
     });
@@ -319,7 +339,8 @@ class Cache {
   }
 
   // Create cache sections
-  async createCacheSections() {
+  // isCheckRebuildAllCache - If sections were hidden or deleted, you must transfer the entire cache
+  async createCacheSections(isCheckRebuildAllCache = false) {
     let sections = await $dbMain['sections'].getSections();
     sections = sections.filter((el) => !el.isHiden);
     for await (let item of sections) {
@@ -334,9 +355,24 @@ class Cache {
         return {
           sectionId: el.sectionId,
           name: el.name,
+          descr: el.descr,
           countRatingPublished: el.countRatingPublished,
         };
       });
+
+    if (isCheckRebuildAllCache) {
+      let cacheSections = await $dbTemporary['site'].get({
+        key: dbTemporaryPrefixes['sections'],
+      });
+      if (cacheSections) {
+        for (let item of cacheSections) {
+          let isExist = sections.find((el) => el.sectionId == item.sectionId);
+          // eslint-disable-next-line prettier/prettier
+          let message = $t('The section has been hidden or deleted, you need to rebuild the entire cache');
+          if (!isExist) $utils['errors'].serverMessage(message);
+        }
+      }
+    }
 
     await $dbTemporary['site'].add({
       key: dbTemporaryPrefixes['sections'],
