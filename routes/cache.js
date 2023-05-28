@@ -22,6 +22,7 @@ router.post('/rating/:ratingId', async (request, response, next) => {
 router.delete('/rating/:ratingId', async (request, response, next) => {
   let result = true;
   try {
+    $utils['errors'].serverMessageDemoMode();
     let cache = new Cache();
     await cache.deleteCacheId();
     result = await cache.deleteCacheRating(request.body);
@@ -57,6 +58,7 @@ router.delete('/clear-all', async (request, response, next) => {
   let result = true;
   $utils['service'].blockService();
   try {
+    $utils['errors'].serverMessageDemoMode();
     let cache = new Cache();
     result = await cache.clearCacheAll();
     // No identifier indicates no cache
