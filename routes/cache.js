@@ -39,6 +39,7 @@ router.post('/reset-all', async (request, response, next) => {
   let result = true;
   $utils['service'].blockService();
   try {
+    $utils['errors'].serverMessageDemoMode();
     let cache = new Cache();
     await cache.deleteCacheId();
     result = await cache.resetCacheAll(request.body);
@@ -94,6 +95,7 @@ router.post('/sections', async (request, response, next) => {
 router.post('/settings', async (request, response, next) => {
   let result = true;
   try {
+    $utils['errors'].serverMessageDemoMode();
     let cache = new Cache();
     await cache.deleteCacheId();
     result = await cache.createCacheSettings();
