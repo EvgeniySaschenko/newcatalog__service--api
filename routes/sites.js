@@ -85,6 +85,7 @@ router.post('/screenshot-custom', async (request, response, next) => {
 router.put('/screenshots-process-restart', async (request, response, next) => {
   let result;
   try {
+    $utils['errors'].serverMessageDemoMode();
     let sitesScreenshots = new SitesScreenshots();
     result = await sitesScreenshots.restartProccessScreenshotsCreates();
   } catch (error) {
@@ -98,6 +99,7 @@ router.put('/screenshots-process-restart', async (request, response, next) => {
 router.put('/sites-process-restart', async (request, response, next) => {
   let result;
   try {
+    $utils['errors'].serverMessageDemoMode();
     let sites = new Sites();
     result = await sites.restartProccessSitesInfoUpdate(request.body);
   } catch (error) {

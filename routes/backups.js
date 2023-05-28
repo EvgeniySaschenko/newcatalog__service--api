@@ -7,6 +7,7 @@ let Backups = require(global.ROOT_PATH + '/class/backups');
 router.post('/run', async (request, response, next) => {
   let result;
   try {
+    $utils['errors'].serverMessageDemoMode();
     let backups = new Backups();
     result = await backups.runProcessBackup();
   } catch (error) {
