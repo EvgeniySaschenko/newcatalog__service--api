@@ -22,7 +22,6 @@ router.post('/rating/:ratingId', async (request, response, next) => {
 router.delete('/rating/:ratingId', async (request, response, next) => {
   let result = true;
   try {
-    $utils['errors'].serverMessageDemoMode();
     let cache = new Cache();
     await cache.deleteCacheId();
     result = await cache.deleteCacheRating(request.body);
