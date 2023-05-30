@@ -136,11 +136,16 @@ class Ratings {
       });
     }
 
-    let tableRecord = await $dbMain['ratings'].getRating({ ratingId });
+    let rating = await $dbMain['ratings'].getRating({ ratingId });
+
+    if (rating.dateCacheCreation) {
+      $utils['errors'].serverMessage($t('Remove rating from cache'));
+    }
+
     await $dbMain['records-deleted'].createRecords({
       tableName: $dbMain['ratings'].tableName,
       tableId: ratingId,
-      tableRecord,
+      tableRecord: rating,
     });
     let result = await $dbMain['ratings'].deleteRating({ ratingId });
     if (!result) $utils['errors'].serverMessage();

@@ -77,8 +77,6 @@ router.put('/:ratingId', async (request, response, next) => {
 router.delete('/:ratingId', async (request, response, next) => {
   let result;
   try {
-    let cache = new Cache();
-    result = await cache.deleteCacheRating(request.body);
     let ratings = new Ratings();
     result = await ratings.deleteRating(request.body);
   } catch (error) {
