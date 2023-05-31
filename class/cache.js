@@ -381,6 +381,17 @@ class Cache {
     return true;
   }
 
+  // Add settings to cache on first server start
+  async initCacheSettings() {
+    let settings = await $dbTemporary['site'].get({
+      key: dbTemporaryPrefixes['settings'],
+    });
+
+    if (!settings) {
+      await this.createCacheSettings();
+    }
+  }
+
   // Create cache settings
   async createCacheSettings() {
     let { serviceName, serviceType } = global.$config['services'].site;
