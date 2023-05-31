@@ -1,5 +1,6 @@
 let SitesScreenshots = require(global.ROOT_PATH + '/class/sites-screenshots');
 let Sites = require(global.ROOT_PATH + '/class/sites');
+let Cache = require(global.ROOT_PATH + '/class/cache');
 let Users = require(global.ROOT_PATH + '/class/users');
 let UsersAuth = require(global.ROOT_PATH + '/class/users-auth');
 let Settings = require(global.ROOT_PATH + '/class/settings');
@@ -19,6 +20,9 @@ class AppMain {
     // Set translations for service api
     let translations = new Translations();
     await translations.setTranslationsListServiceApi();
+    // Add settings to cache on first server start
+    let cache = new Cache();
+    await cache.initCacheSettings();
     // Starts a process for which will create screenshots when adding sites that are not in the database
     let sitesScreenshots = new SitesScreenshots();
     await sitesScreenshots.initProccessScreenshotsCreates();
