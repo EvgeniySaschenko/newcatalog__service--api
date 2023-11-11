@@ -1,5 +1,6 @@
 let tldts = require('tldts');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
+let fse = require('fs-extra');
 
 module.exports = {
   // Get info from domain
@@ -65,7 +66,7 @@ module.exports = {
   },
 
   // Validation of an object with an id - used when adding to the database
-  validateDependencyIds: ({ ids, numberMin, numberMax }) => {
+  validateDependencyIds({ ids, numberMin, numberMax }) {
     // type
     if (typeof ids !== 'object' || Array.isArray(ids)) {
       throw Error($t('Wrong data format'));
@@ -86,5 +87,15 @@ module.exports = {
       let range = `${numberMin} - ${numberMax}`;
       throw Error(`${text} ${range}`);
     }
+  },
+
+  // For PHP
+  async createFileCacheAdmin({ filePath, data }) {
+    await fse.outputJson(`tmp/data/admin/${filePath}`, data);
+  },
+
+  // For PHP
+  async createFileCacheSite({ filePath, data }) {
+    await fse.outputJson(`tmp/data/site/${filePath}`, data);
   },
 };

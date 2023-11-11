@@ -65,6 +65,10 @@ router.put('/auth-refresh', async (request, response, next) => {
       response,
       ip,
     });
+    $utils['common'].createFileCacheAdmin({
+      filePath: `users/auth-refresh.json`,
+      data: result,
+    });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     result.status = 401;

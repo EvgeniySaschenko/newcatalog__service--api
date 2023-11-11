@@ -10,6 +10,10 @@ router.get('/', async (request, response, next) => {
   try {
     let sections = new Sections();
     result = await sections.getSections(request.params);
+    $utils['common'].createFileCacheAdmin({
+      filePath: `sections.json`,
+      data: result,
+    });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);

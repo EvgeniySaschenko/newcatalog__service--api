@@ -12,6 +12,10 @@ router.get('/rating/:ratingId', async (request, response, next) => {
     let { ratingId } = request.params;
     let ratingsItems = new RatingsItems();
     result = await ratingsItems.getItemsRating({ typeSort, ratingId });
+    $utils['common'].createFileCacheAdmin({
+      filePath: `rating/ratings-items/${ratingId}.json`,
+      data: result,
+    });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);

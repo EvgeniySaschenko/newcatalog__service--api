@@ -15,6 +15,11 @@ router.get('/', async (request, response, next) => {
       serviceType,
       page: Number(request.query.page),
     });
+
+    $utils['common'].createFileCacheAdmin({
+      filePath: `translations/${serviceName}/${request.query.page}.json`,
+      data: result,
+    });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);
@@ -32,6 +37,10 @@ router.get('/function-translate', async (request, response, next) => {
     result = await translations.getTranslationsForFunctionTranslate({
       serviceName,
       serviceType,
+    });
+    $utils['common'].createFileCacheAdmin({
+      filePath: `translations/function-translate/${serviceName}.json`,
+      data: result,
     });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
