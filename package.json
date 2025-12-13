@@ -1,6 +1,6 @@
 {
-  "name": "express-starter",
-  "version": "0.0.0",
+  "name": "service--api",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "cross-env nodemon ./bin/www",
@@ -20,9 +20,9 @@
     "langs": "^2.0.0",
     "morgan": "~1.9.1",
     "parse-whois": "^1.0.0",
-    "pg": "^8.7.1",
-    "pg-hstore": "^2.3.4",
-    "puppeteer": "^13.0.1",
+    "pg": "8.7.1",
+    "pg-hstore": "2.3.4",
+    "puppeteer": "14.3.0",
     "redis": "^4.6.4",
     "rgb2hex": "^0.2.5",
     "sequelize": "^6.12.0",
@@ -33,7 +33,8 @@
     "striptags": "^3.2.0",
     "tldts": "^5.7.105",
     "uuid": "^9.0.0",
-    "whois-json": "^2.0.4"
+    "whois": "2.15.0",
+    "whois-json": "2.0.4"
   },
   "devDependencies": {
     "eslint": "^8.33.0",
