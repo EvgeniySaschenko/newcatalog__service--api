@@ -28,10 +28,11 @@ class Translations {
     'package-lock.json': true,
     public: true,
     data: true,
-    symlinks: true,
+    services: true,
     dist: true,
     build: true,
     bin: true,
+    files: true,
     tmp: true,
     '.output': true,
   };

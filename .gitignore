@@ -2,7 +2,8 @@
 node_modules
 tmp/**/*
 !tmp/.gitkeep
-symlinks
+services
+files
 
 /tests/e2e/videos/
 /tests/e2e/screenshots/

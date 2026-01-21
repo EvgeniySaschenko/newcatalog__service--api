@@ -4,9 +4,8 @@ FROM itisfoundation/puppeteer:14-3
 #     apt-get install whois
 
 ARG WORKDIR_BASE
-ARG SERVICE
 
-WORKDIR ${WORKDIR_BASE}/${SERVICE}
+WORKDIR ${WORKDIR_BASE}
 
 # Установка пакетов
 COPY package.json package-lock.json ./

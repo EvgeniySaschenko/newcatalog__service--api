@@ -2,11 +2,15 @@ let path = require('path');
 let { v4: uuidv4 } = require('uuid');
 
 const { screenshotFileExtension, logoFileExtension } = global.$config['sites'];
-const { DB_MAIN__BACKUP_REPORT_PATH, DB_MAIN__BACKUP_IS_RUN_PATH, DB_MAIN__BACKUP_DIR } =
-  process.env;
+const {
+  DB_MAIN__BACKUP_REPORT_PATH,
+  DB_MAIN__BACKUP_IS_RUN_PATH,
+  DB_MAIN__BACKUP_DIR,
+  FILES__STORAGE_PERMANENT,
+} = process.env;
 let services = global.$config['services'];
 
-const basePathFiles = `${global.ROOT_PATH}/${services.files.serviceRootPath}`;
+const basePathFiles = `${global.ROOT_PATH}/${FILES__STORAGE_PERMANENT}`;
 const basePathDbMain = `${global.ROOT_PATH}/${services.dbMain.serviceRootPath}`;
 
 module.exports = {
