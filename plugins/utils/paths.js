@@ -6,7 +6,11 @@ const {
   DB_MAIN__BACKUP_REPORT_PATH,
   DB_MAIN__BACKUP_IS_RUN_PATH,
   DB_MAIN__BACKUP_DIR,
-  FILES__MOUNT_DIR,
+  PROXY__SSL_CERT_ADMIN,
+  PROXY__SSL_KEY_ADMIN,
+  PROXY__SSL_CERT_SITE,
+  PROXY__SSL_KEY_SITE,
+  FILES__STORAGE_MOUNT_DIR,
 } = process.env;
 let services = global.$config['services'];
 
@@ -15,19 +19,19 @@ const basePathDbMain = `${global.ROOT_PATH}/${services.dbMain.serviceRootPath}`;
 module.exports = {
   // Path images
   dirPathImages: () => {
-    return `${FILES__MOUNT_DIR}/images`;
+    return `${FILES__STORAGE_MOUNT_DIR}/images`;
   },
   // Path screenshot
   filePathScreenshot: ({ siteScreenshotId }) => {
-    return `${FILES__MOUNT_DIR}/images/site-screenshots/${siteScreenshotId}.${screenshotFileExtension}`;
+    return `${FILES__STORAGE_MOUNT_DIR}/images/site-screenshots/${siteScreenshotId}.${screenshotFileExtension}`;
   },
   // Path site logo
   filePathSiteLogo: ({ siteLogoId }) => {
-    return `${FILES__MOUNT_DIR}/images/site-logos/${siteLogoId}.${logoFileExtension}`;
+    return `${FILES__STORAGE_MOUNT_DIR}/images/site-logos/${siteLogoId}.${logoFileExtension}`;
   },
   // Path whois
   dirPathWhois: () => {
-    return `${FILES__MOUNT_DIR}/whois`;
+    return `${FILES__STORAGE_MOUNT_DIR}/whois`;
   },
   // Files whois Site info (type: api / console)
   filePathWhoisSiteInfo({ type, domain }) {
@@ -36,22 +40,22 @@ module.exports = {
 
   // File Alexa Rank sites list
   filePathAlexaRank() {
-    return `${FILES__MOUNT_DIR}/alexa-rank.csv`;
+    return `${FILES__STORAGE_MOUNT_DIR}/alexa-rank.csv`;
   },
 
   // APP IMAGES
   // - filePathApp... These functions return the path to upload images to the server
   filePathAppLogo: ({ serviceName, extension }) => {
-    return `${FILES__MOUNT_DIR}/images/app/${serviceName}/logo.${extension}`;
+    return `${FILES__STORAGE_MOUNT_DIR}/images/app/${serviceName}/logo.${extension}`;
   },
   filePathAppPreloader: ({ serviceName, extension }) => {
-    return `${FILES__MOUNT_DIR}/images/app/${serviceName}/preloader.${extension}`;
+    return `${FILES__STORAGE_MOUNT_DIR}/images/app/${serviceName}/preloader.${extension}`;
   },
   filePathAppImageDefault: ({ serviceName, extension }) => {
-    return `${FILES__MOUNT_DIR}/images/app/${serviceName}/default.${extension}`;
+    return `${FILES__STORAGE_MOUNT_DIR}/images/app/${serviceName}/default.${extension}`;
   },
   filePathAppFavicon: ({ serviceName }) => {
-    return `${FILES__MOUNT_DIR}/images/app/${serviceName}/favicon.ico`;
+    return `${FILES__STORAGE_MOUNT_DIR}/images/app/${serviceName}/favicon.ico`;
   },
 
   // DB BACKUP
@@ -110,5 +114,28 @@ module.exports = {
   filePathTmp(fileName) {
     fileName = `${uuidv4()}${path.extname(fileName) || ''}`;
     return `${global.ROOT_PATH}/tmp/${fileName}`;
+  },
+
+  // SSL certificates paths
+  sslPaths: ({ serviceName }) => {
+    let services = global.$config['services'];
+
+    switch (serviceName) {
+      case services.admin.serviceName: {
+        return {
+          cert: `${PROXY__SSL_CERT_ADMIN}`,
+          key: `${PROXY__SSL_KEY_ADMIN}`,
+        };
+      }
+      case services.site.serviceName: {
+        return {
+          cert: `${PROXY__SSL_CERT_SITE}`,
+          key: `${PROXY__SSL_KEY_SITE}`,
+        };
+      }
+      default: {
+        return null;
+      }
+    }
   },
 };

@@ -1,5 +1,4 @@
-let { ADMIN__SERVICE, SITE__SERVICE, DB_MAIN__SERVICE, PROXY__SERVICE, API__PASSWORD_SALT } =
-  process.env;
+let { ADMIN__SERVICE, SITE__SERVICE, DB_MAIN__SERVICE, API__PASSWORD_SALT } = process.env;
 
 let $config = {
   services: {
@@ -23,11 +22,6 @@ let $config = {
       serviceName: 'db-main', // DB_MAIN__NAME
       serviceType: 5,
       serviceRootPath: `services/${DB_MAIN__SERVICE}`,
-    },
-    proxy: {
-      serviceName: 'proxy', // DB_MAIN__NAME
-      serviceType: 6,
-      serviceRootPath: `services/${PROXY__SERVICE}`,
     },
   },
   // translations
