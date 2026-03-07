@@ -6,29 +6,28 @@ const {
   DB_MAIN__BACKUP_REPORT_PATH,
   DB_MAIN__BACKUP_IS_RUN_PATH,
   DB_MAIN__BACKUP_DIR,
-  FILES__STORAGE_PERMANENT,
+  FILES__MOUNT_DIR,
 } = process.env;
 let services = global.$config['services'];
 
-const basePathFiles = `${global.ROOT_PATH}/${FILES__STORAGE_PERMANENT}`;
 const basePathDbMain = `${global.ROOT_PATH}/${services.dbMain.serviceRootPath}`;
 
 module.exports = {
   // Path images
   dirPathImages: () => {
-    return `${basePathFiles}/images`;
+    return `${FILES__MOUNT_DIR}/images`;
   },
   // Path screenshot
   filePathScreenshot: ({ siteScreenshotId }) => {
-    return `${basePathFiles}/images/site-screenshots/${siteScreenshotId}.${screenshotFileExtension}`;
+    return `${FILES__MOUNT_DIR}/images/site-screenshots/${siteScreenshotId}.${screenshotFileExtension}`;
   },
   // Path site logo
   filePathSiteLogo: ({ siteLogoId }) => {
-    return `${basePathFiles}/images/site-logos/${siteLogoId}.${logoFileExtension}`;
+    return `${FILES__MOUNT_DIR}/images/site-logos/${siteLogoId}.${logoFileExtension}`;
   },
   // Path whois
   dirPathWhois: () => {
-    return `${basePathFiles}/whois`;
+    return `${FILES__MOUNT_DIR}/whois`;
   },
   // Files whois Site info (type: api / console)
   filePathWhoisSiteInfo({ type, domain }) {
@@ -37,22 +36,22 @@ module.exports = {
 
   // File Alexa Rank sites list
   filePathAlexaRank() {
-    return `${basePathFiles}/alexa-rank.csv`;
+    return `${FILES__MOUNT_DIR}/alexa-rank.csv`;
   },
 
   // APP IMAGES
   // - filePathApp... These functions return the path to upload images to the server
   filePathAppLogo: ({ serviceName, extension }) => {
-    return `${basePathFiles}/images/app/${serviceName}/logo.${extension}`;
+    return `${FILES__MOUNT_DIR}/images/app/${serviceName}/logo.${extension}`;
   },
   filePathAppPreloader: ({ serviceName, extension }) => {
-    return `${basePathFiles}/images/app/${serviceName}/preloader.${extension}`;
+    return `${FILES__MOUNT_DIR}/images/app/${serviceName}/preloader.${extension}`;
   },
   filePathAppImageDefault: ({ serviceName, extension }) => {
-    return `${basePathFiles}/images/app/${serviceName}/default.${extension}`;
+    return `${FILES__MOUNT_DIR}/images/app/${serviceName}/default.${extension}`;
   },
   filePathAppFavicon: ({ serviceName }) => {
-    return `${basePathFiles}/images/app/${serviceName}/favicon.ico`;
+    return `${FILES__MOUNT_DIR}/images/app/${serviceName}/favicon.ico`;
   },
 
   // DB BACKUP
