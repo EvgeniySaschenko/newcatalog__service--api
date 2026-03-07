@@ -3,9 +3,9 @@ FROM itisfoundation/puppeteer:14-3
 # RUN apt-get update &&\ 
 #     apt-get install whois
 
-ARG WORKDIR_BASE
+ARG APP_DIR
 
-WORKDIR ${WORKDIR_BASE}
+WORKDIR ${APP_DIR}
 
 # Установка пакетов
 COPY package.json package-lock.json ./
