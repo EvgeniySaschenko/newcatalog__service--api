@@ -3,7 +3,6 @@ let { ADMIN__SERVICE, SITE__SERVICE, API__PASSWORD_SALT } = process.env;
 let $config = {
   services: {
     api: {
-      blockingTimeMax: 3600, // sec
       serviceName: 'api', // API__NAME
       serviceType: 1,
       serviceRootPath: './',
