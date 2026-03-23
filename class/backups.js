@@ -2,9 +2,10 @@ let { $api } = require(global.ROOT_PATH + '/plugins/api');
 let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $t } = require(global.ROOT_PATH + '/plugins/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
-
+// Indicates that a backup is in progress
 let isBackupProcess = false;
-
+// The variable is needed to avoid accidentally unblocking other blockService()
+let isBlockService = false;
 class Backups {
   backupId = null;
   // Create backup
@@ -14,7 +15,7 @@ class Backups {
     }
 
     $utils['service'].blockService();
-
+    isBlockService = true;
     try {
       let { backupId, dateCreate } = await $dbMain['backups'].createRecord();
       this.backupId = backupId;
@@ -29,6 +30,7 @@ class Backups {
         name: error.name,
       };
       this.finalize({ report, isError: true });
+      throw error;
     }
   }
 
@@ -39,6 +41,7 @@ class Backups {
       switch (data.processStatus) {
         case 'send': {
           $utils['service'].unblockService();
+          isBlockService = false;
           break;
         }
         case 'completed': {
@@ -65,7 +68,10 @@ class Backups {
       isError,
     });
     isBackupProcess = false;
-    $utils['service'].unblockService();
+    if (isBlockService) {
+      $utils['service'].unblockService();
+      isBlockService = false;
+    }
   }
 
   // Get backups
