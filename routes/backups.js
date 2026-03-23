@@ -3,13 +3,13 @@ let router = express.Router();
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let Backups = require(global.ROOT_PATH + '/class/backups');
 
-// Run process backup
-router.post('/run', async (request, response, next) => {
+// Create backup
+router.post('/create', async (request, response, next) => {
   let result;
   try {
     $utils['errors'].serverMessageDemoMode();
     let backups = new Backups();
-    result = await backups.runProcessBackup();
+    result = await backups.createBackup();
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);

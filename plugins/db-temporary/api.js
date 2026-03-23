@@ -26,11 +26,6 @@ module.exports = {
     return result || null;
   },
 
-  // Add ssh keys
-  async addSshKeysPair(sshKeys) {
-    await client.set(dbTemporaryPrefixes['ssh-keys-pair'], sshKeys);
-  },
-
   // Get ssh keys
   async getSshKeysPair() {
     let result = await client.get(dbTemporaryPrefixes['ssh-keys-pair']);

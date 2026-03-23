@@ -1,4 +1,4 @@
-let { ADMIN__SERVICE, SITE__SERVICE, DB_MAIN__SERVICE, API__PASSWORD_SALT } = process.env;
+let { ADMIN__SERVICE, SITE__SERVICE, API__PASSWORD_SALT } = process.env;
 
 let $config = {
   services: {
@@ -17,11 +17,6 @@ let $config = {
       serviceName: 'site', // SITE__NAME
       serviceType: 3,
       serviceRootPath: `services/${SITE__SERVICE}`,
-    },
-    dbMain: {
-      serviceName: 'db-main', // DB_MAIN__NAME
-      serviceType: 5,
-      serviceRootPath: `services/${DB_MAIN__SERVICE}`,
     },
   },
   // translations
@@ -107,7 +102,8 @@ let $config = {
         host: '',
         username: '',
         publicKey: '',
-        publicKeyComment: 'service@newcatalog',
+        keyAlgorithmList: ['rsa', 'ed25519', 'ecdsa'],
+        keyAlgorithm: 'rsa',
         port: 22,
         remoteDir: '',
       },
