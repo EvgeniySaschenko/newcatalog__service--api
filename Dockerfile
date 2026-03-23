@@ -9,6 +9,6 @@ WORKDIR ${APP_DIR}
 
 # Установка пакетов
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm i
 
 COPY . .

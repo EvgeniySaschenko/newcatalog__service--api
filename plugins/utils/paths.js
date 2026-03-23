@@ -3,18 +3,12 @@ let { v4: uuidv4 } = require('uuid');
 
 const { screenshotFileExtension, logoFileExtension } = global.$config['sites'];
 const {
-  DB_MAIN__BACKUP_REPORT_PATH,
-  DB_MAIN__BACKUP_IS_RUN_PATH,
-  DB_MAIN__BACKUP_DIR,
   PROXY__SSL_CERT_ADMIN,
   PROXY__SSL_KEY_ADMIN,
   PROXY__SSL_CERT_SITE,
   PROXY__SSL_KEY_SITE,
   FILES__STORAGE_MOUNT_DIR,
 } = process.env;
-let services = global.$config['services'];
-
-const basePathDbMain = `${global.ROOT_PATH}/${services.dbMain.serviceRootPath}`;
 
 module.exports = {
   // Path images
@@ -58,20 +52,6 @@ module.exports = {
     return `${FILES__STORAGE_MOUNT_DIR}/images/app/${serviceName}/favicon.ico`;
   },
 
-  // DB BACKUP
-  // Path db main backup
-  dirPathDbMainBackup: () => {
-    return `${basePathDbMain}/${DB_MAIN__BACKUP_DIR}`;
-  },
-  // The file specifies whether to back up
-  filePathDbMainIsRun: () => {
-    return `${basePathDbMain}/${DB_MAIN__BACKUP_IS_RUN_PATH}`;
-  },
-  // Db main report
-  filePathDbMainReport: () => {
-    return `${basePathDbMain}/${DB_MAIN__BACKUP_REPORT_PATH}`;
-  },
-
   // PROXY
   // The path to screenshots of sites through a proxy
   fileProxyPathScreenshot: ({ siteScreenshotId }) => {
@@ -102,12 +82,6 @@ module.exports = {
   // The path to app favicon through a proxy
   fileProxyPathAppFavicon: ({ serviceName }) => {
     return `/images/app/${serviceName}/favicon.ico`;
-  },
-
-  // TMP
-  // Creates a path to a new temporary directory
-  dirPathTmpDir() {
-    return `${global.ROOT_PATH}/tmp/${uuidv4()}`;
   },
 
   // Path temporary file

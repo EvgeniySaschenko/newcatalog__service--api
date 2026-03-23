@@ -2,17 +2,18 @@ let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
 let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
 let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
-let crypto = require('crypto');
-let sshpk = require('sshpk');
-let { $dbTemporary } = require(global.ROOT_PATH + '/plugins/db-temporary');
+let { $api } = require(global.ROOT_PATH + '/plugins/api');
 let langsMap = require('langs');
-let settingsNames = global.$config['settings-names'];
 let axios = require('axios');
+let settingsNames = global.$config['settings-names'];
+
 class Settings {
   // Init settings default
   async initSettingsDefault() {
     let settings = global.$config['settings'];
     let services = global.$config['services'];
+
+    await this.checkExistenceTable();
 
     let runCreateSetting = async (servicesSetting, settingName) => {
       for await (let [serviceName, settingValue] of Object.entries(servicesSetting)) {
@@ -37,6 +38,24 @@ class Settings {
     for await (let [settingName, servicesSetting] of Object.entries(settings)) {
       await runCreateSetting(servicesSetting, settingName);
     }
+  }
+
+  // You need to wait until the database server is ready
+  async checkExistenceTable() {
+    return new Promise((resolve, reject) => {
+      let counter = 0;
+      let idInterval = setInterval(async () => {
+        counter++;
+        try {
+          await $dbMain['settings'].getSettings();
+          clearInterval(idInterval);
+          resolve();
+        } catch (error) {
+          console.log(`--> Attempts to connect: ${counter}`);
+          console.error(error);
+        }
+      }, 5000);
+    });
   }
 
   // Create setting
@@ -223,7 +242,6 @@ class Settings {
     // Errors
     let keysReference = Object.keys(settings).sort().join();
     let keysRequest = Object.keys(settingValue).sort().join();
-
     if (keysReference !== keysRequest) {
       $utils['errors'].serverMessage();
     }
@@ -242,11 +260,30 @@ class Settings {
       });
     }
 
+    // keyAlgorithm
+    if (!settings.keyAlgorithmList.includes(settingValue.keyAlgorithm)) {
+      $utils['errors'].validationMessage({
+        path: `${serviceName}--${settingsNames.backup}-keyAlgorithm`,
+        message: $t('Not valid setting'),
+      });
+    }
+    let sttingBackup = await $dbMain['settings'].getSettingBySettingNameAndServiceType({
+      settingName,
+      serviceType,
+    });
+
     // publicKey
+    let isAlgorithmChange = sttingBackup.settingValue.keyAlgorithm !== settingValue.keyAlgorithm;
+    // When changing the algorithm, delete the publicKey so that the backup service generates a new publicKey
+    if (isAlgorithmChange) {
+      settingValue.publicKey = '';
+    }
+
+    let { data } = await $api['backup'].setSettings(settingValue);
+    settingValue.publicKey = data.publicKey;
+
     if (!settingValue.publicKey) {
-      await this.generateSshKeys(settingValue.publicKeyComment);
-      let { publicKey } = await $dbTemporary['api'].getSshKeysPair();
-      settingValue.publicKey = publicKey;
+      $utils['errors'].serverMessage();
     }
 
     let reusult = await $dbMain['settings'].editSetting({
@@ -433,37 +470,6 @@ class Settings {
       settings: result,
       langsIso,
     };
-  }
-
-  // Generate ssh keys
-  async generateSshKeys(publicKeyComment) {
-    let { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
-      modulusLength: 4096,
-      publicKeyEncoding: {
-        type: 'pkcs1',
-        format: 'pem',
-      },
-      privateKeyEncoding: {
-        type: 'pkcs8',
-        format: 'pem',
-      },
-    });
-    let publicKeySsh = sshpk.parseKey(publicKey, 'pem');
-    publicKeySsh.comment = publicKeyComment;
-    publicKeySsh = publicKeySsh.toString('ssh');
-
-    let privateKeySsh = sshpk.parsePrivateKey(privateKey, 'pem').toString('ssh');
-
-    await $dbTemporary['api'].addSshKeysPair(
-      JSON.stringify({
-        publicKey: publicKeySsh,
-        privateKey: privateKeySsh,
-        pem: {
-          publicKey,
-          privateKey,
-        },
-      })
-    );
   }
 }
 
