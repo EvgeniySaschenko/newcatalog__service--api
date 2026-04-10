@@ -50,30 +50,6 @@ class AppMain {
     // If before that there was a launch in demo mode
     $utils['service'].unblockService();
   }
-
-  // Blocking access to the API using a third-party server
-  async checkProtection() {
-    let settingsNames = global.$config['settings-names'];
-    let services = global.$config['services'];
-    let setting = await $dbMain['settings'].getSettingBySettingNameAndServiceType({
-      settingName: settingsNames.protector,
-      serviceType: services.api.serviceType,
-    });
-
-    let { url, textKey } = setting.settingValue;
-    if (url) {
-      try {
-        let response = await axios.get(url);
-        if (String(response.data) !== String(textKey)) {
-          return false;
-        }
-      } catch (error) {
-        console.error(error);
-        return false;
-      }
-    }
-    return true;
-  }
 }
 
 module.exports = AppMain;

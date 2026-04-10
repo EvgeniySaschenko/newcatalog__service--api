@@ -33,18 +33,6 @@ app.use(cookieParser());
   await appMain.init();
 })();
 
-// Protection server blocked
-app.use(async (req, res, next) => {
-  let appMain = new AppMain();
-  let isAllow = await appMain.checkProtection();
-
-  if (isAllow) {
-    next();
-  } else {
-    res.sendStatus(202);
-  }
-});
-
 // Interior blocked
 app.use((req, res, next) => {
   if (!$utils['service'].checkIsServiceBlocked()) {
