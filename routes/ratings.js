@@ -11,6 +11,10 @@ router.get('/', async (request, response, next) => {
   try {
     let ratings = new Ratings();
     result = await ratings.getRatings({ page: Number(request.query.page) });
+    $utils['common'].createFileCacheAdmin({
+      filePath: `ratings/page/${request.query.page}.json`,
+      data: result,
+    });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);
@@ -25,6 +29,10 @@ router.get('/:ratingId', async (request, response, next) => {
   try {
     let ratings = new Ratings();
     result = await ratings.getRating(request.params);
+    $utils['common'].createFileCacheAdmin({
+      filePath: `ratings/${request.params.ratingId}.json`,
+      data: result,
+    });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);

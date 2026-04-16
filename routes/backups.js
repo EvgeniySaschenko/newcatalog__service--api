@@ -23,6 +23,7 @@ router.get('/', async (request, response, next) => {
   try {
     let backups = new Backups();
     result = await backups.getBackups({ page: Number(request.query.page) });
+    $utils['common'].createFileCacheAdmin({ filePath: `backups.json`, data: result });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);

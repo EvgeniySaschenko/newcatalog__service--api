@@ -9,6 +9,10 @@ router.get('/', async (request, response, next) => {
   try {
     let settings = new Settings();
     result = await settings.getSettings();
+    $utils['common'].createFileCacheAdmin({
+      filePath: `settings.json`,
+      data: result,
+    });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);

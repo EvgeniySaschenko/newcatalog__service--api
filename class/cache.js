@@ -130,49 +130,72 @@ class Cache {
   async addRatingToCache({ rating, ratingsItems, labels }) {
     let ratingId = rating.ratingId;
 
+    // rating
+    let ratingData = {
+      ratingId: rating.ratingId,
+      name: rating.name,
+      descr: rating.descr,
+      linksToSources: rating.linksToSources,
+      sectionsIds: rating.sectionsIds,
+      dateFirstPublication: rating.dateFirstPublication,
+    };
+
     await $dbTemporary['site'].add({
       key: `${dbTemporaryPrefixes['rating']}_${ratingId}`,
-      data: {
-        ratingId: rating.ratingId,
-        name: rating.name,
-        descr: rating.descr,
-        linksToSources: rating.linksToSources,
-        sectionsIds: rating.sectionsIds,
-        dateFirstPublication: rating.dateFirstPublication,
-      },
+      data: ratingData,
+    });
+
+    await $utils['common'].createFileCacheSite({
+      filePath: `${dbTemporaryPrefixes['rating']}/${ratingId}.json`,
+      data: ratingData,
+    });
+
+    // rating items
+    let ratingItemsData = ratingsItems.map((el) => {
+      return {
+        ratingItemId: el.ratingItemId,
+        ratingId: el.ratingId,
+        siteId: el.siteId,
+        url: el.url,
+        name: el.name,
+        labelsIds: Object.values(el.labelsIds),
+        logoImg: el.logoImg,
+        hostname: el.hostname,
+        color: el.color,
+        dataForAnalyzed: JSON.stringify({
+          ratingItemId: el.ratingItemId,
+          ratingId: el.ratingId,
+          siteId: el.siteId,
+        }),
+      };
     });
 
     await $dbTemporary['site'].add({
       key: `${dbTemporaryPrefixes['rating-items']}_${ratingId}`,
-      data: ratingsItems.map((el) => {
-        return {
-          ratingItemId: el.ratingItemId,
-          ratingId: el.ratingId,
-          siteId: el.siteId,
-          url: el.url,
-          name: el.name,
-          labelsIds: Object.values(el.labelsIds),
-          logoImg: el.logoImg,
-          hostname: el.hostname,
-          color: el.color,
-          dataForAnalyzed: JSON.stringify({
-            ratingItemId: el.ratingItemId,
-            ratingId: el.ratingId,
-            siteId: el.siteId,
-          }),
-        };
-      }),
+      data: ratingItemsData,
     });
 
+    await $utils['common'].createFileCacheSite({
+      filePath: `${dbTemporaryPrefixes['rating-items']}/${ratingId}.json`,
+      data: ratingItemsData,
+    });
+
+    // labels
+    let labelsData = labels.map((el) => {
+      return {
+        labelId: el.labelId,
+        color: el.color,
+        name: el.name,
+      };
+    });
     await $dbTemporary['site'].add({
       key: `${dbTemporaryPrefixes['labels']}_${ratingId}`,
-      data: labels.map((el) => {
-        return {
-          labelId: el.labelId,
-          color: el.color,
-          name: el.name,
-        };
-      }),
+      data: labelsData,
+    });
+
+    await $utils['common'].createFileCacheSite({
+      filePath: `${dbTemporaryPrefixes['labels']}/${ratingId}.json`,
+      data: labelsData,
     });
   }
 
@@ -205,6 +228,11 @@ class Cache {
       key: dbTemporaryPrefixes['ratings-list'],
       data: ratingsListIds,
     });
+
+    await $utils['common'].createFileCacheSite({
+      filePath: `${dbTemporaryPrefixes['ratings-list']}.json`,
+      data: ratingsListIds,
+    });
   }
 
   /*
@@ -233,6 +261,12 @@ class Cache {
         return b[1] - a[1];
       })
       .map((el) => el[0]);
+
+    await $utils['common'].createFileCacheSite({
+      filePath: `${dbTemporaryPrefixes['section-ratings']}/${sectionId}.json`,
+      data: sectionRatingIds,
+    });
+
     await $dbTemporary['site'].add({
       key: `${dbTemporaryPrefixes['section-ratings']}_${sectionId}`,
       data: sectionRatingIds,
@@ -378,6 +412,11 @@ class Cache {
       key: dbTemporaryPrefixes['sections'],
       data: sections,
     });
+
+    await $utils['common'].createFileCacheSite({
+      filePath: `${dbTemporaryPrefixes['sections']}.json`,
+      data: sections,
+    });
     return true;
   }
 
@@ -435,6 +474,16 @@ class Cache {
 
     await $dbTemporary['site'].add({
       key: dbTemporaryPrefixes['settings'],
+      data: settings,
+    });
+
+    await $utils['common'].createFileCacheSite({
+      filePath: `${dbTemporaryPrefixes['translations-site']}.json`,
+      data: translations,
+    });
+
+    await $utils['common'].createFileCacheSite({
+      filePath: `${dbTemporaryPrefixes['settings']}.json`,
       data: settings,
     });
 

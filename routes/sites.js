@@ -24,8 +24,11 @@ router.get('/screenshots/:ratingId', async (request, response, next) => {
   try {
     let { ratingId } = request.params;
     let sitesScreenshots = new SitesScreenshots();
-
     result = await sitesScreenshots.getItemsReadyScrenshotsNotLogo({ ratingId });
+    $utils['common'].createFileCacheAdmin({
+      filePath: `sites/screenshots/${ratingId}.json`,
+      data: result,
+    });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);
@@ -41,6 +44,10 @@ router.get('/screenshots-errors/:ratingId', async (request, response, next) => {
     let sitesScreenshots = new SitesScreenshots();
 
     result = await sitesScreenshots.getItemsScrenshotsErrors({ ratingId });
+    $utils['common'].createFileCacheAdmin({
+      filePath: `sites/screenshots-errors/${ratingId}.json`,
+      data: result,
+    });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);

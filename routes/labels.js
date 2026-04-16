@@ -9,6 +9,10 @@ router.get('/rating/:ratingId', async (request, response, next) => {
   try {
     let labels = new Labels();
     result = await labels.getLabelsRating(request.params);
+    $utils['common'].createFileCacheAdmin({
+      filePath: `rating/labels/${request.params.ratingId}.json`,
+      data: result,
+    });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);
