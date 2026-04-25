@@ -42,15 +42,6 @@ app.use((req, res, next) => {
   }
 });
 
-// Checking app readiness (Until the api server is fully ready, where the user will get status 202)
-app.use((req, res, next) => {
-  if (!$utils['service'].checkIsServiceBlocked()) {
-    next();
-  } else {
-    res.sendStatus(202);
-  }
-});
-
 // Check auth user
 if (!IS_DEMO_MODE) {
   app.use(routesAuth);

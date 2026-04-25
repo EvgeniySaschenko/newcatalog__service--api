@@ -1,37 +1,37 @@
-let { name: tableName, Scheme } = require('./models/backups');
+let { name: tableName, Scheme } = require('./models/backups-restore');
 let { $dbMainConnect } = require('./models/_db');
 
 module.exports = {
   tableName,
   // Create report
   async createRecord() {
-    let result = await $dbMainConnect.models['backups'].create();
+    let result = await $dbMainConnect.models['backups_restore'].create();
     return result.get({ plain: true });
   },
 
   // Edit report
-  async editRecord({ backupId, report, isError }) {
-    let result = await $dbMainConnect.models['backups'].update(
+  async editRecord({ backupRestoreId, report, isError }) {
+    let result = await $dbMainConnect.models['backups_restore'].update(
       {
         report,
         isError,
       },
       {
-        where: { backupId },
+        where: { backupRestoreId },
       }
     );
     return result[0];
   },
 
-  // Get backups count
+  // Get backups restore count
   async getCount() {
-    let result = await $dbMainConnect.models['backups'].count({});
+    let result = await $dbMainConnect.models['backups_restore'].count({});
     return result;
   },
 
-  // Get backups list
-  async getBackupsList({ offset, limit }) {
-    let result = await $dbMainConnect.models['backups'].findAll({
+  // Get restores list
+  async getRestoresList({ offset, limit }) {
+    let result = await $dbMainConnect.models['backups_restore'].findAll({
       order: [['dateCreate', 'DESC']],
       offset,
       limit,

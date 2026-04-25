@@ -1,0 +1,37 @@
+let { Model, DataTypes } = require('sequelize');
+let { $dbMainConnect } = require('./_db');
+
+let Scheme = function () {
+  return {
+    backupRestoreId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    isError: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    report: {
+      type: DataTypes.JSONB,
+    },
+    dateCreate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    dateUpdate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  };
+};
+
+const name = 'backups_restore';
+class M_Backups extends Model {}
+
+M_Backups.init(new Scheme(), {
+  sequelize: $dbMainConnect,
+  modelName: name,
+});
+
+module.exports = { M_Backups, Scheme, name };

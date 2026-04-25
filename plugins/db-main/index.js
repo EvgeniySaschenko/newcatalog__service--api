@@ -11,6 +11,7 @@ let $dbMain = {
   settings: require('./settings'),
   translations: require('./translations'),
   backups: require('./backups'),
+  'backups-restore': require('./backups-restore'),
 };
 
 module.exports = {
