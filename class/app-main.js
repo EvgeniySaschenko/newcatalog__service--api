@@ -6,8 +6,6 @@ let UsersAuth = require(global.ROOT_PATH + '/class/users-auth');
 let Settings = require(global.ROOT_PATH + '/class/settings');
 let Translations = require(global.ROOT_PATH + '/class/translations');
 let { $utils } = require(global.ROOT_PATH + '/plugins/utils');
-let { $dbMain } = require(global.ROOT_PATH + '/plugins/db-main');
-let axios = require('axios');
 let { IS_DEMO_MODE } = process.env;
 
 class AppMain {

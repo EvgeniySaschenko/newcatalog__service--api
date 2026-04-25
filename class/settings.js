@@ -4,7 +4,6 @@ let { $regexp } = require(global.ROOT_PATH + '/plugins/regexp');
 let { $t, $translations } = require(global.ROOT_PATH + '/plugins/translations');
 let { $api } = require(global.ROOT_PATH + '/plugins/api');
 let langsMap = require('langs');
-let axios = require('axios');
 let settingsNames = global.$config['settings-names'];
 
 class Settings {

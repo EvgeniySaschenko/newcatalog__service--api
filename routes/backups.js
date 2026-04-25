@@ -17,12 +17,39 @@ router.post('/create', async (request, response, next) => {
   response.send(result);
 });
 
+// Restore backup
+router.post('/restore', async (request, response, next) => {
+  let result;
+  try {
+    $utils['errors'].serverMessageDemoMode();
+    let backups = new Backups();
+    result = await backups.restoreBackup(request.body);
+  } catch (error) {
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
+  }
+  response.send(result);
+});
+
 // Get backups
-router.get('/', async (request, response, next) => {
+router.get('/backups-list', async (request, response, next) => {
   let result;
   try {
     let backups = new Backups();
-    result = await backups.getBackups({ page: Number(request.query.page) });
+    result = await backups.getBackupsList({ page: Number(request.query.page) });
+  } catch (error) {
+    result = $utils['errors'].createResponse({ request, error });
+    response.status(result.status);
+  }
+  response.send(result);
+});
+
+// Get backups restore
+router.get('/restores-list', async (request, response, next) => {
+  let result;
+  try {
+    let backups = new Backups();
+    result = await backups.getRestoresList({ page: Number(request.query.page) });
   } catch (error) {
     result = $utils['errors'].createResponse({ request, error });
     response.status(result.status);

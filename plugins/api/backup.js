@@ -12,9 +12,18 @@ let backup = {
     return response;
   },
 
+  // Restore backup
+  async restoreBackup({ remoteDirPath }) {
+    let url = `restore?${this.paramSekretKey}`;
+    let response = await axios.post(`${this.serverAddress}/${url}`, {
+      remoteDirPath,
+    });
+    return response;
+  },
+
   // Set settings backup SSH
   async setSettings({ host, port, username, remoteDir, publicKey, keyAlgorithm }) {
-    let url = `settings-backup-ssh?${this.paramSekretKey}`;
+    let url = `settings?${this.paramSekretKey}`;
     let response = await axios.post(`${this.serverAddress}/${url}`, {
       host,
       port,

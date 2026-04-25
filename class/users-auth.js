@@ -26,22 +26,25 @@ class UsersAuth {
     }
 
     // Trying to log in from multiple devices (if there is an exit date and it has not expired, then the user tries to log in from 2 devices)
-    if (this.сheckSessionExpiration({ dateEntry: user?.dateEntry })) {
-      await $dbMain['users-auth'].createRecord({
-        sessionId: user.sessionId,
-        userId: user.userId,
-        email,
-        ip,
-        password,
-        userAgent,
-        type: 'another-device',
-      });
+    /*
+      Commented out because when restoring from a backup, I can't log in.
+    */
+    // if (this.сheckSessionExpiration({ dateEntry: user?.dateEntry })) {
+    //   await $dbMain['users-auth'].createRecord({
+    //     sessionId: user.sessionId,
+    //     userId: user.userId,
+    //     email,
+    //     ip,
+    //     password,
+    //     userAgent,
+    //     type: 'another-device',
+    //   });
 
-      $utils['errors'].validationMessage({
-        path: 'auth',
-        message: $t('Auth error'),
-      });
-    }
+    //   $utils['errors'].validationMessage({
+    //     path: 'auth',
+    //     message: $t('Auth error'),
+    //   });
+    // }
 
     // Brute force protection
     if (user) {
